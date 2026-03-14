@@ -1,220 +1,281 @@
 import React, { useState, useEffect } from 'react';
-import { Store, Mail, Flame, Home, CloudDownload, Tag } from 'lucide-react';
+import { Store, Mail, Flame, Home, CloudDownload, Tag, Globe, Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 
-function Navbar() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [activeTab, setActiveTab] = useState('Accueil');
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Color Palette
+  const colors = {
+    primary: '#b11905', // Deep Red
+    secondary: '#690a72', // Purple
+    accent: '#ff4d4d',
+    glass: 'rgba(255, 255, 255, 0.8)',
+    text: '#1a1a1a'
+  };
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const topSectionResponsive = {
-    ...styles.topSection,
-    padding: isMobile ? '10px 15px' : '10px 60px',
-  };
-
-  const bottomNavResponsive = {
-    ...styles.bottomNav,
-    padding: isMobile ? '0 15px' : '0 60px',
-    gap: isMobile ? '20px' : '40px',
-  };
+  const navLinks = [
+    { name: 'Home', path: '/home', icon: <Home size={20} /> },
+    { name: 'Upload List', path: '/upload-list', icon: <CloudDownload size={20} /> },
+    { name: 'Activation', path: '/activation', icon: <Tag size={20} /> },
+  ];
 
   return (
-    <header style={styles.header}>
-      {/* Advanced Animations CSS */}
+    <>
       <style>{`
-        @keyframes flow {
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+        }
+
+        @keyframes pulse-glow {
+          0%, 100% { box-shadow: 0 0 10px rgba(177, 25, 5, 0.2); }
+          50% { box-shadow: 0 0 25px rgba(177, 25, 5, 0.5); }
+        }
+
+        @keyframes logo-gradient {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
 
-        .nav-link {
+        .glass-container {
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-item {
           position: relative;
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          color: #444;
           text-decoration: none;
-          color: #333;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 15px 0;
-          cursor: pointer;
-        }
-
-        /* Hover Effect: Text & Icon */
-        .nav-link:hover {
-          color: #b11905 !important;
-          transform: translateY(-2px);
-        }
-
-        /* Underline Animation */
-        .nav-link::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          width: 0;
-          height: 3px;
-          background: linear-gradient(90deg, #000, #b11905, #000);
-          transition: all 0.4s ease;
-          transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after {
-          width: 100%;
-        }
-
-        /* Active State Underline */
-        .nav-link.active::after {
-          width: 100%;
-          background: linear-gradient(90deg, #b11905, #000);
-        }
-
-        /* Logo Gradient */
-        .logo-text {
-          background: linear-gradient(90deg, #000, #b11905);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          font-weight: 800;
-        }
-
-        .utility-link {
+          font-weight: 600;
+          padding: 10px 20px;
+          border-radius: 12px;
           transition: all 0.3s ease;
           display: flex;
           align-items: center;
+          gap: 8px;
+          overflow: hidden;
+        }
+
+        .nav-item:hover {
+          color: ${colors.primary};
+          background: rgba(177, 25, 5, 0.05);
+        }
+
+        .nav-item.active {
+          color: white;
+          background: linear-gradient(135deg, ${colors.primary}, ${colors.secondary});
+          box-shadow: 0 4px 15px rgba(177, 25, 5, 0.3);
+        }
+
+        .nav-item.active svg {
+          transform: scale(1.1);
+        }
+
+        .logo-text {
+          font-weight: 900;
+          font-size: 24px;
+          background: linear-gradient(90deg, #111, ${colors.primary}, ${colors.secondary}, #111);
+          background-size: 300% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: logo-gradient 5s linear infinite;
+        }
+
+        .flame-icon {
+          animation: float 3s ease-in-out infinite;
+          filter: drop-shadow(0 0 5px ${colors.primary});
+        }
+
+        .utility-btn {
+          padding: 8px 16px;
+          border-radius: 50px;
+          border: 1px solid #eee;
+          display: flex;
+          align-items: center;
           gap: 6px;
+          font-size: 14px;
+          font-weight: 600;
           cursor: pointer;
-          color: #6b0303;
+          transition: all 0.3s ease;
+          background: white;
         }
 
-        .utility-link:hover {
-          color: #000;
-          transform: scale(1.05);
+        .utility-btn:hover {
+          border-color: ${colors.primary};
+          color: ${colors.primary};
+          transform: translateY(-2px);
         }
 
-        .lang-badge {
-          background: linear-gradient(45deg, #1a202c, #4a1111);
-          box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-          transition: transform 0.3s ease;
+        .lang-switch {
+          background: #1a1a1a;
+          color: white;
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          font-weight: 800;
+          cursor: pointer;
+          border: 2px solid transparent;
+          transition: 0.3s;
         }
 
-        .lang-badge:hover {
-          transform: rotate(5deg) scale(1.1);
+        .lang-switch:hover {
+          border-color: ${colors.primary};
+          transform: rotate(360deg);
+        }
+
+        @media (max-width: 768px) {
+          .mobile-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: rgba(255,255,255,0.9);
+            border-radius: 25px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 1001;
+          }
         }
       `}</style>
 
-      {/* --- TOP SECTION --- */}
-      <div style={topSectionResponsive}>
-        <div style={styles.logoContainer}>
-          <Flame color="#861303" size={isMobile ? 30 : 38} fill="#b11905" style={{filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'}} />
-          <span style={{ ...styles.logoText, fontSize: isMobile ? '22px' : '30px' }} className="logo-text">
-            Wise Player
-          </span>
-        </div>
+      <header style={{
+        position: 'fixed',
+        top: isScrolled ? '10px' : '0',
+        left: '0',
+        right: '0',
+        zIndex: 1000,
+        display: 'flex',
+        justifyContent: 'center',
+        padding: isScrolled ? '0 20px' : '0',
+        transition: 'all 0.4s ease'
+      }}>
+        <div className="glass-container" style={{
+          width: isScrolled ? '100%' : '100%',
+          maxWidth: '1400px',
+          height: '80px',
+          padding: '0 40px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          borderRadius: isScrolled ? '24px' : '0',
+          background: isScrolled ? 'rgba(255, 255, 255, 0.85)' : 'white',
+          boxShadow: isScrolled ? '0 20px 40px rgba(0,0,0,0.1)' : 'none',
+        }}>
 
-        <div style={{ ...styles.rightLinks, gap: isMobile ? '15px' : '30px' }}>
-          <div className="utility-link" style={{fontSize: isMobile ? '13px' : '15px', fontWeight: '600'}}>
-            <Store size={isMobile ? 18 : 20} />
-            {!isMobile && <span>Revendeur</span>}
+          {/* LOGO SECTION */}
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+            <div className="flame-icon">
+              <Flame size={35} fill={colors.primary} color={colors.primary} />
+            </div>
+            <span className="logo-text">WISE PLAYER</span>
+          </Link>
+
+          {/* DESKTOP MENU */}
+          <nav style={{ display: window.innerWidth > 768 ? 'flex' : 'none', gap: '10px' }}>
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`nav-item ${location.pathname === link.path ? 'active' : ''}`}
+              >
+                {link.icon}
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+
+          {/* RIGHT UTILITIES */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <Link
+              to="/reseller"
+              className="utility-btn"
+              style={{
+                display: window.innerWidth > 768 ? 'flex' : 'none',
+                textDecoration: 'none',
+                color: 'inherit'
+              }}
+            >
+              <Store size={18} />
+              <span>Revendeur</span>
+            </Link>
+
+            <Link
+              to="/contact"
+              className="utility-btn"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <Mail size={18} />
+              <span style={{ display: window.innerWidth > 768 ? 'block' : 'none' }}>Contact</span>
+            </Link>
+
+            <div className="lang-switch">EN</div>
+
+            {/* Mobile Menu Toggle */}
+            <div
+              style={{ display: window.innerWidth <= 768 ? 'block' : 'none', cursor: 'pointer' }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </div>
           </div>
-          <div className="utility-link" style={{fontSize: isMobile ? '13px' : '15px', fontWeight: '600'}}>
-            <Mail size={isMobile ? 18 : 20} />
-            <span>{isMobile ? 'Gmail' : 'Contact Gmail'}</span>
-          </div>
-          <div style={styles.langBadge} className="lang-badge">EN</div>
         </div>
-      </div>
+      </header>
 
-      {/* --- Animated Middle Separator --- */}
-      <div style={styles.separator} />
-
-      {/* --- BOTTOM NAVIGATION --- */}
-      <div style={bottomNavResponsive}>
-        <div
-          className={`nav-link ${activeTab === 'Accueil' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Accueil')}
-          style={activeTab === 'Accueil' ? {color: '#b11905', fontWeight: '800'} : {fontWeight: '600'}}
-        >
-          <Home size={20} />
-          <span>Home</span>
+      {/* MOBILE BOTTOM NAVIGATION (Modern App Style) */}
+      {window.innerWidth <= 768 && (
+        <div className="mobile-nav glass-container">
+          {navLinks.map((link) => (
+            <Link
+              key={link.name}
+              to={link.path}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textDecoration: 'none',
+                color: location.pathname === link.path ? colors.primary : '#666',
+                gap: '4px',
+                fontSize: '12px',
+                fontWeight: '700'
+              }}
+            >
+              <div style={{
+                padding: '8px 16px',
+                borderRadius: '15px',
+                background: location.pathname === link.path ? 'rgba(177, 25, 5, 0.1)' : 'transparent',
+                transition: '0.3s'
+              }}>
+                {link.icon}
+              </div>
+              <span>{link.name}</span>
+            </Link>
+          ))}
         </div>
+      )}
 
-        <div
-          className={`nav-link ${activeTab === 'Download' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Download')}
-          style={activeTab === 'Download' ? {color: '#b11905', fontWeight: '800'} : {fontWeight: '600'}}
-        >
-          <CloudDownload size={20} />
-          <span>Upload List</span>
-        </div>
-
-        <div
-          className={`nav-link ${activeTab === 'Activation' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Activation')}
-          style={activeTab === 'Activation' ? {color: '#b11905', fontWeight: '800'} : {fontWeight: '600'}}
-        >
-          <Tag size={20} />
-          <span>Activation</span>
-        </div>
-      </div>
-    </header>
+      {/* Spacer to prevent content from going under navbar */}
+      <div style={{ height: '100px' }}></div>
+    </>
   );
-}
-
-const styles = {
-  header: {
-    width: '100%',
-    backgroundColor: '#ffffff',
-    fontFamily: "'Inter', sans-serif",
-    boxShadow: '0 10px 30px -10px rgba(0,0,0,0.15)',
-    boxSizing: 'border-box',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-  },
-  topSection: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    background: 'white',
-  },
-  separator: {
-    height: '3px',
-    width: '100%',
-    background: 'linear-gradient(90deg, #000 0%, #b11905 50%, #000 100%)',
-    backgroundSize: '200% 100%',
-    animation: 'flow 5s linear infinite',
-  },
-  logoContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    cursor: 'pointer'
-  },
-  rightLinks: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  langBadge: {
-    color: '#fff',
-    padding: '6px 12px',
-    borderRadius: '8px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    marginLeft: '10px'
-  },
-  bottomNav: {
-    display: 'flex',
-    backgroundColor: '#fff',
-    overflowX: 'auto',
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-  },
 };
 
 export default Navbar;

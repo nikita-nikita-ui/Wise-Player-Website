@@ -1,823 +1,619 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Badge, Accordion, Navbar, Nav } from 'react-bootstrap';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Flame, Facebook, Twitter, Instagram, Linkedin,
-    ShieldCheck, FileText, Mail, Phone, Star
+    Flame, ShieldCheck, Zap, Monitor, Search,
+    Lock, List, Star, CheckCircle, Smartphone,
+    ArrowRight, Globe, Mail, Phone, Facebook, Twitter, Instagram, AlertTriangle
 } from 'lucide-react';
-import img1 from '../assets/LGG.png';
-import img2 from '../assets/LG.png';
-import img3 from '../assets/image.png';
-import img4 from '../assets/sam.png';
+import { useNavigate } from 'react-router-dom';
+// --- Typewriter Component ---
+const Typewriter = ({ texts }) => {
+    const [index, setIndex] = useState(0);
+    const [subIndex, setSubIndex] = useState(0);
+    const [reverse, setReverse] = useState(false);
+
+    useEffect(() => {
+        if (subIndex === texts[index].length + 1 && !reverse) {
+            setTimeout(() => setReverse(true), 1500);
+            return;
+        }
+        if (subIndex === 0 && reverse) {
+            setReverse(false);
+            setIndex((prev) => (prev + 1) % texts.length);
+            return;
+        }
+        const timeout = setTimeout(() => {
+            setSubIndex((prev) => prev + (reverse ? -1 : 1));
+        }, reverse ? 75 : 150);
+        return () => clearTimeout(timeout);
+    }, [subIndex, index, reverse, texts]);
+
+    return (
+        <span className="typewriter-text">
+            {texts[index].substring(0, subIndex)}
+            <span className="cursor">|</span>
+        </span>
+    );
+};
+
+// Animation Variants
+const fadeInUp = {
+    initial: { opacity: 0, y: 30 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.6 }
+};
+
+const staggerContainer = {
+    initial: {},
+    whileInView: { transition: { staggerChildren: 0.1 } }
+};
 
 const WisePlayerHome = () => {
-    const featureData = [
-        { title: "Simple interface", desc: "An easy and intuitive interface for the user." },
-        { title: "Favorite list", desc: "Create a favorite list where you can save your preferred Channels." },
-        { title: "Navigate", desc: "Switch between channels by their numbers using your remote." },
-        { title: "Search", desc: "Search for your channel/movie/series by a keyword." },
-        { title: "Sort channels", desc: "Sort your Channels alphabetically A-Z / Z-A." },
-        { title: "Parental Controls", desc: "Lock / Hide content with PIN." },
-        { title: "Multi List", desc: "You can upload up to 3 Lists and switch between them." },
-        { title: "Lock Mac", desc: "Avoid your playlist being reset by somebody else." },
-    ];
-
-    const faqData = [
-        {
-            q: "Where can I download WisePlayer from ?",
-            a: "Our application is available to download on Samsung Tizen TV store and Play Store."
-        },
-        {
-            q: "Does WisePlayer contain channels and from where can I get a playlist ?",
-            a: "No, WisePlayer is a pure MEDIA PLAYER where you can run your Playlist. In that way, we provide a player with no content of channels. In addition, application developers are not responsible for the content uploaded to WisePlayer."
-        },
-        {
-            q: "Is the app fee paid monthly ?",
-            a: "WisePlayer can be activated after a one-time fee of 162 MAD (~14.99 EUR) for each TV/device, or 65 MAD (~5.99 EUR) for 1 year. You don't need to pay any future fee as we mentioned on our website."
-        },
-        {
-            q: "How can i Lock my TV's MAC address ?",
-            a: "You can lock your MAC address in application settings by using the Lock MAC button to avoid your playlist being reset by somebody else or if you shared your MAC address with some third party."
-        },
-    ];
+    const navigate = useNavigate();
     return (
-        <>
+        <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
             <style>
                 {`
-                .home-container {
-                    min-height: 100vh;
-                    background-color: #f8f9fa;
-                    padding-top: 40px;
-                    padding-left: 60px;
-                    padding-right: 30px;
-                    font-family: sans-serif;
-                }
-
-                .content-wrapper {
-                    width: 100%;
-                    max-width: 100%; /* Full width for disclaimer and features */
-                }
-
-                .hero-title {
-                    font-size: 2rem;
-                    font-weight: 900;
-                    color: #0c1b2d;
-                    line-height: 1.1;
-                    letter-spacing: -0.025em;
-                    margin-bottom: 10px;
-                }
-
-                .brand-name { color: #72160a; }
-
-                .yellow-badge {
-                    display: inline-block;
-                    background-color: #ad1b07;
-                    color: White;
-                    font-size: 12px;
-                    font-weight: bold;
-                    padding: 4px 24px;
-                    border-radius: 2px;
-                    margin-bottom: 24px;
-                    text-transform: uppercase;
-                }
-
-                .description-section {
-                    margin-top: 32px;
-                    color: #4a5568;
-                    font-size: 1.125rem;
-                    line-height: 1.625;
-                    max-width: 896px; /* Text reading width */
-                }
-
-                .gray-disclaimer {
-                    margin-top: 40px;
-                    background-color: rgb(201, 131, 131);
-                    padding: 16px;
-                    border-radius: 6px;
-                    border-left: 4px solid #41020d;
-                    max-width: 896px;
-                }
-
-                .gray-disclaimer p { color: white; font-size: 1rem; }
-
-                /* DISCLAIMER SECTION (Pink Box) */
-                .red-section {
-                    background-color: #fee2e2;
-                    padding: 40px;
-                    margin-top: 25px;
-                    margin-bottom: 60px;
-                    width: 100%;
-                }
-
-                .red-section-inner {
-                    width: 100%;
-                    margin: 0 auto;
-                }
-
-                .grid-layout {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 40px;
-                }
-
-                @media (min-width: 768px) {
-                    .grid-layout { grid-template-columns: 1.5fr 1fr; }
-                }
-
-                /* FEATURES SECTION STYLING */
-                .features-section {
-                    padding: 60px 0;
-                    text-align: center;
-                    width: 100%;
-                }
-
-                .features-title {
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    color: #0c1b2d;
-                    margin-bottom: 5px;
-                }
-
-                .orange-bar {
-                    width: 70px;
-                    height: 4px;
-                    background-color: #ffae00;
-                    margin: 0 auto 20px;
-                }
-
-                .features-subtitle {
-                    color: #666;
-                    font-size: 1.1rem;
-                    margin-bottom: 50px;
-                }
-
-                .features-grid {
-                    display: grid;
-                    grid-template-columns: repeat(1, 1fr);
-                    gap: 20px;
-                }
-
-                @media (min-width: 768px) {
-                    .features-grid { grid-template-columns: repeat(2, 1fr); }
-                }
-
-                @media (min-width: 1024px) {
-                    .features-grid { grid-template-columns: repeat(4, 1fr); }
-                }
-
-                .feature-card {
-                    background: #ffffff;
-                    padding: 25px;
-                    border-radius: 8px;
-                    border: 1px solid #e2e8f0;
-                    text-align: left;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-                }
-
-                .card-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 12px;
-                }
-
-                .star-icon { color: #ffae00; font-size: 1.2rem; }
-
-                .card-header h3 {
-                    font-size: 1.15rem;
-                    color: #1a2b3c;
-                    margin: 0;
-                    font-weight: 700;
-                }
-
-                .feature-card p {
-                    color: #718096;
-                    font-size: 0.95rem;
-                    line-height: 1.5;
-                    margin: 0;
-                }
-
-                .bullet-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; }
-                .bullet-icon { color: #ef4444; font-weight: bold; }
-
-/* PRICING SECTION STYLING */
-                .trial-banner {
-                    background-color: rgb(225, 235, 241);
-                    padding: 50px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-top: 30px;
-                    border-radius: 4px;
-                }
-                .trial-text h2 { font-size: 2rem; color: #0c1b2d; margin: 0; }
-                .trial-text p { font-size: 1.5rem; color: #f39c12; font-weight: bold; margin: 5px 0 0 0; }
+                @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;700;800&display=swap');
                 
-                .pricing-container { padding: 60px 0; text-align: center; }
-                .pricing-title { 
-                    font-size: 2.2rem; 
-                    font-weight: 800; 
-                    display: inline-block;
-                    border-bottom: 4px solid #f39c12;
-                    margin-bottom: 50px;
-                }
-                .pricing-grid {
-                    display: flex;
-                    justify-content: center;
-                    gap: 30px;
-                    flex-wrap: wrap;
-                }
-                .price-card {
-                    background: white;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 15px;
-                    padding: 40px 30px;
-                    width: 320px;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                body { font-family: 'Inter', sans-serif; background-color: #f4f4f7; }
+                h1, h2, h3, .brand-font { font-family: 'Syncopate', sans-serif; text-transform: uppercase; letter-spacing: 3px; }
+
+                /* TV Mockup Styling */
+                .tv-frame {
+                    background: #000;
+                    padding: 12px;
+                    border-radius: 20px;
+                    box-shadow: 0 50px 100px -20px rgba(0,0,0,0.3);
+                    border: 4px solid #222;
                     position: relative;
                 }
-                .popular-badge {
-                    position: absolute;
-                    top: -15px; left: 50%;
-                    transform: translateX(-50%);
-                    background: #f39c12;
-                    color: white;
-                    padding: 5px 15px;
-                    border-radius: 20px;
-                    font-size: 0.8rem;
-                    font-weight: bold;
-                }
-                .price-card h4 { font-size: 1.4rem; margin-bottom: 20px; color: #333; }
-                .price-value { font-size: 1rem; font-weight: 900; color: #000; }
-                .price-euro { color: #666; margin: 10px 0 30px; font-size: 1.1rem; }
-                .activate-btn {
-                    background: #ffc107;
-                    border: none;
-                    padding: 15px;
-                    width: 100%;
-                    border-radius: 8px;
-                    font-weight: bold;
-                    color: #444;
-                    cursor: pointer;
-                    font-size: 1rem;
-                }
-
-                /* RESELLER SECTION STYLING */
-                .reseller-banner {
-                    background-color: #f5f5f5; /* Light gray background */
-                    padding: 40px 60px;
+                .tv-screen {
+                    background: #111;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    aspect-ratio: 16/9;
                     display: flex;
-                    justify-content: space-between;
                     align-items: center;
-                    margin-top: 20px;
-                    margin-bottom: 60px;
-                    border-radius: 4px;
+                    justify-content: center;
+                }
+                .tv-stand {
+                    width: 120px;
+                    height: 10px;
+                    background: #333;
+                    margin: 0 auto;
+                    border-bottom-left-radius: 20px;
+                    border-bottom-right-radius: 20px;
                 }
 
-                .reseller-text h2 {
-                    font-size: 1.8rem;
+                .glass-card {
+                    background: #ffffff;
+                    border: 1px solid rgba(0,0,0,0.05);
+                    border-radius: 24px;
+                    transition: all 0.4s ease;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+                }
+
+                .glass-card:hover {
+                    border-color: #ff0000;
+                    box-shadow: 0 25px 50px rgba(255, 0, 0, 0.08);
+                    transform: translateY(-8px);
+                }
+
+                .typewriter-text {
+                    color: #ff0000;
                     font-weight: 800;
-                    color: #0c1b2d;
-                    margin: 0;
                 }
 
-                .reseller-text p {
-                    font-size: 1.4rem;
-                    color: #ffae00; /* Orange color */
-                    font-weight: 700;
-                    margin: 8px 0 0 0;
+                .cursor {
+                    display: inline-block;
+                    width: 3px;
+                    background-color: #000;
+                    margin-left: 5px;
+                    animation: blink 1s infinite;
                 }
 
-                .reseller-btn {
-                    background-color: #000000; /* Black button */
-                    color: #ffffff;
+                @keyframes blink {
+                    0% { opacity: 1; }
+                    50% { opacity: 0; }
+                    100% { opacity: 1; }
+                }
+
+                .hero-section {
+                    padding: 160px 0 120px 0;
+                    background: linear-gradient(135deg, #f4f4f7 0%, #e9eaef 100%);
+                }
+
+                .btn-premium {
+                    background: #000;
                     border: none;
-                    padding: 14px 28px;
-                    border-radius: 6px;
-                    font-size: 1.05rem;
+                    padding: 16px 40px;
                     font-weight: 700;
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    cursor: pointer;
-                    transition: opacity 0.2s;
+                    border-radius: 12px;
+                    color: white;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    transition: 0.4s;
                 }
 
-                .reseller-btn:hover {
-                    opacity: 0.9;
+                .btn-premium:hover {
+                    background: #ff0000;
+                    box-shadow: 0 15px 30px rgba(255, 0, 0, 0.25);
+                    color: white;
+                    transform: scale(1.02);
                 }
 
-                /* Mobile responsiveness */
-                @media (max-width: 768px) {
-                    .reseller-banner {
-                        flex-direction: column;
-                        text-align: center;
-                        gap: 25px;
-                        padding: 30px 20px;
-                    }
+                .nav-link-custom {
+                    color: #1a1a1a !important;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    font-size: 0.8rem;
+                    margin: 0 15px;
+                    opacity: 0.7;
+                    transition: 0.3s;
                 }
 
-                /* FAQ SECTION STYLING */
-.faq-section {
-    padding-bottom: 80px;
-    width: 100%;
+                .nav-link-custom:hover { opacity: 1; color: #ff0000 !important; }
+
+                .accordion-button { background-color: #fff !important; font-weight: 700; padding: 20px; }
+                .accordion-item { border: none !important; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-radius: 15px !important; overflow: hidden; }
+                
+                ::-webkit-scrollbar { width: 10px; }
+                ::-webkit-scrollbar-track { background: #f4f4f7; }
+                ::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
+
+                .contact-link { transition: 0.3s; }
+.contact-link:hover { color: #ff0000 !important; transform: translateX(-5px); }
+.hover-red-text:hover { color: #ff0000 !important; }
+
+/* Background & Layout */
+.disclaimer-area {
+    background-color: #f1e5ec; /* Light pink tint */
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.faq-title {
-    font-size: 2.2rem;
+.disclaimer-heading {
     font-weight: 800;
-    color: #0c1b2d;
-    margin-bottom: 20px;
-    text-align: left;
+    color: #1e2749;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
 }
 
-.faq-card {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1.5fr; /* Left for Question, Right for Answer */
-    gap: 40px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #f0f0f0;
-}
-
-.faq-question {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0c1b2d;
-    line-height: 1.4;
-}
-
-.faq-answer {
-    font-size: 1rem;
-    color: #4a5568;
-    line-height: 1.6;
-}
-
-/* Mobile responsive for FAQ */
-@media (max-width: 768px) {
-    .faq-card {
-        grid-template-columns: 1fr;
-        gap: 15px;
-        padding: 20px;
-    }
-    .faq-title {
-        font-size: 1.8rem;
-    }
-}
-
-/* PREMIUM FOOTER STYLING */
-.main-footer {
-    background-color: #0a0f18; /* Deep Black/Blue */
-    color: #ffffff;
-   padding: 30px 0 0 0;
-    font-family: 'Inter', sans-serif;
-    border-top: 4px solid #2563eb; /* Top Blue Accent Bar */
-}
-
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
-    gap: 40px;
-    padding: 0 30px;
-}
-
-.footer-brand .logo-wrap {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.footer-brand p {
-    color: #94a3b8;
-    line-height: 1.6;
+.info-box p {
     font-size: 0.95rem;
+    line-height: 1.5;
+    color: #444;
 }
 
-.footer-heading {
-    color: #ffffff;
-    font-size: 1.1rem;
-    font-weight: 700;
- margin-bottom: 10px;
-     position: relative;
-}
-
-.footer-heading::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -8px;
-    width: 30px;
-    height: 2px;
-    background-color: #2563eb;
-}
-
-.footer-links-list {
+/* List Styling */
+.clean-list {
     list-style: none;
     padding: 0;
-    margin: 0;
 }
 
-.footer-links-list li {
-    margin-bottom: 12px;
-}
-
-.footer-links-list a {
-    color: #94a3b8;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
-}
-
-.footer-links-list a:hover {
-    color: #3b82f6;
-    padding-left: 5px;
-}
-
-.social-icons {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.social-btn {
-    background: #1e293b;
-    color: white;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.3s;
-    cursor: pointer;
-}
-
-.social-btn:hover {
-    background: #2563eb;
-    transform: translateY(-3px);
-}
-
-/* Bottom Strip */
-.footer-bottom {
-padding: 15px 15px; 
-    border-top: 1px solid #1e293b;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 100%;
-  
-    
-}
-
-.copyright-text {
-    color: #64748b;
+.list-point {
     font-size: 0.9rem;
-}
-
-.legal-links {
-    display: flex;
-    gap: 25px;
-}
-
-.legal-item {
+    color: #333;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: #94a3b8;
-    font-size: 0.85rem;
-    text-decoration: none;
-    transition: 0.3s;
 }
 
-.legal-item:hover {
-    color: #ffffff;
+/* Hover Effect */
+.list-point:hover {
+    background: #ffffff;
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    color: #e91e63; /* Pink highlight on hover */
 }
 
-/* Mobile Responsive */
-@media (max-width: 992px) {
-    .footer-content {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.arrow {
+    color: #ff5252;
+    margin-right: 12px;
+    font-size: 12px;
 }
 
-@media (max-width: 600px) {
-    .footer-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-    .footer-heading::after {
-        left: 50%;
-        transform: translateX(-50%);
-    }
-    .footer-bottom {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-    .social-icons {
-        justify-content: center;
-    }
-}
-    .hero-main-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 40px;
-}
-.hero-flex-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 40px;
-    margin-bottom: 20px;
-}
-    .hero-flex-layout {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; 
-    gap: 30px;
-    margin-top: 10px; 
-    width: 100%;
-}
-.hero-image-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columns mein dikhegi */
-    gap: 0; /* Images ke beech ka gap */
-    width: 100%;
-    max-width: 300px; /* Grid ki total width yahan se control hogi */
-    flex-shrink: 0;
-}
-.hero-text-side {
-    flex: 1;
-}
-.hero-image-grid img {
-    width: 90%; 
-    height: 120px; 
-    object-fit: cover; 
-    background: #fff; 
-    padding: 0px;
-    margin: 0;
-    border-radius:0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+/* Animations */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-@media (max-width: 768px) {
-    .hero-image-grid {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 100%;
-        margin-top: 20px;
-    }
-          .hero-image-grid img {
-        height: 80px; /* Mobile par thodi choti height */
-    }
-
-.hero-text-content {
-    flex: 1; /* Left side text area */
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-.hero-image-content {
-    flex: 1; /* Right side image area */
-    display: flex;
-    justify-content: flex-end;
+@keyframes slideRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
-.hero-image-content img {
-    max-width: 80%;
-    height: auto;
-    border-radius: 8px;
-}
-
-/* Mobile par image ko wapas niche laane ke liye */
-@media (max-width: 1024px) {
-    .hero-flex-container {
-        flex-direction: column;
-    }
-}
-      `}
-
-
+.animate-up { animation: slideUp 0.8s ease-out; }
+.animate-left { animation: slideLeft 1s ease-out; }
+.animate-right { animation: slideRight 1s ease-out; }
+                `}
             </style>
 
-            <div className="home-container">
-                <div className="content-wrapper">
-                    {/* Hero Section */}
-                    <div className="hero-flex-layout">
 
-                        <div className="hero-text-side">
-                            <h1 className="hero-title">
-                                Your best Media Player <br />
-                                <span className="brand-name">WisePlayer</span>
-                            </h1>
 
-                            <div className="yellow-badge">MEDIA PLAYER, NO CHANNELS INCLUDED</div>
-
-                            <div className="description-section">
-                                <p>Experience ultimate entertainment with WisePlayer, your go-to application for enjoying playlists.</p>
-                                <p>Download WisePlayer now from the Roku Store, LG TV Store, and Samsung TV Store!</p>
-                            </div>
-                            <div className="gray-disclaimer">
-                                <p>No channels are included in the application. We are not responsible for the content.</p>
-                            </div>
-                        </div>
-
-                        <div className="hero-image-content">
-                            <div className="hero-image-grid">
-                            <img src={img1} alt="LG Store" />
-                            <img src={img2} alt="LGG Preview" />
-                            <img src={img3} alt="Samsung Store" />
-                            <img src={img4} alt="TV Preview" />
-                        </div>
-                    </div>
-                     </div>
-                    {/* Disclaimer Pink Section */}
-                    <div className="red-section">
-                        <div className="red-section-inner">
-                            <h2 style={{ fontSize: '1rem', color: '#032241', marginBottom: '20px' }}>DISCLAIMER</h2>
-                            <div className="grid-layout">
-                                <div style={{ color: '#1a2b3c', lineHeight: '1.6' }}>
-                                    <p>We have identified unauthorized websites replicating our platform... we are <b>not affiliated with us</b>.</p>
-                                    <p>Our company operates <b>solely as a media player application</b>.</p>
-                                </div>
-                                <div>
-                                    {[
-                                        "WisePlayer does not provide content.",
-                                        "No connections with third-party providers.",
-                                        "Users supply their own content.",
-                                        "No sale of IPTV subscriptions."
-                                    ].map((item, i) => (
-                                        <div key={i} className="bullet-item">
-                                            <span className="bullet-icon">›</span>
-                                            <p style={{ margin: 0, fontSize: '0.95rem' }}>{item}</p>
+            {/* --- HERO SECTION --- */}
+            <section className="hero-section">
+                <Container>
+                    <Row className="align-items-center">
+                        <Col lg={6} className="text-center text-lg-start">
+                            <motion.div initial="initial" animate="whileInView" variants={staggerContainer}>
+                                <motion.div variants={fadeInUp}>
+                                    <Badge className="mb-4 px-3 py-2 text-dark" style={{ background: 'rgba(0,0,0,0.05)', borderRadius: '100px', fontWeight: '700' }}>
+                                        <span className="text-danger">●</span> SYSTEM ONLINE V2.0
+                                    </Badge>
+                                </motion.div>
+                                <motion.h1 variants={fadeInUp} className="display-4 fw-bold mb-4" style={{ color: '#000', lineHeight: 1.2 }}>
+                                    The Future is <br />
+                                    <Typewriter texts={["Ultra Fast", "Crystal Clear", "Wise Player"]} />
+                                </motion.h1>
+                                <motion.p variants={fadeInUp} className="lead mb-5 opacity-75" style={{ fontWeight: '400', maxWidth: '500px' }}>
+                                    Experience premium media playback with zero buffering. Optimized for all high-end Smart TVs.
+                                </motion.p>
+                                <motion.div variants={fadeInUp} className="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
+                                    <Button className="btn-premium">7 Days Free Trial</Button>
+                                    <Button variant="outline-dark" className="px-4 py-3 border-2 fw-bold" style={{ borderRadius: '12px' }}>Tutorial</Button>
+                                </motion.div>
+                            </motion.div>
+                        </Col>
+                        <Col lg={6} className="mt-5 mt-lg-0">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 1, type: 'spring' }}
+                                className="px-3"
+                            >
+                                <div className="tv-frame">
+                                    <div className="tv-screen">
+                                        {/* Better Mockup Image */}
+                                        <img
+                                            src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop"
+                                            alt="WisePlayer UI"
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8 }}
+                                        />
+                                        <div style={{ position: 'absolute', color: 'white', textAlign: 'center' }}>
+                                            <Flame size={60} color="#ff0000" fill="#ff0000" className="mb-2" />
+                                            <h4 className="brand-font mb-0">WISE PLAYER</h4>
+                                            <p className="small opacity-50">Ready to Stream</p>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* FEATURES SECTION START */}
-                    <div className="features-section">
-                        <h2 className="features-title">Features</h2>
-                        <div className="orange-bar"></div>
-                        <p className="features-subtitle">The latest version of WisePlayer comes with a lot of stunning features :</p>
-
-                        <div className="features-grid">
-                            {featureData.map((feature, index) => (
-                                <div key={index} className="feature-card">
-                                    <div className="card-header">
-                                        <span className="star-icon">★</span>
-                                        <h3>{feature.title}</h3>
                                     </div>
-                                    <p>{feature.desc}</p>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                    {/* FEATURES SECTION END */}
+                                <div className="tv-stand"></div>
+                            </motion.div>
+                        </Col>
+                    </Row>
+                </Container>
+            </section>
 
-                    {/* TRIAL & PRICING SECTION START */}
-                    <div className="trial-banner">
-                        <div className="trial-text">
-                            <h2>Ready to dive in?</h2>
-                            <p>Start your free 30 day trial today.</p>
+            <section class="disclaimer-area py-4">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-12 mb-3 animate-up">
+                            <h2 class="disclaimer-heading">DISCLAIMER</h2>
                         </div>
-                        <div className="logo-placeholder">
-                            <h2 style={{ margin: 0, color: '#000' }}>🔥 Wise<br />Player</h2>
-                        </div>
-                    </div>
 
-                    <div className="pricing-container">
-                        <h2 className="pricing-title">Pricing plans</h2>
-                        <div className="pricing-grid">
-                            {/* 1 Year Plan */}
-                            <div className="price-card">
-                                <div className="popular-badge">MOST POPULAR</div>
-                                <h4>1 Year</h4>
-                                <div className="price-value">65.00 MAD <span style={{ fontSize: '1rem', color: '#666' }}>/year</span></div>
-                                <p className="price-euro">~ 5.99 € <span style={{ fontSize: '0.8rem' }}>/year</span></p>
-                                <button className="activate-btn">Activate 1 Year</button>
-                            </div>
-
-                            {/* Forever Plan */}
-                            <div className="price-card">
-                                <h4>Forever</h4>
-                                <div className="price-value">162.00 MAD <span style={{ fontSize: '1rem', color: '#666' }}>/once</span></div>
-                                <p className="price-euro">~ 14.99 € <span style={{ fontSize: '0.8rem' }}>/once</span></p>
-                                <button className="activate-btn">Activate Forever</button>
-                            </div>
-                        </div>
-                    </div>
-                    {/* TRIAL & PRICING SECTION END */}
-
-                    <div className="reseller-banner">
-                        <div className="reseller-text">
-                            <h2>Do you want to become a Reseller ?</h2>
-                            <p>Discover our packs with exceptional discounts !</p>
-                        </div>
-                        <button className="reseller-btn">
-                            <span style={{ fontSize: '1.2rem' }}>🏪</span>
-                            Discover our packs
-                        </button>
-                    </div>
-                    {/* RESELLER SECTION END */}
-
-                    {/* FAQ SECTION START */}
-                    <div className="faq-section">
-                        <h2 className="faq-title">Frequently asked questions</h2>
-                        <div className="faq-list">
-                            {faqData.map((faq, index) => (
-                                <div key={index} className="faq-card">
-                                    <div className="faq-question">{faq.q}</div>
-                                    <div className="faq-answer">{faq.a}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* --- ATTRACTIVE FOOTER START --- */}
-                    <footer className="main-footer">
-                        <div className="footer-content">
-                            {/* Brand Section */}
-                            <div className="footer-brand">
-                                <div className="logo-wrap">
-                                    <Flame color="#3b82f6" size={32} fill="#2563eb" />
-                                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
-                                        Wise<span style={{ color: '#2563eb' }}>Player</span>
-                                    </h2>
-                                </div>
-                                <p>
-                                    Ultimate Media Player experience for your smart devices.
-                                    We provide the best interface to manage and enjoy your content
-                                    globally with high performance.
+                        <div class="col-lg-5 mb-4 animate-left">
+                            <div class="info-box">
+                                <p class="text-muted">
+                                    <strong>Wiseplayer</strong> is an independent media player application. We are not affiliated with unauthorized websites using our brand to sell IPTV services. We do not provide, host, or sell any media content, subscriptions, or channel packages.
                                 </p>
-                                <div className="social-icons">
-                                    <div className="social-btn"><Facebook size={18} /></div>
-                                    <div className="social-btn"><Twitter size={18} /></div>
-                                    <div className="social-btn"><Instagram size={18} /></div>
-                                    <div className="social-btn"><Linkedin size={18} /></div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7 animate-right">
+                            <ul class="clean-list">
+                                <li class="list-point">
+                                    <span class="arrow">➤</span>
+                                    Wiseplayer does not generate or provide any audiovisual content to users.
+                                </li>
+                                <li class="list-point">
+                                    <span class="arrow">➤</span>
+                                    We have no official connection with any third-party content providers.
+                                </li>
+                                <li class="list-point">
+                                    <span class="arrow">➤</span>
+                                    Users are solely responsible for providing their own media and playlists.
+                                </li>
+                                <li class="list-point">
+                                    <span class="arrow">➤</span>
+                                    We strictly do not engage in the sale or distribution of IPTV subscriptions.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- FEATURES --- */}
+            <section className="py-5">
+                <Container>
+                    <div className="text-center mb-5">
+                        <h6 className="text-danger fw-bold letter-spacing-2">ELITE ENGINE</h6>
+                        <h2 className="fw-bold">Designed for Performance</h2>
+                    </div>
+                    <Row>
+                        {[
+                            { icon: <Zap />, title: "Hyper Speed", desc: "Optimized C++ engine for lightning fast loading." },
+                            { icon: <ShieldCheck />, title: "Secure Stream", desc: "Encrypted playlist handling for your privacy." },
+                            { icon: <Monitor />, title: "4K Native", desc: "True 4K & 8K resolution support for OLED screens." }
+                        ].map((item, i) => (
+                            <Col md={4} key={i} className="mb-4">
+                                <motion.div variants={fadeInUp} initial="initial" whileInView="whileInView" className="glass-card p-5 text-center h-100">
+                                    <div className="mb-4" style={{ color: '#ff0000' }}>{item.icon}</div>
+                                    <h5 className="fw-bold mb-3">{item.title}</h5>
+                                    <p className="text-muted small mb-0">{item.desc}</p>
+                                </motion.div>
+                            </Col>
+                        ))}
+                    </Row>
+                </Container>
+            </section>
+
+            {/* --- CTA SECTION (Hot Player) --- */}
+            <section className="py-5 overflow-hidden">
+                <Container>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 p-md-5 rounded-4 shadow-sm border d-flex flex-column flex-md-row align-items-center justify-content-between position-relative overflow-hidden"
+                        style={{
+                            background: 'linear-gradient(90deg, #fff5f5 0%, #ffffff 50%, #fff0f6 100%)',
+                            borderColor: '#ffccd5',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        {/* Background Decorative Glow */}
+                        <div className="position-absolute top-0 end-0 p-5 opacity-10" style={{ backgroundColor: '#ff0000', filter: 'blur(80px)', borderRadius: '50%', width: '200px', height: '200px' }}></div>
+
+                        <div className="text-center text-md-start mb-4 mb-md-0">
+                            <motion.h2
+                                initial={{ x: -20 }}
+                                whileInView={{ x: 0 }}
+                                className="fw-bold mb-2"
+                                style={{ color: '#2d3436' }}
+                            >
+                                Ready to dive in?
+                            </motion.h2>
+                            <motion.h4
+                                initial={{ x: -20 }}
+                                whileInView={{ x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="fw-bold"
+                                style={{ color: '#ff4d6d' }} // Pinkish Red
+                            >
+                                Start your free 7 day trial today.
+                            </motion.h4>
+                        </div>
+
+                        <motion.div
+                            className="d-flex align-items-center"
+                            whileHover={{ rotate: [0, -5, 5, 0] }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            {/* Flame Icon */}
+                            <div className="me-3">
+                                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.6569 16.6569C16.7202 17.5935 15.4202 18.1569 14 18.1569C12.5798 18.1569 11.2798 17.5935 10.3431 16.6569C9.40645 15.7202 8.84308 14.4202 8.84308 13C8.84308 11.5798 9.40645 10.2798 10.3431 9.34315C11.2798 8.40645 12.5798 7.84308 14 7.84308C15.4202 7.84308 16.7202 8.40645 17.6569 9.34315M17.6569 16.6569C18.5935 15.7202 19.1569 14.4202 19.1569 13C19.1569 11.5798 18.5935 10.2798 17.6569 9.34315M17.6569 16.6569L21 20M17.6569 9.34315L21 6" stroke="#ff4d6d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M12 2C12 2 11 5 8 8C5 11 5 15 5 15C5 18.866 8.13401 22 12 22C15.866 22 19 18.866 19 15C19 11 15 8 12 2Z" fill="url(#paint0_linear)" />
+                                    <defs>
+                                        <linearGradient id="paint0_linear" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                                            <stop stopColor="#ff0000" />
+                                            <stop offset="1" stopColor="#ff4d6d" />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <div className="lh-1">
+                                <span className="d-block fs-3 fw-light" style={{ color: '#636e72', letterSpacing: '1px' }}>Wise</span>
+                                <span className="d-block fs-2 fw-bold" style={{ color: '#000' }}>Player</span>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </Container>
+            </section>
+
+            {/* --- PRICING --- */}
+            <section className="py-5" style={{ background: '#ebecee' }}>
+                <Container>
+                    <Row className="justify-content-center">
+                        <Col lg={4} md={6} className="mb-4">
+                            <Card className="glass-card p-5 border-0 h-100">
+                                <h5 className="fw-bold">Standard</h5>
+                                <h2 className="display-5 fw-bold my-4">€ 5.99</h2>
+                                <p className="text-muted small mb-4">Perfect for a single device for one full year of updates.</p>
+                                <div className="mb-5">
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>1 Year Access</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>Email Support</span></div>
+                                </div>
+                                <Button variant="outline-dark" className="w-100 py-3 fw-bold rounded-3">Get Started</Button>
+                            </Card>
+                        </Col>
+                        <Col lg={4} md={6} className="mb-4">
+                            <Card className="glass-card p-5 border-0 h-100 text-white" style={{ background: '#000' }}>
+                                <Badge bg="danger" className="mb-3 w-50">LIFETIME</Badge>
+                                <h5 className="fw-bold">Premium Pro</h5>
+                                <h2 className="display-5 fw-bold my-4">€ 14.99</h2>
+                                <p className="text-white-50 small mb-4">The ultimate choice. Pay once, use forever on your device.</p>
+                                <div className="mb-5">
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>Permanent License</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>Priority Updates</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>24/7 Support</span></div>
+                                </div>
+                                <Button className="btn-premium w-100 py-3">Activate Lifetime</Button>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+            </section>
+
+            {/* --- FAQ --- */}
+            <Container className="py-5 my-5">
+                <Row className="justify-content-center">
+                    <Col lg={8}>
+                        <h2 className="text-center fw-bold mb-5">Frequently Asked</h2>
+                        <Accordion flush>
+                            <Accordion.Item eventKey="0">
+                                <Accordion.Header>How to get my MAC address?</Accordion.Header>
+                                <Accordion.Body>
+                                    Open the WisePlayer app on your TV, go to "Settings" or "Info", and your unique MAC address will be displayed there.
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="1">
+                                <Accordion.Header>Can I transfer my license?</Accordion.Header>
+                                <Accordion.Body>
+                                    Licenses are tied to the device's MAC address. For Lifetime Pro users, we offer a one-time transfer in case of TV replacement.
+                                </Accordion.Body>
+                            </Accordion.Item>
+                        </Accordion>
+
+                        {/* --- ANIMATION BOX AFTER QUESTIONS --- */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                            className="mt-5 p-4 glass-card"
+                            style={{
+                                background: 'linear-gradient(180deg, #ffffff 0%, #f9f9fb 100%)',
+                                borderRadius: '24px',
+                                overflow: 'hidden',
+                                border: '1px solid rgba(0,0,0,0.05)'
+                            }}
+                        >
+                            <div className="row align-items-center">
+                                {/* <Col md={7} className="text-center text-md-start mb-4 mb-md-0">
+            <h4 className="fw-bold mb-3" style={{ color: '#000' }}>Still have questions?</h4>
+            <p className="text-muted mb-4">Join thousands of users who are already enjoying the best streaming experience </p>
+            <Button variant="dark" className="px-4 py-2 rounded-3 shadow-sm">Contact Support</Button>
+        </Col> */}
+
+
+                            </div>
+                        </motion.div>
+                    </Col>
+                </Row>
+            </Container>
+
+            {/* --- FOOTER --- */}
+            {/* --- FOOTER --- */}
+            <footer className="py-5" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                <Container>
+                    <Row className="gy-5 justify-content-between">
+                        {/* 1. BRAND SECTION */}
+                        <Col lg={5} md={12}>
+                            <div className="mb-4">
+                                <h4 className="fw-bold brand-font d-flex align-items-center mb-3">
+                                    <Flame color="#ff0000" fill="#ff0000" className="me-2" size={28} />
+                                    WISEPLAYER
+                                </h4>
+                                <p className="text-muted pe-lg-5" style={{ lineHeight: '1.6', fontSize: '0.95rem' }}>
+                                    WisePlayer does not provide any media content. Users must provide their own playlists.
+                                    We are a tool for professional media playback designed for the ultimate experience.
+                                </p>
+                            </div>
+                        </Col>
+
+                        {/* 2. SUPPORT SECTION */}
+                        <Col lg={4} md={7}>
+                            <h6 className="fw-bold mb-4 text-uppercase" style={{ letterSpacing: '1px', fontSize: '0.85rem' }}>Support</h6>
+                            <div className="d-flex flex-column gap-3">
+
+                                {/* Reseller Row */}
+                                <div className="pb-2 border-bottom border-light">
+                                    <div className="d-flex justify-content-between align-items-center mb-1">
+                                        <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>OFFICIAL RESELLER</span>
+                                        <a href="https://wa.me/212755015558" target="_blank" rel="noreferrer"
+                                            className="text-decoration-none text-dark fw-bold small d-flex align-items-center contact-link">
+                                            <Phone size={14} className="me-2 text-success" /> +212 755-015558
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {/* Support Row */}
+                                <div className="pb-2 border-bottom border-light">
+                                    <div className="d-flex justify-content-between align-items-center mb-1">
+                                        <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>CUSTOMER SUPPORT</span>
+                                        <a href="https://wa.me/212777754774" target="_blank" rel="noreferrer"
+                                            className="text-decoration-none text-dark fw-bold small d-flex align-items-center contact-link">
+                                            <Phone size={14} className="me-2 text-success" /> +212 777-754774
+                                        </a>
+                                    </div>
+                                </div>
+
+                                {/* Policy Links */}
+                                <div className="d-flex gap-4 mt-2">
+                                    <a href="#" className="text-decoration-none text-muted small hover-red-text fw-semibold">Privacy Policy</a>
+                                    <a href="#" className="text-decoration-none text-muted small hover-red-text fw-semibold">Refund Policy</a>
                                 </div>
                             </div>
+                        </Col>
 
-                            {/* Quick Links */}
-                            <div>
-                                <h3 className="footer-heading">Quick Links</h3>
-                                <ul className="footer-links-list">
-                                    <li><a href="#">Home Page</a></li>
-                                    <li><a href="#">Download List</a></li>
-                                    <li><a href="#">Activation</a></li>
-                                    <li><a href="#">Become a Reseller</a></li>
-                                </ul>
+                        {/* 3. SOCIAL SECTION */}
+                        {/* 3. SOCIAL SECTION */}
+                        <Col lg={2} md={5} className="text-center text-lg-end">
+                            {/* wrapper div taaki text icons ke upar center rahe */}
+                            <div className="d-inline-block text-center">
+                                <h6 className="fw-bold mb-4 text-uppercase" style={{ letterSpacing: '1px', fontSize: '0.85rem' }}>
+                                    Social
+                                </h6>
+                                <div className="d-flex gap-3 justify-content-center">
+                                    <a href="#" className="social-icon-wrapper">
+                                        <Instagram size={20} />
+                                    </a>
+                                    <a href="#" className="social-icon-wrapper">
+                                        <Twitter size={20} />
+                                    </a>
+                                </div>
                             </div>
+                        </Col>
+                    </Row>
 
-                            {/* Support Section */}
-                            <div>
-                                <h3 className="footer-heading">Support</h3>
-                                <ul className="footer-links-list">
-                                    <li><a href="#">Help Center</a></li>
-                                    <li><a href="#">FAQ's</a></li>
-                                    <li><a href="#">Tutorials</a></li>
-                                    <li><a href="#">Device Setup</a></li>
-                                </ul>
-                            </div>
+                    <hr className="my-5 opacity-10" />
 
-                            {/* Contact Info */}
-                            <div>
-                                <h3 className="footer-heading">Contact Us</h3>
-                                <ul className="footer-links-list">
-                                    <li style={{ display: 'flex', gap: '10px', color: '#94a3b8', fontSize: '0.95rem' }}>
-                                        <Mail size={18} color="#2563eb" /> support@wiseplayer.com
-                                    </li>
-                                    <li style={{ display: 'flex', gap: '10px', color: '#94a3b8', fontSize: '0.95rem', marginTop: '15px' }}>
-                                        <Phone size={18} color="#2563eb" /> +1 234 567 890
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div className="text-center text-muted small fw-bold" style={{ letterSpacing: '2px' }}>
+                        © 2026 WISEPLAYER — BEYOND THE SCREEN.
+                    </div>
+                </Container>
 
-                        {/* Bottom Legal Strip */}
-                        <div className="footer-bottom">
-                            <div className="copyright-text">
-                                © 2021 / 2026 <span style={{ color: '#fff', fontWeight: '600' }}>WisePlayer</span> - All rights reserved.
-                            </div>
-
-                            <div className="legal-links">
-                                <a href="#" className="legal-item">
-                                    <FileText size={16} /> Terms of online sale
-                                </a>
-                                <a href="#" className="legal-item">
-                                    <ShieldCheck size={16} /> Privacy policy
-                                </a>
-                            </div>
-                        </div>
-                    </footer>
-                    {/* --- ATTRACTIVE FOOTER END --- */}
-                </div>
-            </div>
-        </>
+                {/* Footer Icons ke liye extra CSS */}
+                <style>{`
+        .social-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #f4f4f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .social-icon-wrapper:hover {
+            background: #000;
+            color: #fff;
+            transform: translateY(-3px);
+        }
+        .contact-link:hover {
+            color: #ff0000 !important;
+        }
+    `}</style>
+            </footer>
+        </div>
     );
 };
 
