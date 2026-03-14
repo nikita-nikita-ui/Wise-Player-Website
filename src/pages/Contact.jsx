@@ -199,7 +199,7 @@ const ContactUs = () => {
             </div>
             <div>
               <h4 className="font-bold text-slate-900">Message Sent!</h4>
-              <p className="text-sm text-slate-500">We'll get back to you soon.</p>
+              <p className="text-sm text-slate-500">We'll gets back to you soon.</p>
             </div>
           </motion.div>
         )}
