@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Upload, FileText, Globe, Send, Mail, User, 
-  MessageSquare, ShieldCheck, Headphones, CheckCircle2 
+import {
+  Upload, FileText, Globe, Send, Mail, User,
+  MessageSquare, ShieldCheck, Headphones, CheckCircle2
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
 const ContactUs = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current.click();
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
@@ -21,13 +27,13 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex flex-col items-center justify-center p-6 font-sans relative overflow-hidden">
-      
+
       {/* Background Aesthetic Bubbles - No Black! */}
       <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-red-100/50 blur-[120px] rounded-full" />
       <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-50/50 blur-[100px] rounded-full" />
 
       {/* Header Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="text-center z-10 mb-12"
@@ -43,7 +49,7 @@ const ContactUs = () => {
         </p>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -52,27 +58,31 @@ const ContactUs = () => {
         {/* Left Side: Feature Cards */}
         <div className="lg:col-span-4 space-y-4">
           {[
-            { icon: <Headphones className="text-red-600" />, title: "24/7 Support", desc: "Our team is always online." },
-            { icon: <ShieldCheck className="text-red-600" />, title: "Secure Encrypted", desc: "Your data is safe with us." },
-            { icon: <Mail className="text-red-600" />, title: "Fast Response", desc: "Usually replies in 2 hours." }
-          ].map((item, index) => (
-            <motion.div 
-              key={index}
-              whileHover={{ x: 10 }}
-              className="bg-white p-6 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-slate-100 flex items-start gap-4"
-            >
-              <div className="p-3 bg-red-50 rounded-xl">{item.icon}</div>
-              <div>
-                <h3 className="font-bold text-slate-900">{item.title}</h3>
-                <p className="text-sm text-slate-500">{item.desc}</p>
-              </div>
-            </motion.div>
-          ))}
+            { icon: <Headphones className="text-red-600" />, title: "24/7 Support", desc: "Our team is always online.", link: "/twentyfoursvn" },
+            {
+              icon: <ShieldCheck className="text-red-600" />,
+              title: "Secure Encrypted",
+              desc: "Your data is safe with us.",
+              link: "/security"
+            },].map((item, index) => (
+              <motion.div
+                key={index}
+                whileHover={{ x: 10 }}
+                onClick={() => item.link && navigate(item.link)}
+                className="bg-white p-6 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-slate-100 flex items-start gap-4 cursor-pointer" // cursor-pointer bhi add kiya
+              >
+                <div className="p-3 bg-red-50 rounded-xl">{item.icon}</div>
+                <div>
+                  <h3 className="font-bold text-slate-900">{item.title}</h3>
+                  <p className="text-sm text-slate-500">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
 
           {/* Special Branding Card */}
           <div className="bg-gradient-to-br from-red-600 to-red-700 p-8 rounded-3xl shadow-xl shadow-red-200 mt-6 relative overflow-hidden group">
             <Globe className="absolute -right-10 -bottom-10 text-white/10 group-hover:rotate-12 transition-transform duration-700" size={200} />
-            <h3 className="text-white text-2xl font-bold relative z-10 italic">HotPlayer</h3>
+            <h3 className="text-white text-2xl font-bold relative z-10 italic">WisePlayer</h3>
             <p className="text-red-50 relative z-10 mt-2 text-sm">Elevate your streaming experience with our premium services.</p>
             <button className="relative z-10 mt-6 bg-white text-red-600 px-6 py-2 rounded-full text-xs font-bold uppercase hover:bg-red-50 transition-colors">
               Visit Website
@@ -81,25 +91,25 @@ const ContactUs = () => {
         </div>
 
         {/* Right Side: The Form */}
-        <motion.div 
+        <motion.div
           className="lg:col-span-8 bg-white/80 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.05)]"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">First Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Steve"
-                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 focus:ring-4 focus:ring-red-400/10 rounded-2xl p-4 outline-none transition-all placeholder:text-slate-300" 
+                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 focus:ring-4 focus:ring-red-400/10 rounded-2xl p-4 outline-none transition-all placeholder:text-slate-300"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Last Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Jobs"
-                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 focus:ring-4 focus:ring-red-400/10 rounded-2xl p-4 outline-none transition-all placeholder:text-slate-300" 
+                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 focus:ring-4 focus:ring-red-400/10 rounded-2xl p-4 outline-none transition-all placeholder:text-slate-300"
                 />
               </div>
             </div>
@@ -108,22 +118,22 @@ const ContactUs = () => {
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
-                <input 
+                <input
                   required
-                  type="email" 
+                  type="email"
                   placeholder="hello@example.com"
-                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 focus:ring-4 focus:ring-red-400/10 rounded-2xl py-4 pl-12 pr-4 outline-none transition-all" 
+                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 focus:ring-4 focus:ring-red-400/10 rounded-2xl py-4 pl-12 pr-4 outline-none transition-all"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">MAC Address</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="00:00:00:00:00"
-                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 rounded-2xl p-4 outline-none transition-all font-mono text-sm" 
+                  className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 rounded-2xl p-4 outline-none transition-all font-mono text-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -138,8 +148,8 @@ const ContactUs = () => {
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Message Detail</label>
-              <textarea 
-                rows="4"
+              <textarea
+                rows="3"
                 placeholder="How can we help you today?"
                 className="w-full bg-slate-50/50 border border-slate-200 focus:border-red-400 rounded-2xl p-4 outline-none transition-all resize-none"
               ></textarea>
@@ -147,11 +157,21 @@ const ContactUs = () => {
 
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Attachments</label>
-              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-red-300 hover:bg-red-50/30 transition-all group">
-                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Upload className="text-slate-400 group-hover:text-red-500" size={20} />
+
+              {/* Hidden Input Field */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                onChange={(e) => console.log(e.target.files[0])}
+              />
+
+              {/* Clickable Area */}
+              <div onClick={handleUploadClick} className="border-2 border-dashed border-slate-200 rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer hover:border-red-300 hover:bg-red-50/30 transition-all group">
+                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Upload className="text-slate-400 group-hover:text-red-500" size={18} />
                 </div>
-                <p className="mt-3 text-sm font-medium text-slate-600">Drop your files here or <span className="text-red-600">Browse</span></p>
+                <p className="mt-1 text-sm font-medium text-slate-600">Drop your files here or <span className="text-red-600">Browse</span></p>
                 <p className="text-[10px] text-slate-400 mt-1 uppercase">Images or Videos (Max 5MB)</p>
               </div>
             </div>
@@ -159,7 +179,7 @@ const ContactUs = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-slate-900 hover:bg-red-600 text-white font-bold py-5 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 tracking-widest uppercase text-sm"
+              className="w-full bg-slate-900 hover:bg-red-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg flex items-center justify-center gap-3 tracking-widest uppercase text-sm"
             >
               Submit Ticket <Send size={18} />
             </motion.button>
@@ -168,7 +188,7 @@ const ContactUs = () => {
       </motion.div>
 
       {/* Footer */}
-      <motion.footer 
+      <motion.footer
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
@@ -188,7 +208,7 @@ const ContactUs = () => {
       {/* Success Popup */}
       <AnimatePresence>
         {isSubmitted && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}

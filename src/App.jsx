@@ -13,6 +13,8 @@ import Login from './pages/login';
 import ContactUs from './pages/Contact';
 import Registersuccess from './pages/ragistersuccess';
 import PlaylistManager from './pages/UploadPlaylist';
+import TwentyFourSvn from './pages/twentyfoursvn';
+import Privacy from './pages/secure';
 const Navigation = () => {
   const location = useLocation();
 
@@ -33,7 +35,7 @@ function App() {
 
       <Routes>
         {/* Main Routes */}
-        <Route path="/" element={<ResellerPage />} />
+        <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/upload-list" element={<WiseplayerUpload />} />
         <Route path="/activation" element={<WisePlayerActivation />} />
@@ -42,8 +44,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/contact" element={<ContactUs />} />
         <Route path="/registersuccess" element={<Registersuccess />} />
-        <Route path="/upload-playlist" element={< PlaylistManager/>} />
+        <Route path="/upload-playlist" element={< PlaylistManager />} />
         <Route path="*" element={<ResellerPage />} />
+        <Route path="/twentyfoursvn" element={<TwentyFourSvn />} />
+        <Route path="/security" element={<Privacy/>} />
+
       </Routes>
     </Router>
   );

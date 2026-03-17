@@ -7,6 +7,7 @@ import {
     ArrowRight, Globe, Mail, Phone, Facebook, Twitter, Instagram, AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 // --- Typewriter Component ---
 const Typewriter = ({ texts }) => {
     const [index, setIndex] = useState(0);
@@ -32,7 +33,7 @@ const Typewriter = ({ texts }) => {
     return (
         <span className="typewriter-text">
             {texts[index].substring(0, subIndex)}
-            <span className="cursor">|</span>
+            {/* <span className="cursor">|</span> */}
         </span>
     );
 };
@@ -51,6 +52,8 @@ const staggerContainer = {
 };
 
 const WisePlayerHome = () => {
+    const { t } = useTranslation();
+
     const navigate = useNavigate();
     return (
         <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
@@ -256,15 +259,16 @@ const WisePlayerHome = () => {
                                     </Badge>
                                 </motion.div>
                                 <motion.h1 variants={fadeInUp} className="display-4 fw-bold mb-4" style={{ color: '#000', lineHeight: 1.2 }}>
-                                    The Future is <br />
+                                    {t('futureIs')} <br />
                                     <Typewriter texts={["Ultra Fast", "Crystal Clear", "Wise Player"]} />
+                                    {/* NOTE: Typewriter ke andar "Ultra Fast", etc. ke liye bhi JSON key chahiye */}
                                 </motion.h1>
                                 <motion.p variants={fadeInUp} className="lead mb-5 opacity-75" style={{ fontWeight: '400', maxWidth: '500px' }}>
-                                    Experience premium media playback with zero buffering. Optimized for all high-end Smart TVs.
+                                    {t('experienceText')}
                                 </motion.p>
                                 <motion.div variants={fadeInUp} className="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
-                                    <Button className="btn-premium">7 Days Free Trial</Button>
-                                    <Button variant="outline-dark" className="px-4 py-3 border-2 fw-bold" style={{ borderRadius: '12px' }}>Tutorial</Button>
+                                    <Button className="btn-premium">{t('freeTrial')}</Button>
+                                    <Button variant="outline-dark" className="px-4 py-3 border-2 fw-bold" style={{ borderRadius: '12px' }}>{t('tutorial')}</Button>
                                 </motion.div>
                             </motion.div>
                         </Col>
@@ -301,13 +305,13 @@ const WisePlayerHome = () => {
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-12 mb-3 animate-up">
-                            <h2 class="disclaimer-heading">DISCLAIMER</h2>
+                            <h2 class="disclaimer-heading">{t('disclaimerHeading')}</h2> {/* **BADLAV 1** */}
                         </div>
 
                         <div class="col-lg-5 mb-4 animate-left">
                             <div class="info-box">
                                 <p class="text-muted">
-                                    <strong>Wiseplayer</strong> is an independent media player application. We are not affiliated with unauthorized websites using our brand to sell IPTV services. We do not provide, host, or sell any media content, subscriptions, or channel packages.
+                                    {t('disclaimerText1')} {/* **BADLAV 2** */}
                                 </p>
                             </div>
                         </div>
@@ -316,38 +320,37 @@ const WisePlayerHome = () => {
                             <ul class="clean-list">
                                 <li class="list-point">
                                     <span class="arrow">➤</span>
-                                    Wiseplayer does not generate or provide any audiovisual content to users.
+                                    {t('disclaimerPoint1')} {/* **BADLAV 3** */}
                                 </li>
                                 <li class="list-point">
                                     <span class="arrow">➤</span>
-                                    We have no official connection with any third-party content providers.
+                                    {t('disclaimerPoint2')} {/* **BADLAV 4** */}
                                 </li>
                                 <li class="list-point">
                                     <span class="arrow">➤</span>
-                                    Users are solely responsible for providing their own media and playlists.
+                                    {t('disclaimerPoint3')} {/* **BADLAV 5** */}
                                 </li>
                                 <li class="list-point">
                                     <span class="arrow">➤</span>
-                                    We strictly do not engage in the sale or distribution of IPTV subscriptions.
+                                    {t('disclaimerPoint4')} {/* **BADLAV 6** */}
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </section>
-
             {/* --- FEATURES --- */}
             <section className="py-5">
                 <Container>
                     <div className="text-center mb-5">
-                        <h6 className="text-danger fw-bold letter-spacing-2">ELITE ENGINE</h6>
-                        <h2 className="fw-bold">Designed for Performance</h2>
+                        <h6 className="text-danger fw-bold letter-spacing-2">{t('featureHeadingParent')}</h6> {/* **BADLAV** */}
+                        <h2 className="fw-bold">{t('featureHeadingChild')}</h2> {/* **BADLAV** */}
                     </div>
                     <Row>
                         {[
-                            { icon: <Zap />, title: "Hyper Speed", desc: "Optimized C++ engine for lightning fast loading." },
-                            { icon: <ShieldCheck />, title: "Secure Stream", desc: "Encrypted playlist handling for your privacy." },
-                            { icon: <Monitor />, title: "4K Native", desc: "True 4K & 8K resolution support for OLED screens." }
+                            { icon: <Zap />, title: t('feature1Title'), desc: t('feature1Desc') }, // **BADLAV**
+                            { icon: <ShieldCheck />, title: t('feature2Title'), desc: t('feature2Desc') }, // **BADLAV**
+                            { icon: <Monitor />, title: t('feature3Title'), desc: t('feature3Desc') } // **BADLAV**
                         ].map((item, i) => (
                             <Col md={4} key={i} className="mb-4">
                                 <motion.div variants={fadeInUp} initial="initial" whileInView="whileInView" className="glass-card p-5 text-center h-100">
@@ -379,7 +382,6 @@ const WisePlayerHome = () => {
                     >
                         {/* Background Decorative Glow */}
                         <div className="position-absolute top-0 end-0 p-5 opacity-10" style={{ backgroundColor: '#ff0000', filter: 'blur(80px)', borderRadius: '50%', width: '200px', height: '200px' }}></div>
-
                         <div className="text-center text-md-start mb-4 mb-md-0">
                             <motion.h2
                                 initial={{ x: -20 }}
@@ -387,7 +389,7 @@ const WisePlayerHome = () => {
                                 className="fw-bold mb-2"
                                 style={{ color: '#2d3436' }}
                             >
-                                Ready to dive in?
+                                {t('cta_dive_in')}
                             </motion.h2>
                             <motion.h4
                                 initial={{ x: -20 }}
@@ -396,7 +398,7 @@ const WisePlayerHome = () => {
                                 className="fw-bold"
                                 style={{ color: '#ff4d6d' }} // Pinkish Red
                             >
-                                Start your free 7 day trial today.
+                                {t('cta_trial_text')}
                             </motion.h4>
                         </div>
 
@@ -433,28 +435,28 @@ const WisePlayerHome = () => {
                     <Row className="justify-content-center">
                         <Col lg={4} md={6} className="mb-4">
                             <Card className="glass-card p-5 border-0 h-100">
-                                <h5 className="fw-bold">Standard</h5>
+                                <h5 className="fw-bold">{t('price_standard_title')}</h5>
                                 <h2 className="display-5 fw-bold my-4">€ 5.99</h2>
-                                <p className="text-muted small mb-4">Perfect for a single device for one full year of updates.</p>
+                                <p className="text-muted small mb-4">{t('price_standard_desc')}</p>
                                 <div className="mb-5">
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>1 Year Access</span></div>
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>Email Support</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_year_access')}</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_email_support')}</span></div>
                                 </div>
-                                <Button variant="outline-dark" className="w-100 py-3 fw-bold rounded-3">Get Started</Button>
+                                <Button variant="outline-dark" className="w-100 py-3 fw-bold rounded-3">{t('price_get_started')}</Button>
                             </Card>
                         </Col>
                         <Col lg={4} md={6} className="mb-4">
                             <Card className="glass-card p-5 border-0 h-100 text-white" style={{ background: '#000' }}>
-                                <Badge bg="danger" className="mb-3 w-50">LIFETIME</Badge>
-                                <h5 className="fw-bold">Premium Pro</h5>
+                                <Badge bg="danger" className="mb-3 w-50">{t('price_lifetime_badge')}</Badge>
+                                <h5 className="fw-bold">{t('price_pro_title')}</h5>
                                 <h2 className="display-5 fw-bold my-4">€ 14.99</h2>
-                                <p className="text-white-50 small mb-4">The ultimate choice. Pay once, use forever on your device.</p>
+                                <p className="text-white-50 small mb-4">{t('price_pro_desc')}</p>
                                 <div className="mb-5">
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>Permanent License</span></div>
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>Priority Updates</span></div>
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>24/7 Support</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_permanent_license')}</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_priority_updates')}</span></div>
+                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_247_support')}</span></div>
                                 </div>
-                                <Button className="btn-premium w-100 py-3">Activate Lifetime</Button>
+                                <Button className="btn-premium w-100 py-3">{t('price_activate_lifetime')}</Button>
                             </Card>
                         </Col>
                     </Row>
@@ -467,16 +469,19 @@ const WisePlayerHome = () => {
                     <Col lg={8}>
                         <h2 className="text-center fw-bold mb-5">Frequently Asked</h2>
                         <Accordion flush>
+
+                            {/* NOTE: The first item in the original file was an Accordion.Body without an Item header, which is invalid JSX structure. Assuming it should be the first Item. */}
                             <Accordion.Item eventKey="0">
-                                <Accordion.Header>How to get my MAC address?</Accordion.Header>
+                                <Accordion.Header>{t('faq_mac_title')}</Accordion.Header>
                                 <Accordion.Body>
-                                    Open the WisePlayer app on your TV, go to "Settings" or "Info", and your unique MAC address will be displayed there.
+                                    {t('faq_mac_answer')}
                                 </Accordion.Body>
                             </Accordion.Item>
+
                             <Accordion.Item eventKey="1">
-                                <Accordion.Header>Can I transfer my license?</Accordion.Header>
+                                <Accordion.Header>{t('faq_transfer_title')}</Accordion.Header>
                                 <Accordion.Body>
-                                    Licenses are tied to the device's MAC address. For Lifetime Pro users, we offer a one-time transfer in case of TV replacement.
+                                    {t('faq_transfer_answer')}
                                 </Accordion.Body>
                             </Accordion.Item>
                         </Accordion>
@@ -502,6 +507,7 @@ const WisePlayerHome = () => {
         </Col> */}
 
 
+
                             </div>
                         </motion.div>
                     </Col>
@@ -509,8 +515,7 @@ const WisePlayerHome = () => {
             </Container>
 
             {/* --- FOOTER --- */}
-            {/* --- FOOTER --- */}
-            <footer className="py-5" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+              <footer className="py-5" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
                 <Container>
                     <Row className="gy-5 justify-content-between">
                         {/* 1. BRAND SECTION */}
@@ -521,21 +526,22 @@ const WisePlayerHome = () => {
                                     WISEPLAYER
                                 </h4>
                                 <p className="text-muted pe-lg-5" style={{ lineHeight: '1.6', fontSize: '0.95rem' }}>
-                                    WisePlayer does not provide any media content. Users must provide their own playlists.
-                                    We are a tool for professional media playback designed for the ultimate experience.
+                                    {t('footerBrandText')} {/* **CHANGE HERE** */}
                                 </p>
                             </div>
                         </Col>
 
                         {/* 2. SUPPORT SECTION */}
                         <Col lg={4} md={7}>
-                            <h6 className="fw-bold mb-4 text-uppercase" style={{ letterSpacing: '1px', fontSize: '0.85rem' }}>Support</h6>
+                            <h6 className="fw-bold mb-4 text-uppercase" style={{ letterSpacing: '1px', fontSize: '0.85rem' }}>
+                                {t('support')} {/* **CHANGE HERE (from 'Support')** */}
+                            </h6>
                             <div className="d-flex flex-column gap-3">
 
                                 {/* Reseller Row */}
                                 <div className="pb-2 border-bottom border-light">
                                     <div className="d-flex justify-content-between align-items-center mb-1">
-                                        <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>OFFICIAL RESELLER</span>
+                                        <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>{t('reseller')}</span> {/* **CHANGE HERE (from 'OFFICIAL RESELLER')** */}
                                         <a href="https://wa.me/212755015558" target="_blank" rel="noreferrer"
                                             className="text-decoration-none text-dark fw-bold small d-flex align-items-center contact-link">
                                             <Phone size={14} className="me-2 text-success" /> +212 755-015558
@@ -546,7 +552,7 @@ const WisePlayerHome = () => {
                                 {/* Support Row */}
                                 <div className="pb-2 border-bottom border-light">
                                     <div className="d-flex justify-content-between align-items-center mb-1">
-                                        <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>CUSTOMER SUPPORT</span>
+                                        <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>{t('customerSupport')}</span> {/* **CHANGE HERE (from 'CUSTOMER SUPPORT')** */}
                                         <a href="https://wa.me/212777754774" target="_blank" rel="noreferrer"
                                             className="text-decoration-none text-dark fw-bold small d-flex align-items-center contact-link">
                                             <Phone size={14} className="me-2 text-success" /> +212 777-754774
@@ -556,19 +562,17 @@ const WisePlayerHome = () => {
 
                                 {/* Policy Links */}
                                 <div className="d-flex gap-4 mt-2">
-                                    <a href="#" className="text-decoration-none text-muted small hover-red-text fw-semibold">Privacy Policy</a>
-                                    <a href="#" className="text-decoration-none text-muted small hover-red-text fw-semibold">Refund Policy</a>
+                                    <a href="#" className="text-decoration-none text-muted small hover-red-text fw-semibold">{t('privacyPolicy')}</a> {/* **CHANGE HERE (from 'Privacy Policy')** */}
+                                    <a href="#" className="text-decoration-none text-muted small hover-red-text fw-semibold">{t('refundPolicy')}</a> {/* **CHANGE HERE (from 'Refund Policy')** */}
                                 </div>
                             </div>
                         </Col>
 
                         {/* 3. SOCIAL SECTION */}
-                        {/* 3. SOCIAL SECTION */}
                         <Col lg={2} md={5} className="text-center text-lg-end">
-                            {/* wrapper div taaki text icons ke upar center rahe */}
                             <div className="d-inline-block text-center">
                                 <h6 className="fw-bold mb-4 text-uppercase" style={{ letterSpacing: '1px', fontSize: '0.85rem' }}>
-                                    Social
+                                    {t('socialMedia')} {/* **CHANGE HERE (from 'Social')** */}
                                 </h6>
                                 <div className="d-flex gap-3 justify-content-center">
                                     <a href="#" className="social-icon-wrapper">
@@ -585,7 +589,7 @@ const WisePlayerHome = () => {
                     <hr className="my-5 opacity-10" />
 
                     <div className="text-center text-muted small fw-bold" style={{ letterSpacing: '2px' }}>
-                        © 2026 WISEPLAYER — BEYOND THE SCREEN.
+                        © 2026 WISEPLAYER — {t('beyondTheScreen')}. {/* **CHANGE HERE (from hardcoded text)** */}
                     </div>
                 </Container>
 

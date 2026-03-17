@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { registerReseller } from '../auth/apiservice';
 const Register = () => {
   // Form States
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [agree, setAgree] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  
+
   // Error state for validation messages
   const [error, setError] = useState('');
 
@@ -25,17 +25,32 @@ const Register = () => {
     hasNumber: /\d/.test(password),
     hasLower: /[a-z]/.test(password),
     hasUpper: /[A-Z]/.test(password),
-    isLengthValid: password.length >= 8
-  };
+    isLengthValid: password.length >= 8,
+  
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+   usernameLength: username.length >= 1 && username.length <= 30, // Length check
+  usernameAllowedChars: /^[a-zA-Z0-9._]*$/.test(username), 
+    usernameNoCapitals: username === username.toLowerCase(), // No Capital Letters
+  };
+const handleSubmit = async (e) => {    e.preventDefault();
     setError('');
 
+    // --- PASSWORD VALIDATION (Kept as is) ---
     if (!validations.hasSpecial || !validations.hasNumber || !validations.hasLower || !validations.hasUpper || !validations.isLengthValid) {
       setError("Password does not meet all requirements.");
       return;
     }
+
+    // --- NEW USERNAME VALIDATION ---
+    if (!validations.usernameLength) {
+      setError("Username must be between 1 and 30 characters.");
+      return;
+    }
+    if (!validations.usernameAllowedChars) {
+    setError("Username can only contain letters (a-z, A-Z), numbers (0-9), periods (.), and underscores (_).");
+      return;
+    }
+   
 
     if (password !== confirmPassword) {
       setError("Passwords do not match!");
@@ -47,7 +62,23 @@ const Register = () => {
       return;
     }
 
-    navigate('/registersuccess'); 
+   // Prepare the data to send
+  const formData = {
+    fullName,
+    username,
+    password
+  };
+
+  // Call the API
+  const result = await registerReseller(formData);
+
+  if (result.success) {
+    // If registration works, go to success page
+    navigate('/registersuccess');
+  } else {
+    // If registration fails, show the error message from backend
+    setError(result.message);
+  }
   };
 
   const getValidationStyle = (isValid) => ({
@@ -64,7 +95,7 @@ const Register = () => {
         transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
         transition: 'all 0.8s ease-out'
       }}>
-        
+
         {/* Logo Section */}
         <div style={styles.header}>
           <span style={styles.logoEmoji}>🔥</span>
@@ -81,8 +112,8 @@ const Register = () => {
             {/* Full Name */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>Full name</label>
-              <input 
-                style={styles.input} 
+              <input
+                style={styles.input}
                 placeholder="Enter your name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -90,25 +121,25 @@ const Register = () => {
               />
             </div>
 
-            {/* Email */}
+           {/* Username */}
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Email</label>
-              <input 
-                type="email"
-                style={styles.input} 
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+              <label style={styles.label}>Username</label> {/* MODIFIED LABEL */}
+              <input
+                type="text" // MODIFIED TYPE
+                style={styles.input}
+                placeholder="Enter your username" // MODIFIED PLACEHOLDER
+                value={username} // MODIFIED VALUE
+                onChange={(e) => setUsername(e.target.value)} // MODIFIED SETTER
                 required
               />
-            </div>
+               </div>
 
             {/* Password */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>Password</label>
-              <input 
+              <input
                 type="password"
-                style={styles.input} 
+                style={styles.input}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -133,9 +164,9 @@ const Register = () => {
             {/* Password Confirmation */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>Password confirmation</label>
-              <input 
+              <input
                 type="password"
-                style={styles.input} 
+                style={styles.input}
                 placeholder="Confirm password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -147,6 +178,7 @@ const Register = () => {
             {error && <p style={styles.errorMessage}>{error}</p>}
 
             {/* Terms and Conditions */}
+            {/* Terms and Conditions */}
             <div style={styles.checkboxContainer} onClick={() => setAgree(!agree)}>
               <div style={{
                 ...styles.checkbox,
@@ -157,10 +189,20 @@ const Register = () => {
               </span>
             </div>
 
-            <a href="#" style={styles.loginLink}>You have an account already?</a>
+            {/* New Container for Login Link and Button */}
+            <div style={styles.loginRow}>
+              <a href="#" style={styles.loginLink}>You have an account already?</a>
+              <button
+                type="button" // Changed to type="button" since it's not the main form submit
+                onClick={() => navigate('/login')} // Assuming '/login' is your login route
+                style={styles.loginButton} // New style for the login button
+              >
+                Login
+              </button>
+            </div>
 
             {/* Signup Button */}
-            <button 
+            <button
               type="submit"
               className="signup-btn"
             >
@@ -190,6 +232,12 @@ const Register = () => {
         .signup-btn:active {
           transform: scale(0.96);
         }
+          .login-btn:hover {
+  background-color: #6a1b9a; /* Darker purple on hover */
+}
+.login-btn:active {
+  transform: scale(0.95); /* Slightly different active scale for variety */
+}
         input:focus {
           outline: none;
           border-color: #ff4444;
@@ -321,15 +369,31 @@ const styles = {
     color: '#007bff',
     textDecoration: 'none',
   },
+  loginRow: {
+    display: 'flex', // To align items in a row
+    alignItems: 'center', // Vertically align items
+    justifyContent: 'space-between', // Pushes the link and button to opposite ends
+    marginBottom: '25px', // Space below the row (like the old loginLink had)
+  },
   loginLink: {
-    display: 'block',
-    textAlign: 'left',
     color: '#ff8c00',
     fontSize: '14px',
-    marginBottom: '25px',
     fontWeight: '500',
     textDecoration: 'none',
   },
+  loginButton: {
+    padding: '8px 13px', 
+    borderRadius: '50px',
+    border: 'none',
+    backgroundColor: '#8A2BE2', 
+    color: '#ffffff',
+    fontSize: '12px', 
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'transform 0.2s, background-color 0.2s', // Animation transition
+    boxShadow: '0 2px 5px rgba(0,0,0,0.15)', // Subtle shadow
+  },
+
 };
 
 export default Register;

@@ -1,33 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Store, Mail, Flame, Home, CloudDownload, Tag, Menu, X, ChevronRight, UserPlus, LogIn } from 'lucide-react';
+import { Mail, Flame, Home, CloudDownload, Tag, Menu, X, ChevronRight, UserPlus } from 'lucide-react'; // LogIn and Store removed as unused
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
+    const { t, i18n } = useTranslation(); // Use both t and i18n
+    const [isScrolled, setIsScrolled] = useState(false);
+    const location = useLocation();
+    const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+    
+    // Set initial language based on i18n state or default ('EN')
+    const [currentLang, setCurrentLang] = useState(i18n.language || 'EN'); 
+    
+    const availableLanguages = [
+        { code: 'EN', name: 'English' },
+        { code: 'FR', name: 'French' }, // Only EN and FR are configured in your i18n setup
+        // Baki languages yahan hain, lekin unke translation files nahi hain
+        { code: 'ZH', name: 'Mandarin Chinese' },
+        { code: 'HI', name: 'Hindi' },
+        { code: 'ES', name: 'Spanish' },
+        { code: 'AR', name: 'Standard Arabic' },
+        { code: 'BN', name: 'Bengali' },
+        { code: 'PT', name: 'Portuguese' },
+        { code: 'RU', name: 'Russian' },
+        { code: 'ID', name: 'Indonesian' },
+    ];
+    
+    const colors = {
+        primary: '#b11905', // Deep Red
+        secondary: '#690a72', // Purple
+        dark: '#0f172a',
+        light: '#f8fafc',
+    };
 
-  const colors = {
-    primary: '#b11905', // Deep Red
-    secondary: '#690a72', // Purple
-    dark: '#0f172a',
-    light: '#f8fafc',
-  };
+    useEffect(() => {
+        const handleScroll = () => setIsScrolled(window.scrollY > 10);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const navLinks = [
+        { name: t('nav_home'), path: '/home', icon: <Home size={18} /> }, // *** TRANSLATED ***
+        { name: t('nav_upload_list'), path: '/upload-list', icon: <CloudDownload size={18} /> }, // *** TRANSLATED ***
+        { name: t('nav_activation'), path: '/activation', icon: <Tag size={18} /> }, // *** TRANSLATED ***
+    ];
 
-  const navLinks = [
-    { name: 'Home', path: '/home', icon: <Home size={18} /> },
-    { name: 'Upload List', path: '/upload-list', icon: <CloudDownload size={18} /> },
-    { name: 'Activation', path: '/activation', icon: <Tag size={18} /> },
-  ];
+    // Update currentLang state when i18n language changes globally (e.g., from another component)
+    useEffect(() => {
+        setCurrentLang(i18n.language);
+    }, [i18n.language]);
 
-  return (
-    <>
-      <style>{`
+
+    return (
+        <>
+            <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
         body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
@@ -143,91 +169,120 @@ const Navbar = () => {
         }
       `}</style>
 
-      <header className="nav-glass" style={{
-        position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000,
-        height: isScrolled ? '75px' : '90px',
-        display: 'flex', alignItems: 'center', transition: '0.4s ease'
-      }}>
-        <div style={{
-          width: '100%', padding: '0 4%', display: 'flex',
-          alignItems: 'center', justifyContent: 'space-between'
-        }}>
-          
-          {/* LOGO */}
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
-            <div className="logo-anim">
-              <Flame size={35} fill={colors.primary} color={colors.primary} />
-            </div>
-            <div style={{ lineHeight: 1 }}>
-              <span style={{ fontSize: '24px', fontWeight: '900', color: colors.dark, letterSpacing: '-1px' }}>WISE PLAYER</span>
-              <div style={{ fontSize: '10px', fontWeight: '700', color: colors.primary, letterSpacing: '2px', marginTop: '2px' }}>PREMIUM EXPERIENCE</div>
-            </div>
-          </Link>
+            <header className="nav-glass" style={{
+                position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000,
+                height: isScrolled ? '75px' : '90px',
+                display: 'flex', alignItems: 'center', transition: '0.4s ease'
+            }}>
+                <div style={{
+                    width: '100%', padding: '0 4%', display: 'flex',
+                    alignItems: 'center', justifyContent: 'space-between'
+                }}>
 
-          {/* MAIN NAV (CENTER) */}
-          <nav className="mobile-hide" style={{ display: 'flex', gap: '8px' }}>
-            {navLinks.map((link) => (
-              <Link key={link.name} to={link.path} className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}>
-                {link.icon}
-                {link.name}
-              </Link>
-            ))}
-          </nav>
+                    {/* LOGO */}
+                    <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+                        <div className="logo-anim">
+                            <Flame size={35} fill={colors.primary} color={colors.primary} />
+                        </div>
+                        <div style={{ lineHeight: 1 }}>
+                            <span style={{ fontSize: '24px', fontWeight: '900', color: colors.dark, letterSpacing: '-1px' }}>WISE PLAYER</span>
+                            <div style={{ fontSize: '10px', fontWeight: '700', color: colors.primary, letterSpacing: '2px', marginTop: '2px' }}>PREMIUM EXPERIENCE</div>
+                        </div>
+                    </Link>
 
-          {/* RIGHT ACTIONS */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            
-            {/* LOGIN & REGISTER (Label removed) */}
-            <div className="auth-group mobile-hide">
-              <Link to="/login" className="btn-base login-outline">
-                <LogIn size={16} /> Login
-              </Link>
-              <Link to="/register" className="btn-base register-solid">
-                <UserPlus size={16} /> Register
-              </Link>
-            </div>
+                    {/* MAIN NAV (CENTER) */}
+                    <nav className="mobile-hide" style={{ display: 'flex', gap: '8px' }}>
+                        {navLinks.map((link) => (
+                            <Link key={link.name} to={link.path} className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}>
+                                {link.icon}
+                                {link.name}
+                            </Link>
+                        ))}
+                    </nav>
 
-            {/* CONTACT BUTTON */}
-            <Link to="/contact" className="contact-cta">
-              <Mail size={18} />
-              <span className="mobile-hide">Contact</span>
-              <ChevronRight size={16} />
-            </Link>
+                    {/* RIGHT ACTIONS */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
-            {/* LANGUAGE */}
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #e2e8f0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '11px', fontWeight: '800', cursor: 'pointer', background: 'white'
-            }}>EN</div>
-          </div>
-        </div>
-      </header>
+                        <div className="auth-group mobile-hide">
+                            <Link to="/register" className="btn-base register-solid">
+                                <UserPlus size={16} /> {t('nav_reseller')} {/* *** TRANSLATED *** */}
+                            </Link>
+                        </div>
 
-      {/* MOBILE NAVIGATION DOCK */}
-      <div className="mobile-nav-dock" style={{ display: window.innerWidth <= 768 ? 'flex' : 'none' }}>
-        {navLinks.map((link) => (
-          <Link key={link.name} to={link.path} style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none',
-            color: location.pathname === link.path ? 'white' : '#94a3b8', gap: '4px'
-          }}>
-            <div style={{
-              padding: '8px 15px', borderRadius: '12px',
-              background: location.pathname === link.path ? colors.primary : 'transparent'
-            }}>{link.icon}</div>
-            <span style={{ fontSize: '10px', fontWeight: '600' }}>{link.name}</span>
-          </Link>
-        ))}
-        <Link to="/login" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', color: '#94a3b8' }}>
-          <div style={{ padding: '8px 15px' }}><LogIn size={18} /></div>
-          <span style={{ fontSize: '10px', fontWeight: '600' }}>Login</span>
-        </Link>
-      </div>
+                        {/* CONTACT BUTTON */}
+                        <Link to="/contact" className="contact-cta">
+                            <Mail size={18} />
+                            <span className="mobile-hide">{t('nav_contact')}</span> {/* *** TRANSLATED *** */}
+                            <ChevronRight size={16} />
+                        </Link>
 
-      {/* Hero Spacer */}
-      <div style={{ height: isScrolled ? '75px' : '90px' }}></div>
-    </>
-  );
+                        {/* LANGUAGE */}
+                        <div style={{ position: 'relative' }}>
+                            {/* Language Button (EN/Current Lang) */}
+                            <div
+                                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                                style={{
+                                    width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #e2e8f0',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '11px', fontWeight: '800', cursor: 'pointer', background: 'white',
+                                    boxShadow: isLanguageDropdownOpen ? `0 0 0 3px ${colors.primary}` : 'none' // Highlight when open
+                                }}
+                            >
+                                {currentLang}
+                            </div>
+
+                            {/* Language Dropdown List */}
+                            {isLanguageDropdownOpen && (
+                                <div style={{
+                                    position: 'absolute', top: '100%', right: 0, marginTop: '10px',
+                                    backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px',
+                                    boxShadow: '0 8px 20px rgba(0,0,0,0.1)', minWidth: '120px', zIndex: 1100
+                                }}>
+                                    {availableLanguages.map((lang) => (
+                                        <div
+                                            key={lang.code}
+                                            onClick={() => {
+                                                if (lang.code === 'EN' || lang.code === 'FR') { // Only change language if EN/FR translation exists
+                                                    i18n.changeLanguage(lang.code); // Change language using i18n object
+                                                    setCurrentLang(lang.code); // Update local state
+                                                    setIsLanguageDropdownOpen(false); // Close dropdown
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '10px 15px',
+                                                fontSize: '13px',
+                                                cursor: (lang.code === 'EN' || lang.code === 'FR') ? 'pointer' : 'not-allowed',
+                                                color: (lang.code === 'EN' || lang.code === 'FR') ? (lang.code === currentLang ? colors.primary : colors.dark) : '#aaa',
+                                                fontWeight: lang.code === currentLang ? '700' : '500',
+                                                backgroundColor: lang.code === currentLang ? 'rgba(177, 25, 5, 0.05)' : 'transparent',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (lang.code === 'EN' || lang.code === 'FR') {
+                                                    e.currentTarget.style.backgroundColor = 'rgba(230, 230, 230, 0.5)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (lang.code !== currentLang && (lang.code === 'EN' || lang.code === 'FR')) {
+                                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                                }
+                                            }}
+                                        >
+                                            {lang.name} {!(lang.code === 'EN' || lang.code === 'FR') && " (N/A)"}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+
+
+            {/* Hero Spacer */}
+            <div style={{ height: isScrolled ? '75px' : '90px' }}></div>
+        </>
+    );
 };
 
 export default Navbar;

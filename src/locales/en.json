@@ -1,0 +1,65 @@
+{
+  "home": "Home",
+  "uploadList": "Upload List",
+  "activation": "Activation",
+  "contact": "Contact",
+  "futureIs": "THE FUTURE IS",
+  "wisePlay": "WISE PLAY",
+  "experienceText": "Experience premium media playback without buffering. Optimized for all high-end Smart TVs.",
+  "freeTrial": "7-DAY FREE TRIAL",
+  "tutorial": "Tutorial",
+  "login": "Login",
+  
+  
+  "disclaimerHeading": "WARNING", 
+  "disclaimerText1": "Wiseplayer is an independent multimedia player application. We are not affiliated with unauthorized websites using our brand to sell IPTV services. We do not provide, host, or sell any multimedia content, subscription, or channel package.",
+  "disclaimerPoint1": "Wiseplayer does not provide or provide any audiovisual content to users.",
+  "disclaimerPoint2": "We have no official link with third-party content providers.",
+  "disclaimerPoint3": "Users are solely responsible for providing their own media and playlist files.",
+  "disclaimerPoint4": "We are strictly not engaged in the sale or distribution of IPTV subscriptions.",
+  
+  
+  "featureHeadingParent": "ELITE ENGINE",
+  "featureHeadingChild": "DESIGNED FOR PERFORMANCE",
+  "feature1Title": "Hyper Speed",
+  "feature1Desc": "C++ engine optimized for ultra-fast loading.",
+  "feature2Title": "Secure Stream",
+  "feature2Desc": "Management of encrypted playlist for your private viewing.",
+  "feature3Title": "Native 4K",
+  "feature3Desc": "Support for true 4K and 8K resolution for OLED screens.",
+  
+  
+  "cta_dive_in": "DIVE INTO THE BEST PLAYER",
+  "cta_trial_text": "Start your FREE 7-day trial NOW!",
+
+  
+  "price_standard_title": "STANDARD",
+  "price_standard_desc": "Access for 1 year to the WisePlayer multimedia player.",
+  "price_year_access": "1-Year Access",
+  "price_email_support": "Email Support",
+  "price_get_started": "GET STARTED",
+  
+  "price_lifetime_badge": "THE BEST",
+  "price_pro_title": "PRO (LIFETIME)",
+  "price_pro_desc": "Pay once and enjoy all future updates forever.",
+  "price_permanent_license": "Permanent License",
+  "price_priority_updates": "Priority Updates",
+  "price_247_support": "24/7 Support",
+  "price_activate_lifetime": "ACTIVATE LIFETIME",
+  
+  
+  "faq_mac_title": "DOES WISEPLAYER WORK ON MAC?",
+  "faq_mac_answer": "Currently, Wiseplayer is primarily optimized for Smart TVs (Android TV, Fire TV, Samsung Tizen, LG WebOS). We are constantly working to expand compatibility, so check back for Mac support updates!",
+  "faq_transfer_title": "CAN I TRANSFER MY LICENSE?",
+  "faq_transfer_answer": "Yes, the Pro license can be transferred once. Please contact our customer support to arrange this.",
+  
+  
+  "footerBrandText": "WisePlayer does not provide any multimedia content. Users must supply their own playlist files. We are a professional multimedia player tool designed for the ultimate experience.",
+  "support": "SUPPORT",
+  "reseller": "OFFICIAL RESELLER",
+  "customerSupport": "CUSTOMER SUPPORT",
+  "privacyPolicy": "Privacy Policy",
+  "refundPolicy": "Refund Policy",
+  "socialMedia": "SOCIAL",
+  "beyondTheScreen": "BEYOND THE SCREEN"
+}
