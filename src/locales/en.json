@@ -1,4 +1,11 @@
 {
+  
+  "nav_home": "Home",
+  "nav_upload_list": "Upload List",
+  "nav_activation": "Activation",
+  "nav_reseller": "Reseller",
+  "nav_contact": "Contact",
+
   "home": "Home",
   "uploadList": "Upload List",
   "activation": "Activation",
@@ -61,5 +68,16 @@
   "privacyPolicy": "Privacy Policy",
   "refundPolicy": "Refund Policy",
   "socialMedia": "SOCIAL",
-  "beyondTheScreen": "BEYOND THE SCREEN"
+  "beyondTheScreen": "BEYOND THE SCREEN",
+
+  "upload_playlist_title": "Upload your playlist",
+  "device_id_label": "DEVICE ID / MAC ADDRESS",
+  "configure_playlist_btn": "Configure Playlist",
+  "wipe_data_title": "Wipe Data",
+  "remove_content_btn": "Remove Content",
+  "wipe_data_warning": "WARNING: THIS ACTION IS PERMANENT",
+  "footer_copyright": "Wiseplayer Management Portal. All rights reserved.",
+  "footer_privacy": "PRIVACY",
+  "footer_terms": "TERMS",
+  "footer_helpdesk": "HELP DESK"
 }

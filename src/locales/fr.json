@@ -1,4 +1,9 @@
 {
+  "nav_home": "Accueil",
+  "nav_upload_list": "Liste de téléchargement",
+  "nav_activation": "Activation",
+  "nav_reseller": "Revendeur",
+  "nav_contact": "Contact",
   "home": "Accueil",
   "uploadList": "Liste de téléchargement",
   "activation": "Activation",
@@ -52,5 +57,16 @@
   "faq_mac_answer": "Oui, WisePlayer est compatible avec MacOS via notre version Web ou en utilisant des émulateurs/machines virtuelles.",
   "faq_transfer_title": "Puis-je transférer ma licence ?",
   "faq_transfer_answer": "Oui, la licence Pro peut être transférée une fois, veuillez contacter notre support client pour organiser cela.",
-  "footerBrandText": "WisePlayer ne fournit aucun contenu multimédia. Les utilisateurs doivent fournir leurs propres listes de lecture. Nous sommes un outil de lecture multimédia professionnel conçu pour l'expérience ultime."
+  "footerBrandText": "WisePlayer ne fournit aucun contenu multimédia. Les utilisateurs doivent fournir leurs propres listes de lecture. Nous sommes un outil de lecture multimédia professionnel conçu pour l'expérience ultime.",
+
+  "upload_playlist_title": "Téléchargez votre playlist",
+  "device_id_label": "ID DE L'APPAREIL / ADRESSE MAC",
+  "configure_playlist_btn": "Configurer la Playlist",
+  "wipe_data_title": "Effacer les données",
+  "remove_content_btn": "Supprimer le contenu",
+  "wipe_data_warning": "AVERTISSEMENT : CETTE ACTION EST PERMANENTE",
+  "footer_copyright": "Portail de gestion Wiseplayer. Tous droits réservés.",
+  "footer_privacy": "CONFIDENTIALITÉ",
+  "footer_terms": "CONDITIONS",
+  "footer_helpdesk": "CENTRE D'AIDE"
 }

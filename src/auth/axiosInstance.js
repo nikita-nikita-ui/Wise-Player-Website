@@ -1,7 +1,5 @@
 import axios from 'axios';
-
-const BASE_URL = 'https://api.wise-player.com';
-
+const BASE_URL = 'https://wise-player.com';
 const apiService = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -13,9 +11,13 @@ const apiService = axios.create({
 apiService.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    if (token) {
+    
+    if (token && token !== "undefined" && token !== "null") {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
     }
+    
     return config;
   },
   (error) => {
@@ -29,7 +31,6 @@ apiService.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Handle 401 Unauthorized logic here
     }
     return Promise.reject(error);
   }

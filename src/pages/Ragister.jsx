@@ -69,14 +69,11 @@ const handleSubmit = async (e) => {    e.preventDefault();
     password
   };
 
-  // Call the API
   const result = await registerReseller(formData);
 
   if (result.success) {
-    // If registration works, go to success page
     navigate('/registersuccess');
   } else {
-    // If registration fails, show the error message from backend
     setError(result.message);
   }
   };
