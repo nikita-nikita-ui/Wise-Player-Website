@@ -31,7 +31,10 @@ const SuccessPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 font-sans">
+<div 
+  style={{ background: 'radial-gradient(circle, #57aeba 0%, #003139 100%)' }} 
+  className="min-h-screen flex items-center justify-center p-4 font-sans"
+>
       <motion.div 
         variants={cardVariants}
         initial="hidden"

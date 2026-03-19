@@ -246,14 +246,12 @@ const handleSubmit = async (e) => {    e.preventDefault();
 };
 
 const styles = {
-  container: {
+container: {
     minHeight: '100vh',
-    // Gradient Background: White -> Gray -> Light Red
-    background: 'linear-gradient(135deg, #ffffff 0%, #ececec 50%, #ffe5e5 100%)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    fontFamily: 'Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+    display: 'flex',          
+    justifyContent: 'center', 
+    alignItems: 'center',    
+background: 'radial-gradient(circle at center, #ffffff 0%, #a84a4a 30%, #500606 70%, #2b0000 100%)',    fontFamily: 'Segoe UI, Roboto, Helvetica, Arial, sans-serif',
     padding: '20px',
     boxSizing: 'border-box',
   },
@@ -275,7 +273,7 @@ const styles = {
   },
   logoText: {
     fontSize: '28px',
-    color: '#333', // White background par dark text behtar dikhta hai
+    color: '#faeded', // White background par dark text behtar dikhta hai
     fontWeight: '300',
     margin: 0,
   },

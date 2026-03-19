@@ -1,5 +1,5 @@
 import axios from 'axios';
-const BASE_URL = 'https://wise-player.com';
+const BASE_URL = 'https://api.wise-player.com';
 const apiService = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -37,3 +37,5 @@ apiService.interceptors.response.use(
 );
 
 export default apiService;
+
+

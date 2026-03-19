@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, User, Lock, ArrowRight, ShieldCheck, ArrowLeft, KeyRound } from 'lucide-react'; // Mail ki jagah User
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-
+import { loginReseller } from '../auth/apiservice';
 const LoginPage = () => {
     const navigate = useNavigate();
     const [view, setView] = useState('login');
@@ -15,35 +15,42 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage({ type: '', text: '' });
+ const handleLogin = async (e) => { // async कीवर्ड जोड़ा गया है
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ type: '', text: '' });
 
-        // 2. Username validation (Instagram style: letters, numbers, _, .)
-        const usernameRegex = /^[a-zA-Z0-9._]+$/;
+    // 1. Username validation (यह वैसा ही रहेगा जैसा आपने चाहा था)
+    const usernameRegex = /^[a-zA-Z0-9._]+$/;
+    if (!usernameRegex.test(username)) {
+        setLoading(false);
+        setMessage({
+            type: 'danger',
+            text: 'Username can only contain letters, numbers, underscores, and dots.'
+        });
+        return;
+    }
 
-        if (!usernameRegex.test(username)) {
-            setLoading(false);
-            setMessage({
-                type: 'danger',
-                text: 'Username can only contain letters, numbers, underscores, and dots.'
-            });
-            return;
-        }
+    // 2. Real API Call (Mock logic को हटाकर)
+    const result = await loginReseller({ username, password });
 
-        // Mock API Delay
-        setTimeout(() => {
-            setLoading(false);
-            // Email ki jagah username check
-            if (username === "admin_12") {
-                setMessage({ type: 'success', text: 'Success! Redirecting to dashboard...' });
-                setTimeout(() => { navigate('/'); }, 1000);
-            } else {
-                setMessage({ type: 'danger', text: 'Invalid credentials. Please try again.' });
-            }
-        }, 1800);
-    };
+    setLoading(false); // API response के बाद loading बंद
+
+    if (result.success) {
+        // अगर API से success मिला (Case-sensitivity API खुद चेक कर लेगी)
+        setMessage({ type: 'success', text: 'Success! Redirecting to dashboard...' });
+        
+        // 1 सेकंड बाद Home page  पर भेज देगा
+        setTimeout(() => { 
+            navigate('/'); 
+        }, 1000);
+    } else {
+        setMessage({ 
+            type: 'danger', 
+            text: result.message || 'Invalid credentials. Please try again.' 
+        });
+    }
+};
 
     const handleForgot = (e) => {
         e.preventDefault();
@@ -62,7 +69,7 @@ const LoginPage = () => {
             fontFamily: "'Inter', sans-serif",
             color: '#000',
             overflow: 'hidden',
-            background: 'radial-gradient(circle at 50% 30%, rgba(255, 182, 193, 0.3) 5%, #cccccc 35%, #cccccc 90%, rgba(220, 53, 69, 0.15) 95%)'
+            background: 'radial-gradient(circle at center, #a855f7 0%, #6b21a8 30%, #3b0764 60%, #1a0026 100%)',
         }}>
 
             {/* Background Decorative Elements (Retained) */}
@@ -197,15 +204,15 @@ const LoginPage = () => {
                             </AnimatePresence>
                         </motion.div>
 
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center mt-5">
+                        <motion.div style={{ color: '#ffffff' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center mt-5">
                             <div className="d-flex align-items-center justify-content-center text-muted gap-2" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
                                 <ShieldCheck size={14} className="text-success" />
-                                <span className="text-uppercase fw-bold">Authorized Access Only</span>
+                                <span style={{ color: '#fff' }} className="text-uppercase fw-bold">Authorized Access Only</span>
                             </div>
-                            <p className="mt-4 text-muted" style={{ fontSize: '10px', opacity: 0.6 }}>
+                            {/* <p className="mt-4 text-muted" style={{ color: '#fff' ,fontSize: '10px', opacity: 0.6 }}>
                                 &copy; {new Date().getFullYear()} WISE PLAYER GLOBAL LTD. <br />
-                                IP: 192.168.1.1 (Logged for security)
-                            </p>
+                               
+                            </p> */}
                         </motion.div>
 
                     </Col>
