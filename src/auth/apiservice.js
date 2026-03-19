@@ -36,3 +36,19 @@ export const loginReseller = async (credentials) => {
     };
   }
 };
+
+export const generateDeviceKey = async () => {
+  try {
+    const response = await api.post('/api/device/key');
+    
+    return { 
+      success: true, 
+      data: response.data 
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: error.response?.data?.message || 'Failed to generate activation key' 
+    };
+  }
+};
