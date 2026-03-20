@@ -37,10 +37,13 @@ export const loginReseller = async (credentials) => {
   }
 };
 
-export const generateDeviceKey = async () => {
+
+export const generateDeviceKey = async (macAddress) => {
   try {
-    const response = await api.post('/api/device/key');
-    
+    const response = await api.post('/api/device/key', {
+      fingerprint: macAddress   // ✅ correct place
+    });
+
     return { 
       success: true, 
       data: response.data 
@@ -50,5 +53,21 @@ export const generateDeviceKey = async () => {
       success: false, 
       message: error.response?.data?.message || 'Failed to generate activation key' 
     };
+  }
+};
+
+export const activateDeviceApi = async (deviceId, activationKey) => {
+  try {
+    const response = await fetch('https://api.wise-player.com/api/device/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        deviceId: deviceId,       // Screenshot wala "deviceId"
+        activationKey: activationKey // Screenshot wala "activationKey"
+      }),
+    });
+    return await response.json();
+  } catch (error) {
+    return { success: false, message: "Server connection failed" };
   }
 };

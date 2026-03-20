@@ -6,9 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import WiseplayerUpload from './pages/UploadList';
-import WisePlayerActivation from './pages/Activation';
+import WisePlayerActivation from './pages/Activation/Activation';
 import ResellerPage from './pages/ResellerPage';
-import Register from './pages/Ragister'; // Spelling 'Ragister' folder check kar lein
+import Register from './pages/Ragister/Ragister'; // Spelling 'Ragister' folder check kar lein
 import Login from './pages/login';
 import ContactUs from './pages/Contact';
 import Registersuccess from './pages/ragistersuccess';

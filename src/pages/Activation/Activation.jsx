@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,14 +13,16 @@ import {
   HelpCircle,
   Lock
 } from 'lucide-react';
-import { generateDeviceKey} from '../auth/apiservice';
+import { generateDeviceKey, activateDeviceApi } from '../../auth/apiservice';
+import './Activation.css'; // Importing the CSS file
+
 const WisePlayerActivation = () => {
   const [macAddress, setMacAddress] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isKeyGenerated, setIsKeyGenerated] = useState(false);
-  const [isKeyLoading, setIsKeyLoading] = useState(false); // New State
+  const [isKeyLoading, setIsKeyLoading] = useState(false);
   const [generatedKey, setGeneratedKey] = useState('');
 
   // Logical States
@@ -28,10 +32,9 @@ const WisePlayerActivation = () => {
   // MAC Address formatting logic
   const handleMacChange = (e) => {
     let value = e.target.value.toUpperCase();
-    value = value.replace(/[^0-9A-F]/g, '');
+    value = value.replace(/[^0-9A-Z]/g, '');
     if (value.length <= 12) {
       setMacAddress(value);
-      // Reset key generation if MAC is edited
       setIsKeyGenerated(false);
     }
   };
@@ -42,32 +45,36 @@ const WisePlayerActivation = () => {
 
   const handleGenerateKey = async () => {
     if (!isMacValid) return;
-
-    setIsKeyLoading(true); // Button ko loading state me dalne ke liye
-
-    const result = await generateDeviceKey();
-
+    setIsKeyLoading(true);
+    const formattedMac = formatMac(macAddress);
+    const result = await generateDeviceKey(formattedMac);
     if (result.success) {
-      setGeneratedKey(result.data.activationKey); // API se aayi key save karein
+      setGeneratedKey(result.data.activationKey);
       setIsKeyGenerated(true);
     } else {
       alert(result.message || "Failed to generate key");
     }
-
     setIsKeyLoading(false);
   };
 
-  const handleActivate = () => {
-    if (!canActivate) return;
-    setIsLoading(true);
-    // Simulating API Call
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
-    }, 2000);
-  };
+  const handleActivate = async () => {
+  if (!canActivate) return;
+  setIsLoading(true);
 
-  // Animation Variants
+  const deviceId = formatMac(macAddress); 
+  
+  
+  const result = await activateDeviceApi(deviceId, generatedKey);
+
+  if (result.success) {
+    setIsSuccess(true);
+  } else {
+    alert(result.message || "Activation Failed");
+  }
+  
+  setIsLoading(false);
+};
+
   const containerVars = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -84,17 +91,13 @@ const WisePlayerActivation = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center py-12 px-4 font-sans text-slate-800 relative overflow-hidden">
-
+      
       {/* Background Decorative Elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-500/5 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-      <motion.div
-        variants={containerVars}
-        initial="hidden"
-        animate="visible"
-        className="w-full max-w-xl z-10"
-      >
+      <motion.div variants={containerVars} initial="hidden" animate="visible" className="w-full max-w-xl z-10">
+        
         {/* Logo Section */}
         <motion.div variants={itemVars} className="text-center mb-10">
           <motion.div
@@ -110,11 +113,8 @@ const WisePlayerActivation = () => {
         </motion.div>
 
         {/* Content Card */}
-        <motion.div
-          variants={itemVars}
-          className="bg-white border border-slate-100 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden"
-        >
-          {/* Top Warning Alert */}
+        <motion.div variants={itemVars} className="bg-white border border-slate-100 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
+          
           <div className="bg-red-50/50 px-6 py-4 flex items-center gap-3 border-b border-red-100">
             <AlertCircle className="text-red-600 w-5 h-5 flex-shrink-0" />
             <p className="text-red-800 text-[10px] md:text-xs font-bold uppercase tracking-wider">
@@ -143,13 +143,7 @@ const WisePlayerActivation = () => {
                       placeholder="00:00:00:00:00:00"
                       value={formatMac(macAddress)}
                       onChange={handleMacChange}
-                      className="w-full text-center py-4 px-6 text-xl font-mono font-bold tracking-widest text-white rounded-2xl outline-none transition-all duration-300 shadow-inner"
-                      style={{
-                        background: isMacValid
-                          ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
-                          : 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
-                        boxShadow: isMacValid ? '0 10px 25px -5px rgba(15, 23, 42, 0.3)' : 'none'
-                      }}
+                      className={`mac-input-base ${isMacValid ? 'mac-input-valid' : 'mac-input-invalid'}`}
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2">
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-full transition-colors duration-300 ${isMacValid ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
@@ -164,30 +158,11 @@ const WisePlayerActivation = () => {
                   <button
                     onClick={handleGenerateKey}
                     disabled={!isMacValid || isKeyLoading}
-                    style={{
-                      padding: '12px 24px',
-                      fontSize: '13px',
-                      fontWeight: '800',
-                      color: 'white',
-                      background: isMacValid && !isKeyLoading
-                        ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)'
-                        : '#e2e8f0',
-                      color: isMacValid && !isKeyLoading ? 'white' : '#94a3b8',
-                      border: 'none',
-                      borderRadius: '12px',
-                      cursor: isMacValid && !isKeyLoading ? 'pointer' : 'not-allowed',
-                      boxShadow: isMacValid && !isKeyLoading ? '0 10px 20px -5px rgba(239, 68, 68, 0.4)' : 'none',
-                      transition: 'all 0.3s ease',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
+                    className={`btn-generate ${isMacValid && !isKeyLoading ? 'btn-generate-active' : 'btn-generate-disabled'}`}
                   >
                     {isKeyLoading ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin-custom" />
                         Generating...
                       </>
                     ) : (
@@ -244,7 +219,7 @@ const WisePlayerActivation = () => {
                     onClick={handleActivate}
                     disabled={!canActivate || isLoading}
                     className={`relative w-full md:w-auto min-w-[240px] flex items-center justify-center gap-3 py-4 px-10 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-500 
-  ${canActivate
+                    ${canActivate
                         ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-2xl shadow-blue-200 cursor-pointer'
                         : 'bg-[#E2E8F0] text-[#94A3B8] cursor-not-allowed shadow-none'
                       }`}
@@ -258,7 +233,7 @@ const WisePlayerActivation = () => {
                           exit={{ opacity: 0 }}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin-custom" />
                           Verifying...
                         </motion.div>
                       ) : (
@@ -303,7 +278,6 @@ const WisePlayerActivation = () => {
             )}
           </div>
 
-          {/* Footer Info */}
           <div className="bg-slate-50 p-6 flex justify-center items-center border-t border-slate-100 gap-8">
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               <CheckCircle2 className="w-4 h-4 text-green-500" /> Secure SSL
@@ -314,11 +288,7 @@ const WisePlayerActivation = () => {
           </div>
         </motion.div>
 
-        {/* Support & Links */}
-        <motion.div
-          variants={itemVars}
-          className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 px-4"
-        >
+        <motion.div variants={itemVars} className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
           <div className="flex gap-8">
             <a href="#" className="flex items-center gap-2 text-slate-400 hover:text-red-600 transition-colors text-xs font-bold uppercase tracking-wider group">
               <HelpCircle className="w-4 h-4" />
@@ -334,15 +304,6 @@ const WisePlayerActivation = () => {
           </p>
         </motion.div>
       </motion.div>
-
-      <style jsx="true">{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-          animation: spin 0.8s linear infinite;
-        }
-      `}</style>
     </div>
   );
 };
