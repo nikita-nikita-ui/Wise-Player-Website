@@ -41,7 +41,7 @@ export const loginReseller = async (credentials) => {
 export const generateDeviceKey = async (macAddress) => {
   try {
     const response = await api.post('/api/device/key', {
-      fingerprint: macAddress   // ✅ correct place
+       deviceId: macAddress   // ✅ correct place
     });
 
     return { 
@@ -69,5 +69,79 @@ export const activateDeviceApi = async (deviceId, activationKey) => {
     return await response.json();
   } catch (error) {
     return { success: false, message: "Server connection failed" };
+  }
+};
+
+export const validateDevice = async (fingerprint) => {
+  try {
+    const payload = { fingerprint };
+
+    const response = await api.post('/api/device/validate', payload); // ✅ yaha change
+
+    return {
+      success: true,
+      data: response.data
+    };
+
+  } catch (error) {
+    console.error("Device Validation Error:", error);
+    return {
+      success: false,
+      message: error.response?.data?.message || "Device validation failed",
+      error: error.response?.data
+    };
+  }
+};
+
+
+
+export const saveM3uPlaylist = async (macAddress, playlistData) => {
+  try {
+
+    const url = `https://api.wise-player.com/api/playlist/public/MG:19:BB:AA:C2:AB/m3u`;
+    
+    const response = await axios.post(url, {
+      name: playlistData.name,
+      m3uUrl: playlistData.m3uUrl
+    });
+
+    return { 
+      success: true, 
+      message: response.data.message 
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: error.response?.data?.message || 'Failed to save playlist' 
+    };
+  }
+};
+
+export const checkoutPayment = async (deviceId, plan) => {
+  try {
+   const token = localStorage.getItem("token"); // ya jaha tum token store kr rhi ho
+
+const response = await api.post(
+  '/api/payment/public/checkout',
+  {
+    deviceId: deviceId,
+    plan: plan
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }
+);
+
+    return { 
+      success: true, 
+      data: response.data 
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: error.response?.data?.message || 'Payment checkout failed' 
+    };
   }
 };

@@ -58,22 +58,22 @@ const WisePlayerActivation = () => {
   };
 
   const handleActivate = async () => {
-  if (!canActivate) return;
-  setIsLoading(true);
+    if (!canActivate) return;
+    setIsLoading(true);
 
-  const deviceId = formatMac(macAddress); 
-  
-  
-  const result = await activateDeviceApi(deviceId, generatedKey);
+    const deviceId = formatMac(macAddress);
 
-  if (result.success) {
-    setIsSuccess(true);
-  } else {
-    alert(result.message || "Activation Failed");
-  }
-  
-  setIsLoading(false);
-};
+
+    const result = await activateDeviceApi(deviceId, generatedKey);
+
+    if (result.success) {
+      setIsSuccess(true);
+    } else {
+      alert(result.message || "Activation Failed");
+    }
+
+    setIsLoading(false);
+  };
 
   const containerVars = {
     hidden: { opacity: 0, y: 20 },
@@ -91,13 +91,13 @@ const WisePlayerActivation = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center py-12 px-4 font-sans text-slate-800 relative overflow-hidden">
-      
+
       {/* Background Decorative Elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-500/5 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
       <motion.div variants={containerVars} initial="hidden" animate="visible" className="w-full max-w-xl z-10">
-        
+
         {/* Logo Section */}
         <motion.div variants={itemVars} className="text-center mb-10">
           <motion.div
@@ -114,7 +114,7 @@ const WisePlayerActivation = () => {
 
         {/* Content Card */}
         <motion.div variants={itemVars} className="bg-white border border-slate-100 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
-          
+
           <div className="bg-red-50/50 px-6 py-4 flex items-center gap-3 border-b border-red-100">
             <AlertCircle className="text-red-600 w-5 h-5 flex-shrink-0" />
             <p className="text-red-800 text-[10px] md:text-xs font-bold uppercase tracking-wider">
@@ -252,29 +252,49 @@ const WisePlayerActivation = () => {
                 </div>
               </>
             ) : (
-              /* Success State */
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-10"
-              >
-                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
-                  <ShieldCheck className="w-12 h-12 text-green-600" />
-                </div>
-                <h2 className="text-3xl font-black text-slate-800 mb-3 tracking-tight">Verified & Active</h2>
-                <p className="text-slate-500 mb-8 font-medium">Device <span className="text-slate-900 font-mono font-bold">{formatMac(macAddress)}</span> is now premium.</p>
-                <button
-                  onClick={() => {
-                    setIsSuccess(false);
-                    setMacAddress('');
-                    setIsKeyGenerated(false);
-                    setIsAgreed(false);
-                  }}
-                  className="px-8 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+              <>
+                {/* Success State - Attractive & Compact Version */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-6 px-2"
                 >
-                  Activate Another
-                </button>
-              </motion.div>
+                  {/* Glowing Icon Container */}
+                  <div className="relative w-24 h-24 mx-auto mb-6">
+                    <div className="absolute inset-0 bg-green-400 rounded-full blur-2xl opacity-20 animate-pulse"></div>
+                    <div className="relative w-full h-full bg-gradient-to-br from-green-50 to-emerald-100 rounded-full flex items-center justify-center shadow-inner border border-green-200">
+                      <ShieldCheck className="w-12 h-12 text-emerald-600" strokeWidth={2.5} />
+                    </div>
+                  </div>
+
+                  {/* Title with Gradient */}
+                  <h2 className="text-3xl font-black mb-3 tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 bg-clip-text text-transparent">
+                    Verified & Active
+                  </h2>
+
+                  {/* Device Badge */}
+                  <div className="inline-block px-4 py-2 bg-slate-50 border border-slate-200 rounded-2xl mb-8 shadow-sm">
+                    <p className="text-slate-500 text-sm font-medium">
+                      Device <span className="text-blue-600 font-mono font-bold tracking-wider">{formatMac(macAddress)}</span> is now premium.
+                    </p>
+                  </div>
+
+                  {/* Professional Button */}
+                  <div>
+                    <button
+                      onClick={() => {
+                        setIsSuccess(false);
+                        setMacAddress('');
+                        setIsKeyGenerated(false);
+                        setIsAgreed(false);
+                      }}
+                      className="px-10 py-3.5 bg-slate-900 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-slate-800 hover:shadow-lg transition-all active:scale-95"
+                    >
+                      Activate Another
+                    </button>
+                  </div>
+                </motion.div>
+              </>
             )}
           </div>
 

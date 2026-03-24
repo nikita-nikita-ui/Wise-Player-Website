@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { validateDevice, checkoutPayment } from "../auth/apiservice";
 // --- Typewriter Component ---
 const Typewriter = ({ texts }) => {
     const [index, setIndex] = useState(0);
@@ -53,8 +54,33 @@ const staggerContainer = {
 
 const WisePlayerHome = () => {
     const { t } = useTranslation();
-
+    const [showModal, setShowModal] = useState(false);
+    const [mac, setMac] = useState('');
+    const [statusMsg, setStatusMsg] = useState('');
+    const [isActiveDevice, setIsActiveDevice] = useState(null);
     const navigate = useNavigate();
+    const handleSubmit = async () => {
+        if (!mac) {
+            alert("Enter MAC Address");
+            return;
+        }
+
+        try {
+            const res = await validateDevice(mac);
+
+            if (res.success && res.data?.allowed) {
+                setStatusMsg("Status: ACTIVE");
+                setIsActiveDevice(true);
+            } else {
+                setStatusMsg("Status: INACTIVE");
+                setIsActiveDevice(false);
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong");
+        }
+    };
     return (
         <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
             <style>
@@ -168,7 +194,7 @@ const WisePlayerHome = () => {
                 ::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
 
                 .contact-link { transition: 0.3s; }
-.contact-link:hover { color: #ff0000 !important; transform: translateX(-5px); }
+                 .contact-link:hover { color: #ff0000 !important; transform: translateX(-5px); }
 .hover-red-text:hover { color: #ff0000 !important; }
 
 /* Background & Layout */
@@ -305,7 +331,7 @@ const WisePlayerHome = () => {
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-12 mb-3 animate-up">
-                            <h2 class="disclaimer-heading">{t('disclaimerHeading')}</h2> {/* **BADLAV 1** */}
+                            <h2 className="disclaimer-heading">{t('disclaimerHeading')}</h2> {/* **BADLAV 1** */}
                         </div>
 
                         <div class="col-lg-5 mb-4 animate-left">
@@ -435,21 +461,32 @@ const WisePlayerHome = () => {
                     <Row className="justify-content-center">
                         <Col lg={4} md={6} className="mb-4">
                             <Card className="glass-card p-5 border-0 h-100">
-                                <h5 className="fw-bold">{t('price_standard_title')}</h5>
-                                <h2 className="display-5 fw-bold my-4">€ 5.99</h2>
+                                <h5
+                                    className="fw-bold"
+                                    style={{
+                                        fontWeight: '900',
+                                        textShadow: '0 0 10px red, 0 0 20px gray, 0 0 30px gray'
+                                    }}
+                                >
+                                    {t('ANNUAL')}
+                                </h5>                               <h2 className="display-5 fw-bold my-4">€ 5.99</h2>
                                 <p className="text-muted small mb-4">{t('price_standard_desc')}</p>
                                 <div className="mb-5">
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_year_access')}</span></div>
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_email_support')}</span></div>
                                 </div>
-                                <Button variant="outline-dark" className="w-100 py-3 fw-bold rounded-3">{t('price_get_started')}</Button>
+                                <Button
+                                    variant="outline-dark"
+                                    className="w-100 py-3 fw-bold rounded-3"
+                                    onClick={() => setShowModal(true)}
+                                >{t('CHECK STATUS')}</Button>
                             </Card>
                         </Col>
                         <Col lg={4} md={6} className="mb-4">
                             <Card className="glass-card p-5 border-0 h-100 text-white" style={{ background: '#000' }}>
                                 <Badge bg="danger" className="mb-3 w-50">{t('price_lifetime_badge')}</Badge>
-                                <h5 className="fw-bold">{t('price_pro_title')}</h5>
-                                <h2 className="display-5 fw-bold my-4">€ 14.99</h2>
+                                <h5 className="fw-bold">{t('LIFETIME')}</h5>
+                                <h2 className="display-5 fw-bold my-4">€ 9.99</h2>
                                 <p className="text-white-50 small mb-4">{t('price_pro_desc')}</p>
                                 <div className="mb-5">
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_permanent_license')}</span></div>
@@ -515,7 +552,7 @@ const WisePlayerHome = () => {
             </Container>
 
             {/* --- FOOTER --- */}
-              <footer className="py-5" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+            <footer className="py-5" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
                 <Container>
                     <Row className="gy-5 justify-content-between">
                         {/* 1. BRAND SECTION */}
@@ -617,6 +654,140 @@ const WisePlayerHome = () => {
         }
     `}</style>
             </footer>
+            {showModal && (
+                <AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px'
+                        }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            style={{
+                                background: '#fff',
+                                border: '3px solid #000',
+                                borderRadius: '24px',
+                                width: '100%',
+                                maxWidth: '450px',
+                                padding: '40px',
+                                textAlign: 'center',
+                                boxShadow: '0 20px 40px rgba(255,0,0,0.3), 0 0 0 8px rgba(255,255,255,0.1)',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}
+                        >
+                            {/* Decorative Red Bar at top */}
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '8px', background: '#ff0000' }}></div>
+
+                            <div className="mb-4">
+                                <div style={{ background: '#fff0f0', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px' }}>
+                                    <Smartphone color="#ff0000" size={30} />
+                                </div>
+                                <h3 className="brand-font" style={{ fontSize: '1.2rem', color: '#000', letterSpacing: '1px' }}>Device Activation</h3>
+                                <p className="text-muted small">Please enter your device MAC address to continue</p>
+                            </div>
+
+                            <div className="position-relative mb-4">
+                                <input
+                                    type="text"
+                                    value={mac}
+                                    onChange={(e) => setMac(e.target.value.toUpperCase())}
+                                    placeholder="00:1A:79:XX:XX:XX"
+                                    style={{
+                                        width: '100%',
+                                        padding: '15px 20px',
+                                        fontSize: '1.1rem',
+                                        fontWeight: '600',
+                                        borderRadius: '12px',
+                                        border: '2px solid #e0e0e0',
+                                        outline: 'none',
+                                        transition: '0.3s',
+                                        textAlign: 'center',
+                                        letterSpacing: '2px',
+                                        textTransform: 'uppercase'
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = '#ff0000'}
+                                    onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+                                />
+                            </div>
+
+                            {statusMsg && (
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4">
+                                    <div style={{
+                                        padding: '12px',
+                                        borderRadius: '10px',
+                                        background: isActiveDevice ? '#e7f5ec' : '#fdf2f2',
+                                        color: isActiveDevice ? '#0e6245' : '#af0303',
+                                        fontWeight: '700',
+                                        fontSize: '0.9rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        border: `1px solid ${isActiveDevice ? '#0e6245' : '#ff0000'}`
+                                    }}>
+                                        {isActiveDevice ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
+                                        {statusMsg}
+                                    </div>
+
+                                    <Button
+                                        className="w-100 mt-3 btn-premium"
+                                        style={{ padding: '15px', borderRadius: '12px' }}
+                                        onClick={async () => {
+                                            if (isActiveDevice) {
+                                                const res = await checkoutPayment(mac, "ANNUAL");
+                                                if (res.success && res.data?.checkoutUrl) {
+                                                    window.location.href = res.data.checkoutUrl;
+                                                }
+                                            } else {
+                                                navigate("/activation");
+                                            }
+                                        }}
+                                    >
+                                        {isActiveDevice ? 'PROCEED TO PAYMENT' : 'ACTIVATE NOW'} <ArrowRight size={18} className="ms-2" />
+                                    </Button>
+                                </motion.div>
+                            )}
+
+                            <div className="d-flex gap-3">
+                                {!statusMsg && (
+                                    <Button
+                                        variant="dark"
+                                        className="w-100 py-3 fw-bold"
+                                        style={{ borderRadius: '12px', background: '#000' }}
+                                        onClick={handleSubmit}
+                                    >
+                                        CHECK STATUS
+                                    </Button>
+                                )}
+
+                                <Button
+                                    variant="link"
+                                    className="w-100 text-decoration-none fw-bold"
+                                    style={{ color: '#666', fontSize: '0.85rem' }}
+                                    onClick={() => {
+                                        if (statusMsg) {
+                                            setStatusMsg('');
+                                            setIsActiveDevice(null);
+                                            setMac('');
+                                        } else {
+                                            setShowModal(false);
+                                        }
+                                    }}
+                                >
+                                    {statusMsg ? "← TRY ANOTHER MAC" : "CANCEL"}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                </AnimatePresence>
+            )}
         </div>
     );
 };
