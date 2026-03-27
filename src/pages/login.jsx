@@ -11,7 +11,6 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    // 1. Email ki jagah Username state
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -20,7 +19,6 @@ const LoginPage = () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    // 1. Username validation (यह वैसा ही रहेगा जैसा आपने चाहा था)
     const usernameRegex = /^[a-zA-Z0-9._]+$/;
     if (!usernameRegex.test(username)) {
         setLoading(false);
@@ -37,12 +35,11 @@ const LoginPage = () => {
     setLoading(false); // API response के बाद loading बंद
 
     if (result.success) {
-        // अगर API से success मिला (Case-sensitivity API खुद चेक कर लेगी)
         setMessage({ type: 'success', text: 'Success! Redirecting to dashboard...' });
-        
-        // 1 सेकंड बाद Home page  पर भेज देगा
+      localStorage.setItem('userName', username);
         setTimeout(() => { 
-            navigate('/'); 
+
+            navigate('/dashboard'); 
         }, 1000);
     } else {
         setMessage({ 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './Home.css';
 import { Container, Row, Col, Card, Button, Badge, Accordion, Navbar, Nav } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -8,13 +9,13 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { validateDevice, checkoutPayment } from "../auth/apiservice";
+import { validateDevice, checkoutPayment } from "../../auth/apiservice";
+
 // --- Typewriter Component ---
 const Typewriter = ({ texts }) => {
     const [index, setIndex] = useState(0);
     const [subIndex, setSubIndex] = useState(0);
     const [reverse, setReverse] = useState(false);
-
     useEffect(() => {
         if (subIndex === texts[index].length + 1 && !reverse) {
             setTimeout(() => setReverse(true), 1500);
@@ -58,6 +59,7 @@ const WisePlayerHome = () => {
     const [mac, setMac] = useState('');
     const [statusMsg, setStatusMsg] = useState('');
     const [isActiveDevice, setIsActiveDevice] = useState(null);
+     const [selectedPlan, setSelectedPlan] = useState('ANNUAL');
     const navigate = useNavigate();
     const handleSubmit = async () => {
         if (!mac) {
@@ -83,193 +85,7 @@ const WisePlayerHome = () => {
     };
     return (
         <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
-            <style>
-                {`
-                @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600;700;800&display=swap');
-                
-                body { font-family: 'Inter', sans-serif; background-color: #f4f4f7; }
-                h1, h2, h3, .brand-font { font-family: 'Syncopate', sans-serif; text-transform: uppercase; letter-spacing: 3px; }
-
-                /* TV Mockup Styling */
-                .tv-frame {
-                    background: #000;
-                    padding: 12px;
-                    border-radius: 20px;
-                    box-shadow: 0 50px 100px -20px rgba(0,0,0,0.3);
-                    border: 4px solid #222;
-                    position: relative;
-                }
-                .tv-screen {
-                    background: #111;
-                    border-radius: 10px;
-                    overflow: hidden;
-                    aspect-ratio: 16/9;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .tv-stand {
-                    width: 120px;
-                    height: 10px;
-                    background: #333;
-                    margin: 0 auto;
-                    border-bottom-left-radius: 20px;
-                    border-bottom-right-radius: 20px;
-                }
-
-                .glass-card {
-                    background: #ffffff;
-                    border: 1px solid rgba(0,0,0,0.05);
-                    border-radius: 24px;
-                    transition: all 0.4s ease;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.03);
-                }
-
-                .glass-card:hover {
-                    border-color: #ff0000;
-                    box-shadow: 0 25px 50px rgba(255, 0, 0, 0.08);
-                    transform: translateY(-8px);
-                }
-
-                .typewriter-text {
-                    color: #ff0000;
-                    font-weight: 800;
-                }
-
-                .cursor {
-                    display: inline-block;
-                    width: 3px;
-                    background-color: #000;
-                    margin-left: 5px;
-                    animation: blink 1s infinite;
-                }
-
-                @keyframes blink {
-                    0% { opacity: 1; }
-                    50% { opacity: 0; }
-                    100% { opacity: 1; }
-                }
-
-                .hero-section {
-                    padding: 160px 0 120px 0;
-                    background: linear-gradient(135deg, #f4f4f7 0%, #e9eaef 100%);
-                }
-
-                .btn-premium {
-                    background: #000;
-                    border: none;
-                    padding: 16px 40px;
-                    font-weight: 700;
-                    border-radius: 12px;
-                    color: white;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    transition: 0.4s;
-                }
-
-                .btn-premium:hover {
-                    background: #ff0000;
-                    box-shadow: 0 15px 30px rgba(255, 0, 0, 0.25);
-                    color: white;
-                    transform: scale(1.02);
-                }
-
-                .nav-link-custom {
-                    color: #1a1a1a !important;
-                    font-weight: 700;
-                    text-transform: uppercase;
-                    font-size: 0.8rem;
-                    margin: 0 15px;
-                    opacity: 0.7;
-                    transition: 0.3s;
-                }
-
-                .nav-link-custom:hover { opacity: 1; color: #ff0000 !important; }
-
-                .accordion-button { background-color: #fff !important; font-weight: 700; padding: 20px; }
-                .accordion-item { border: none !important; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-radius: 15px !important; overflow: hidden; }
-                
-                ::-webkit-scrollbar { width: 10px; }
-                ::-webkit-scrollbar-track { background: #f4f4f7; }
-                ::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
-
-                .contact-link { transition: 0.3s; }
-                 .contact-link:hover { color: #ff0000 !important; transform: translateX(-5px); }
-.hover-red-text:hover { color: #ff0000 !important; }
-
-/* Background & Layout */
-.disclaimer-area {
-    background-color: #f1e5ec; /* Light pink tint */
-    font-family: 'Poppins', sans-serif;
-    overflow: hidden;
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.disclaimer-heading {
-    font-weight: 800;
-    color: #1e2749;
-    font-size: 1.8rem;
-    letter-spacing: 1px;
-}
-
-.info-box p {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: #444;
-}
-
-/* List Styling */
-.clean-list {
-    list-style: none;
-    padding: 0;
-}
-
-.list-point {
-    font-size: 0.9rem;
-    color: #333;
-    padding: 8px 12px;
-    margin-bottom: 5px;
-    border-radius: 6px;
-    transition: all 0.3s ease-in-out;
-    display: flex;
-    align-items: center;
-}
-
-/* Hover Effect */
-.list-point:hover {
-    background: #ffffff;
-    transform: scale(1.02);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    color: #e91e63; /* Pink highlight on hover */
-}
-
-.arrow {
-    color: #ff5252;
-    margin-right: 12px;
-    font-size: 12px;
-}
-
-/* Animations */
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideLeft {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideRight {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-.animate-up { animation: slideUp 0.8s ease-out; }
-.animate-left { animation: slideLeft 1s ease-out; }
-.animate-right { animation: slideRight 1s ease-out; }
-                `}
-            </style>
+   
 
 
 
@@ -493,7 +309,15 @@ const WisePlayerHome = () => {
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_priority_updates')}</span></div>
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_247_support')}</span></div>
                                 </div>
-                                <Button className="btn-premium w-100 py-3">{t('price_activate_lifetime')}</Button>
+                                <Button
+                                    className="btn-premium w-100 py-3"
+                                    onClick={() => {
+                                        setSelectedPlan('LIFETIME'); // Plan set karein
+                                        setShowModal(true);
+                                    }}
+                                >
+                                    {t('price_activate_lifetime')}
+                                </Button>
                             </Card>
                         </Col>
                     </Row>
@@ -741,7 +565,8 @@ const WisePlayerHome = () => {
                                         style={{ padding: '15px', borderRadius: '12px' }}
                                         onClick={async () => {
                                             if (isActiveDevice) {
-                                                const res = await checkoutPayment(mac, "ANNUAL");
+                                                // "ANNUAL" ki jagah selectedPlan variable use karein
+                                                const res = await checkoutPayment(mac, selectedPlan);
                                                 if (res.success && res.data?.checkoutUrl) {
                                                     window.location.href = res.data.checkoutUrl;
                                                 }
