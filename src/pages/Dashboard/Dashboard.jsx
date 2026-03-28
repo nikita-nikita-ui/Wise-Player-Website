@@ -47,7 +47,6 @@ const Dashboard = () => {
     return (
         <div className="container-fluid p-0 d-flex" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh", fontFamily: "'Inter', sans-serif" }}>
 
-            <Sidebar setActiveTab={setActiveTab} activeTab={activeTab} />
 
             <div className="flex-grow-1 overflow-auto w-100" style={{ minWidth: 0 }}>     <header className="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center sticky-top" style={{ zIndex: 999 }}>
                 <h5 className="fw-bold text-dark m-0 text-uppercase" style={{ fontSize: '0.9rem', letterSpacing: '1px' }}>

@@ -8,9 +8,9 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/users', label: 'User Management', icon: Users },
-    { path: '/resellers', label: 'Sub Resellers', icon: Layers },
+    { path: '/subreseller', label: 'Sub Resellers', icon: Layers },
     { path: '/requests', label: 'Activation Requests', icon: Clock },
     { path: '/new-activation', label: ' Track Activation Request', icon: PlusCircle },
     { path: '/logout', label: 'Logout', icon: LogOut },
