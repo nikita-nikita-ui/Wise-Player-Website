@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App.jsx'
 import './index.css' 
+import {DashboardProvider} from '../src/context/dashboardContext.jsx'
 
 // *** NEW IMPORTS FOR I18N ***
 import i18n from 'i18next';
@@ -31,7 +32,9 @@ i18n
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <DashboardProvider>
     <App />
+    </DashboardProvider>
   </React.StrictMode>,
 )
 

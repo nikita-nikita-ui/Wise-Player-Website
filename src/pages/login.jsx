@@ -19,15 +19,15 @@ const LoginPage = () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    const usernameRegex = /^[a-zA-Z0-9._]+$/;
-    if (!usernameRegex.test(username)) {
-        setLoading(false);
-        setMessage({
-            type: 'danger',
-            text: 'Username can only contain letters, numbers, underscores, and dots.'
-        });
-        return;
-    }
+    // const usernameRegex = /^[a-zA-Z0-9._]+$/;
+    // if (!usernameRegex.test(username)) {
+    //     setLoading(false);
+    //     setMessage({
+    //         type: 'danger',
+    //         text: 'Username can only contain letters, numbers, underscores, and dots.'
+    //     });
+    //     return;
+    // }
 
     // 2. Real API Call (Mock logic को हटाकर)
     const result = await loginReseller({ username, password });

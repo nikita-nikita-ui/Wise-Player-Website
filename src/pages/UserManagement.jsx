@@ -1,39 +1,80 @@
-
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Power, ShieldCheck, X } from "lucide-react";
-
+import { subscibedUserinfo } from "../auth/userManagement";
+import { formatDate } from "../auth/utilfunction";
+import { DisableUserAccount } from "../auth/userManagement";
 function UserManagement() {
   const [users, setUsers] = useState([
-    { id: 1, name: "Aditya Verma", email: "aditya@domain.com", status: "Active", plan: "Premium", joinDate: "12 Oct 2023" },
-    { id: 2, name: "Jasprit Kaur", email: "jasprit@domain.com", status: "Active", plan: "Standard", joinDate: "05 Jan 2024" },
-    { id: 3, name: "Vikram Rathore", email: "vikram@domain.com", status: "Disabled", plan: "Premium", joinDate: "20 Feb 2024" },
+    {
+      id: "1",
+      name: "santosh",
+      email: "skemail.com",
+      status: "Active",
+      plan: "preminum",
+      joinDate: "1-1-1",
+    },
   ]);
+  const [devices, setDevices] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
-  const [newUser, setNewUser] = useState({ name: "", email: "", plan: "Standard" });
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    plan: "Standard",
+  });
 
   useEffect(() => {
     document.body.style.margin = "0";
-    document.body.style.backgroundColor = "#f4f7f6"; 
+    document.body.style.backgroundColor = "#f4f7f6";
     document.body.style.fontFamily = "'Inter', sans-serif";
+  }, []);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      const res = await subscibedUserinfo();
+
+      console.log("API Response:", res.data); // ✅ ab actual data aayega
+      if (res.success) {
+        setDevices(res.data);
+      } else {
+        console.error(res.message);
+      }
+    };
+    const handleDisable = async (deviceId) => {
+      const response = await DisableUserAccount(deviceId);
+
+      console.log(response.data);
+      fetchDashboard();
+    };
+
+    fetchDashboard();
   }, []);
 
   const handleAddUser = (e) => {
     e.preventDefault();
-    const user = { 
-      id: Date.now(), 
-      ...newUser, 
-      status: "Active", 
-      joinDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+    const user = {
+      id: Date.now(),
+      ...newUser,
+      status: "Active",
+      joinDate: new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
     };
     setUsers([user, ...users]);
     setShowModal(false);
   };
 
   const toggleStatus = (id) => {
-    setUsers(users.map(u => u.id === id ? { ...u, status: u.status === "Active" ? "Disabled" : "Active" } : u));
+    setUsers(
+      users.map((u) =>
+        u.id === id
+          ? { ...u, status: u.status === "Active" ? "Disabled" : "Active" }
+          : u,
+      ),
+    );
   };
 
   return (
@@ -42,11 +83,22 @@ function UserManagement() {
       <div style={mainContentStyle}>
         <header style={headerStyle}>
           <div>
-            <h2 style={{ margin: 0, color: "#2d3436", textTransform: "uppercase", letterSpacing: "1px" }}>User Management</h2>
-            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>Manage members and subscriptions</p>
+            <h2
+              style={{
+                margin: 0,
+                color: "#2d3436",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+              }}
+            >
+              User Management
+            </h2>
+            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>
+              Manage members and subscriptions
+            </p>
           </div>
-          <motion.button 
-            whileHover={{ scale: 1.05 }} 
+          <motion.button
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowModal(true)}
             style={addBtnStyle}
@@ -57,14 +109,16 @@ function UserManagement() {
 
         {/* Stats Row */}
         <div style={statsRow}>
-            <div style={statCard}>Total Users: {users.length}</div>
-            <div style={{...statCard, borderLeft: "4px solid #1e3a8a"}}>Active: {users.filter(u=>u.status==="Active").length}</div>
+          <div style={statCard}>Total Users: {users.length}</div>
+          <div style={{ ...statCard, borderLeft: "4px solid #1e3a8a" }}>
+            Active: {users.filter((u) => u.status === "Active").length}
+          </div>
         </div>
 
         {/* Grid Container - Full Width */}
-        <div style={gridContainer}>
+        <div>
           <AnimatePresence>
-            {users.map((user) => (
+            {/* {users.map((user) => (
               <motion.div
                 key={user.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -72,29 +126,132 @@ function UserManagement() {
                 style={cardStyle}
               >
                 <div style={cardTop}>
-                    <div style={avatarStyle}>{user.name.charAt(0)}</div>
-                    <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: 0, color: "#2d3436" }}>{user.name}</h4>
-                        <span style={user.status === "Active" ? activeBadge : inactiveBadge}>{user.status}</span>
-                    </div>
-                    <div style={planBadge(user.plan === "Premium")}>{user.plan}</div>
+                  <div style={avatarStyle}>{user.name.charAt(0)}</div>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ margin: 0, color: "#2d3436" }}>{user.name}</h4>
+                    <span
+                      style={
+                        user.status === "Active" ? activeBadge : inactiveBadge
+                      }
+                    >
+                      {user.status}
+                    </span>
+                  </div>
+                  <div style={planBadge(user.plan === "Premium")}>
+                    {user.plan}
+                  </div>
                 </div>
 
                 <div style={cardBody}>
-                    <p style={detailText}><strong>Email:</strong> {user.email}</p>
-                    <p style={detailText}><strong>Joined:</strong> {user.joinDate}</p>
+                  <p style={detailText}>
+                    <strong>Email:</strong> {user.email}
+                  </p>
+                  <p style={detailText}>
+                    <strong>Joined:</strong> {user.joinDate}
+                  </p>
                 </div>
 
                 <div style={cardActions}>
-                    <button onClick={() => toggleStatus(user.id)} style={user.status === "Active" ? disableBtn : enableBtn}>
-                        <Power size={14} /> {user.status === "Active" ? "Disable" : "Enable"}
-                    </button>
-                    <button onClick={() => alert(`Plan: ${user.plan}`)} style={checkBtn}>
-                        Subscription
-                    </button>
+                  <button
+                    onClick={() => toggleStatus(user.id)}
+                    style={user.status === "Active" ? disableBtn : enableBtn}
+                  >
+                    <Power size={14} />{" "}
+                    {user.status === "Active" ? "Disable" : "Enable"}
+                  </button>
+                  <button
+                    onClick={() => alert(`Plan: ${user.plan}`)}
+                    style={checkBtn}
+                  >
+                    Subscription
+                  </button>
                 </div>
               </motion.div>
-            ))}
+            ))} */}
+            <div className="bg-white rounded-xl shadow border overflow-x-auto">
+              <table className="min-w-full text-sm text-left">
+                {/* Header */}
+                <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+                  <tr>
+                    <th className="px-4 py-3">Device</th>
+                    <th className="px-4 py-3">Device ID</th>
+                    <th className="px-4 py-3">Platform</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Subscription</th>
+                    <th className="px-4 py-3">Expires</th>
+                    <th className="px-4 py-3">Registered</th>
+                    <th className="px-4 py-3">action</th>
+                  </tr>
+                </thead>
+
+                {/* Body */}
+                <tbody>
+                  {devices.slice(0, 5).map((item, index) => (
+                    <tr key={index} className="border-t hover:bg-gray-50">
+                      {/* Device */}
+                      <td className="px-2 py-3 font-medium">
+                        {item.deviceModel}
+                      </td>
+
+                      {/* Device ID */}
+                      <td className="px-1 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
+                        <span>{item.deviceId.slice(0, 8)}...</span>
+
+                        <button
+                          onClick={() => copyToClipboard(item.deviceId)}
+                          className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
+                        >
+                          Copy
+                        </button>
+                      </td>
+
+                      {/* Platform */}
+                      <td className="px-1 py-3">
+                        {item.platform} ({item.osVersion})
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-3 py-3">
+                        <span
+                          className={`px-2 py-1 text-center text-xs rounded-full font-semibold ${
+                            item.deviceStatus === "ACTIVE"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-600"
+                          }`}
+                        >
+                          {item.deviceStatus}
+                        </span>
+                      </td>
+
+                      {/* Subscription */}
+                      <td className="px-2 text-center py-3">
+                        {item.subscriptionType}
+                      </td>
+
+                      {/* Expires */}
+                      <td className="px-2 text-center py-3">
+                        {formatDate(item.expiresAt)}
+                      </td>
+
+                      {/* Registered */}
+                      <td className="px-2 text-center py-3">
+                        {formatDate(item.registeredAt)}
+                      </td>
+
+                      <td>
+                        <button
+                          onClick={() => handleDisable(item.deviceId)}
+                          style={item.active === true ? disableBtn : enableBtn}
+                        >
+                          <Power size={14} />{" "}
+                          {item.active === true ? "Disable" : "Enable"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </AnimatePresence>
         </div>
       </div>
@@ -103,19 +260,51 @@ function UserManagement() {
       <AnimatePresence>
         {showModal && (
           <div style={modalOverlay}>
-            <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} style={modalContainer}>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              style={modalContainer}
+            >
               <div style={modalHeader}>
                 <h3>New User Registration</h3>
-                <X size={20} style={{ cursor: "pointer" }} onClick={() => setShowModal(false)} />
+                <X
+                  size={20}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setShowModal(false)}
+                />
               </div>
               <form onSubmit={handleAddUser}>
-                <input required placeholder="Full Name" style={inputStyle} type="text" onChange={(e) => setNewUser({...newUser, name: e.target.value})} />
-                <input required placeholder="Email" style={inputStyle} type="email" onChange={(e) => setNewUser({...newUser, email: e.target.value})} />
-                <select style={inputStyle} onChange={(e) => setNewUser({...newUser, plan: e.target.value})}>
+                <input
+                  required
+                  placeholder="Full Name"
+                  style={inputStyle}
+                  type="text"
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, name: e.target.value })
+                  }
+                />
+                <input
+                  required
+                  placeholder="Email"
+                  style={inputStyle}
+                  type="email"
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, email: e.target.value })
+                  }
+                />
+                <select
+                  style={inputStyle}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, plan: e.target.value })
+                  }
+                >
                   <option value="Standard">Standard</option>
                   <option value="Premium">Premium</option>
                 </select>
-                <button type="submit" style={submitBtn}>Confirm & Create</button>
+                <button type="submit" style={submitBtn}>
+                  Confirm & Create
+                </button>
               </form>
             </motion.div>
           </div>
@@ -135,9 +324,9 @@ const layoutStyle = {
 
 const mainContentStyle = {
   width: "100%", // अब ये पूरी स्क्रीन लेगा
-  padding: "40px",
+  padding: "20px",
   boxSizing: "border-box", // पैडिंग को विड्थ के अंदर रखने के लिए
-  margin: "0" // कोई मार्जिन नहीं
+  margin: "0", // कोई मार्जिन नहीं
 };
 
 const headerStyle = {
@@ -145,37 +334,168 @@ const headerStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   marginBottom: "40px",
-  width: "100%"
+  width: "100%",
 };
 
 const gridContainer = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
   gap: "25px",
-  width: "100%" // सुनिश्चित करें कि ग्रिड पूरी जगह ले
+  width: "100%", // सुनिश्चित करें कि ग्रिड पूरी जगह ले
 };
 
 // ... बाकी स्टाइल वही रहेंगे (Maroon/Blue थीम वाले) ...
 
-const addBtnStyle = { background: "#800000", color: "white", border: "none", padding: "12px 24px", borderRadius: "12px", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 15px rgba(128, 0, 0, 0.2)" };
+const addBtnStyle = {
+  background: "#800000",
+  color: "white",
+  border: "none",
+  padding: "12px 24px",
+  borderRadius: "12px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: "8px",
+  boxShadow: "0 4px 15px rgba(128, 0, 0, 0.2)",
+};
 const statsRow = { display: "flex", gap: "20px", marginBottom: "30px" };
-const statCard = { background: "white", padding: "15px 25px", borderRadius: "12px", fontWeight: "bold", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", borderLeft: "4px solid #800000" };
-const cardStyle = { background: "white", borderRadius: "20px", padding: "24px", boxShadow: "0 10px 30px rgba(0,0,0,0.05)", border: "1px solid #eee" };
-const cardTop = { display: "flex", gap: "15px", alignItems: "center", marginBottom: "20px", borderBottom: "1px solid #f5f5f5", paddingBottom: "15px" };
-const avatarStyle = { width: "45px", height: "45px", background: "#f0f2f5", color: "#800000", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "20px" };
-const activeBadge = { fontSize: "11px", background: "#dcfce7", color: "#15803d", padding: "2px 8px", borderRadius: "20px", fontWeight: "bold" };
-const inactiveBadge = { fontSize: "11px", background: "#fee2e2", color: "#b91c1c", padding: "2px 8px", borderRadius: "20px", fontWeight: "bold" };
-const planBadge = (isPremium) => ({ fontSize: "12px", color: isPremium ? "#1e3a8a" : "#636e72", fontWeight: "bold", textTransform: "uppercase", border: `1px solid ${isPremium ? "#1e3a8a" : "#ddd"}`, padding: "4px 10px", borderRadius: "8px" });
+const statCard = {
+  background: "white",
+  padding: "15px 25px",
+  borderRadius: "12px",
+  fontWeight: "bold",
+  boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+  borderLeft: "4px solid #800000",
+};
+const cardStyle = {
+  background: "white",
+  borderRadius: "20px",
+  padding: "24px",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
+  border: "1px solid #eee",
+};
+const cardTop = {
+  display: "flex",
+  gap: "15px",
+  alignItems: "center",
+  marginBottom: "20px",
+  borderBottom: "1px solid #f5f5f5",
+  paddingBottom: "15px",
+};
+const avatarStyle = {
+  width: "45px",
+  height: "45px",
+  background: "#f0f2f5",
+  color: "#800000",
+  borderRadius: "12px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: "bold",
+  fontSize: "20px",
+};
+const activeBadge = {
+  fontSize: "11px",
+  background: "#dcfce7",
+  color: "#15803d",
+  padding: "2px 8px",
+  borderRadius: "20px",
+  fontWeight: "bold",
+};
+const inactiveBadge = {
+  fontSize: "11px",
+  background: "#fee2e2",
+  color: "#b91c1c",
+  padding: "2px 8px",
+  borderRadius: "20px",
+  fontWeight: "bold",
+};
+const planBadge = (isPremium) => ({
+  fontSize: "12px",
+  color: isPremium ? "#1e3a8a" : "#636e72",
+  fontWeight: "bold",
+  textTransform: "uppercase",
+  border: `1px solid ${isPremium ? "#1e3a8a" : "#ddd"}`,
+  padding: "4px 10px",
+  borderRadius: "8px",
+});
 const detailText = { margin: "5px 0", fontSize: "14px", color: "#636e72" };
 const cardBody = { marginBottom: "20px" };
 const cardActions = { display: "flex", gap: "10px" };
-const disableBtn = { flex: 1, background: "#fff", border: "1px solid #800000", color: "#800000", padding: "10px", borderRadius: "10px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", fontSize: "13px", fontWeight: "600" };
+const disableBtn = {
+  flex: 1,
+  background: "#fff",
+  border: "1px solid #800000",
+  color: "#800000",
+  padding: "10px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "5px",
+  fontSize: "13px",
+  fontWeight: "600",
+};
 const enableBtn = { ...disableBtn, background: "#800000", color: "#fff" };
-const checkBtn = { flex: 1, background: "#1e3a8a", color: "#fff", border: "none", padding: "10px", borderRadius: "10px", cursor: "pointer", fontSize: "13px", fontWeight: "600" };
-const modalOverlay = { position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(5px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 };
-const modalContainer = { background: "white", padding: "35px", borderRadius: "24px", width: "400px", boxShadow: "0 20px 50px rgba(0,0,0,0.3)" };
-const modalHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", color: "#800000" };
-const inputStyle = { width: "100%", padding: "12px", marginBottom: "20px", borderRadius: "10px", border: "1px solid #ddd", outline: "none", boxSizing: "border-box" };
-const submitBtn = { width: "100%", padding: "14px", background: "linear-gradient(90deg, #800000, #1e3a8a)", color: "white", border: "none", borderRadius: "10px", fontWeight: "bold", cursor: "pointer", fontSize: "16px" };
+const checkBtn = {
+  flex: 1,
+  background: "#1e3a8a",
+  color: "#fff",
+  border: "none",
+  padding: "10px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontSize: "13px",
+  fontWeight: "600",
+};
+const modalOverlay = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  background: "rgba(0,0,0,0.6)",
+  backdropFilter: "blur(5px)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+};
+const modalContainer = {
+  background: "white",
+  padding: "35px",
+  borderRadius: "24px",
+  width: "400px",
+  boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
+};
+const modalHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "25px",
+  color: "#800000",
+};
+const inputStyle = {
+  width: "100%",
+  padding: "12px",
+  marginBottom: "20px",
+  borderRadius: "10px",
+  border: "1px solid #ddd",
+  outline: "none",
+  boxSizing: "border-box",
+};
+const submitBtn = {
+  width: "100%",
+  padding: "14px",
+  background: "linear-gradient(90deg, #800000, #1e3a8a)",
+  color: "white",
+  border: "none",
+  borderRadius: "10px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  fontSize: "16px",
+};
 
 export default UserManagement;

@@ -1,5 +1,6 @@
 import axios from 'axios';
 const BASE_URL = 'https://api.wise-player.com';
+
 const apiService = axios.create({
   baseURL: BASE_URL,
   headers: {

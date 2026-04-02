@@ -76,18 +76,40 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Clock, CheckCircle, XCircle, Plus, Filter, ArrowLeft } from "lucide-react";
+import {activationRequest} from '../auth/ativationRequest';
+import { formatDate } from "../auth/utilfunction";
+
+
 
 function RequestManagement() {
   // State for Requests
-  const [requests, setRequests] = useState([
-    { id: 1, title: "Server Access", description: "Need access to production server for deployment.", status: "Pending", date: "2023-10-24" },
-    { id: 2, title: "Software License", description: "Requesting Adobe Suite license for design work.", status: "Approved", date: "2023-10-22" },
-    { id: 3, title: "Hardware Upgrade", description: "Requesting 16GB RAM upgrade for workstation.", status: "Rejected", date: "2023-10-20" },
-  ]);
+  const [requests, setRequests] = useState([]);
+  console.log('request : ', requests)
 
   const [showModal, setShowModal] = useState(false);
   const [newRequest, setNewRequest] = useState({ title: "", description: "" });
   const [filter, setFilter] = useState("All");
+
+ useEffect(() => {
+  const fetchActiveRequest = async () => {
+    const response = await activationRequest();
+    const data = response.data;
+
+    console.log("API full response:", data);
+
+    setRequests(
+      data.map(item => ({
+        id: item.id,
+        title: item.adminNotes,
+        status: item.status,
+        createdAt: formatDate(item.updatedAt),
+      }))
+    );
+  };
+
+  fetchActiveRequest();
+}, []);
+
 
   useEffect(() => {
     document.body.style.margin = "0";
@@ -176,9 +198,11 @@ function RequestManagement() {
                 </div>
                 
                 <p style={cardDesc}>{req.description}</p>
+                <span>resellerID</span>
+                <span>deviceId</span>
                 
                 <div style={cardFooter}>
-                  <span style={dateText}>Date: {req.date}</span>
+                  <span style={dateText}>Date: {req.createdAt}</span>
                   <span style={trackLink}>Track Details →</span>
                 </div>
               </motion.div>
