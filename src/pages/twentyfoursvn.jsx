@@ -1,17 +1,19 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Play, ShieldCheck, Zap, Globe, 
-  Tv, Cpu, Headphones, ChevronRight 
+import { useNavigate } from "react-router-dom";
+import {
+  Play, ShieldCheck, Zap, Globe,
+  Tv, Cpu, Headphones, ChevronRight
 } from 'lucide-react';
 
 const TwentyFourSeven = () => {
+  const navigate = useNavigate();
   // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { staggerChildren: 0.2 } 
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 }
     }
   };
 
@@ -66,18 +68,18 @@ const TwentyFourSeven = () => {
 
       <div className="container py-5 mt-5 red-gradient-bg">
         {/* 1. HERO SECTION */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-5"
         >
-          <span className="badge rounded-pill px-3 py-2 mb-3" style={{backgroundColor: '#fff1f1', color: '#e63946', fontWeight: 'bold'}}>
+          <span className="badge rounded-pill px-3 py-2 mb-3" style={{ backgroundColor: '#fff1f1', color: '#e63946', fontWeight: 'bold' }}>
             LIVE 24/7 AVAILABLE
           </span>
           <h1 className="display-4 fw-bold text-slate-900 mb-3">
-            Entertainment That <span style={{color: '#e63946'}}>Never Sleeps.</span>
+            Entertainment That <span style={{ color: '#e63946' }}>Never Sleeps.</span>
           </h1>
-          <p className="text-muted fs-5 mx-auto" style={{maxWidth: '700px'}}>
+          <p className="text-muted fs-5 mx-auto" style={{ maxWidth: '700px' }}>
             "WisePlayer: Always On, Always Wise." Whether it's a 3 AM marathon or a midday binge, we are online whenever you are.
           </p>
           <div className="mt-4 d-flex gap-3 justify-content-center">
@@ -89,7 +91,7 @@ const TwentyFourSeven = () => {
         </motion.div>
 
         {/* 2. WHY CHOOSE (Feature Grid) */}
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -115,19 +117,22 @@ const TwentyFourSeven = () => {
         </motion.div>
 
         {/* 3. TECHNICAL SPEC & CTA (Summarized) */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           className="mt-5 p-5 glass-card text-center position-relative overflow-hidden"
-          style={{background: 'linear-gradient(135deg, #ffffff 0%, #fff1f1 100%)'}}
+          style={{ background: 'linear-gradient(135deg, #ffffff 0%, #fff1f1 100%)' }}
         >
           <div className="row align-items-center">
             <div className="col-lg-8 text-lg-start">
-              <h3 className="fw-bold">Ready to make the <span style={{color: '#e63946'}}>Wise choice?</span></h3>
+              <h3 className="fw-bold">Ready to make the <span style={{ color: '#e63946' }}>Wise choice?</span></h3>
               <p className="text-muted">Compatible with Android, iOS, Web, and Smart TVs. Join thousands of users today.</p>
             </div>
             <div className="col-lg-4 text-lg-end">
-              <button className="btn-red w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+              <button
+                className="btn-red w-100 py-3 d-flex align-items-center justify-content-center gap-2"
+                onClick={() => navigate("/home")}
+              >
                 Get Access Now <ChevronRight size={20} />
               </button>
             </div>
@@ -136,19 +141,19 @@ const TwentyFourSeven = () => {
 
         {/* 4. FOOTER SUPPORT MODULE (Jo image me tha) */}
         <div className="d-flex justify-content-center mt-5">
-           <motion.div 
+          <motion.div
             whileHover={{ scale: 1.05 }}
             className="d-flex align-items-center bg-white border rounded-pill px-4 py-2 shadow-sm"
-            style={{cursor: 'pointer'}}
-           >
-              <div style={{background: '#fff1f1', padding: '10px', borderRadius: '50%', color: '#e63946', marginRight: '15px'}}>
-                <Headphones size={20} />
-              </div>
-              <div className="text-start">
-                <p className="m-0 fw-bold small">Support Available 24/7</p>
-                <p className="m-0 text-muted" style={{fontSize: '10px'}}>We match our service with expert support.</p>
-              </div>
-           </motion.div>
+            style={{ cursor: 'pointer' }}
+          >
+            <div style={{ background: '#fff1f1', padding: '10px', borderRadius: '50%', color: '#e63946', marginRight: '15px' }}>
+              <Headphones size={20} />
+            </div>
+            <div className="text-start">
+              <p className="m-0 fw-bold small">Support Available 24/7</p>
+              <p className="m-0 text-muted" style={{ fontSize: '10px' }}>We match our service with expert support.</p>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

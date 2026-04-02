@@ -1,20 +1,11 @@
-
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  AlertCircle,
-  ChevronRight,
-  Cpu,
-  ShieldCheck,
-  CheckCircle2,
-  ExternalLink,
-  Zap,
-  HelpCircle,
-  Lock
+  AlertCircle, ChevronRight, Cpu, ShieldCheck, CheckCircle2,
+  ExternalLink, Zap, HelpCircle, Lock, Shield
 } from 'lucide-react';
 import { generateDeviceKey, activateDeviceApi } from '../../auth/apiservice';
-import './Activation.css'; // Importing the CSS file
+import './Activation.css';
 
 const WisePlayerActivation = () => {
   const [macAddress, setMacAddress] = useState('');
@@ -25,304 +16,282 @@ const WisePlayerActivation = () => {
   const [isKeyLoading, setIsKeyLoading] = useState(false);
   const [generatedKey, setGeneratedKey] = useState('');
 
-  // Logical States
   const isMacValid = macAddress.length === 12;
   const canActivate = isMacValid && isKeyGenerated && isAgreed;
 
-  // MAC Address formatting logic
   const handleMacChange = (e) => {
-    let value = e.target.value.toUpperCase();
-    value = value.replace(/[^0-9A-Z]/g, '');
-    if (value.length <= 12) {
-      setMacAddress(value);
-      setIsKeyGenerated(false);
-    }
+    let value = e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if (value.length <= 12) { setMacAddress(value); setIsKeyGenerated(false); }
   };
 
-  const formatMac = (val) => {
-    return val.match(/.{1,2}/g)?.join(':') || val;
-  };
+  const formatMac = (val) => val.match(/.{1,2}/g)?.join(':') || val;
 
   const handleGenerateKey = async () => {
     if (!isMacValid) return;
     setIsKeyLoading(true);
-    const formattedMac = formatMac(macAddress);
-    const result = await generateDeviceKey(formattedMac);
-    if (result.success) {
-      setGeneratedKey(result.data.activationKey);
-      setIsKeyGenerated(true);
-    } else {
-      alert(result.message || "Failed to generate key");
-    }
+    const result = await generateDeviceKey(formatMac(macAddress));
+    if (result.success) { setGeneratedKey(result.data.activationKey); setIsKeyGenerated(true); }
+    else alert(result.message || 'Failed to generate key');
     setIsKeyLoading(false);
   };
 
   const handleActivate = async () => {
     if (!canActivate) return;
     setIsLoading(true);
-
-    const deviceId = formatMac(macAddress);
-
-
-    const result = await activateDeviceApi(deviceId, generatedKey);
-
-    if (result.success) {
-      setIsSuccess(true);
-    } else {
-      alert(result.message || "Activation Failed");
-    }
-
+    const result = await activateDeviceApi(formatMac(macAddress), generatedKey);
+    if (result.success) setIsSuccess(true);
+    else alert(result.message || 'Activation Failed');
     setIsLoading(false);
   };
 
   const containerVars = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, staggerChildren: 0.1 }
-    }
+    hidden: { opacity: 0, y: 32 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.75, staggerChildren: 0.1, ease: [0.22, 1, 0.36, 1] } }
+  };
+  const itemVars = {
+    hidden: { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
   };
 
-  const itemVars = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 }
-  };
+
+  const steps = ['Enter MAC', 'Generate Key', 'Activate'];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center py-12 px-4 font-sans text-slate-800 relative overflow-hidden">
+    <div className="wp-root">
+      {/* Background blobs */}
+      <div className="wp-blob wp-blob--red" />
+      <div className="wp-blob wp-blob--blue" />
+      <div className="wp-blob wp-blob--purple" />
+      <div className="wp-grid" />
 
-      {/* Background Decorative Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-500/5 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+      <motion.div variants={containerVars} initial="hidden" animate="visible" className="wp-wrapper">
 
-      <motion.div variants={containerVars} initial="hidden" animate="visible" className="w-full max-w-xl z-10">
-
-        {/* Logo Section */}
-        <motion.div variants={itemVars} className="text-center mb-10">
+        {/* ── Logo ── */}
+        <motion.div variants={itemVars} className="wp-logo-section">
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl shadow-2xl shadow-red-200 mb-6 cursor-pointer"
+            className="wp-logo-icon"
+            whileHover={{ scale: 1.07, rotate: -5 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 18 }}
           >
-            <Cpu className="text-white w-10 h-10" />
+            <Cpu size={38} color="#fff" />
+            <div className="wp-logo-ring" />
           </motion.div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900">
-            WISE<span className="text-red-600">PLAYER</span>
-          </h1>
-          <p className="text-slate-500 mt-2 font-medium">Fast • Secure • Premium Activation</p>
+
+          <h1 className="wp-logo-title">WISE<span className="wp-logo-red">PLAYER</span></h1>
+          <p className="wp-logo-sub">Fast · Secure · Premium Activation</p>
+
+
         </motion.div>
 
-        {/* Content Card */}
-        <motion.div variants={itemVars} className="bg-white border border-slate-100 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] overflow-hidden">
+        {/* ── Main Card ── */}
+        <motion.div variants={itemVars} className="wp-card">
+          <div className="wp-card-topline" />
 
-          <div className="bg-red-50/50 px-6 py-4 flex items-center gap-3 border-b border-red-100">
-            <AlertCircle className="text-red-600 w-5 h-5 flex-shrink-0" />
-            <p className="text-red-800 text-[10px] md:text-xs font-bold uppercase tracking-wider">
-              No content/channels included. Player license only.
-            </p>
+          {/* Warning banner */}
+          <div className="wp-banner">
+            <div className="wp-banner-icon"><AlertCircle size={13} /></div>
+            <p className="wp-banner-text">No content / channels included — Player license only.</p>
           </div>
 
-          <div className="p-8 md:p-10">
-            {!isSuccess ? (
-              <>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-red-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-800">Device Activation</h2>
-                </div>
+          <div className="wp-card-body">
+            <AnimatePresence mode="wait">
 
-                {/* MAC Input */}
-                <div className="mb-8">
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-slate-400 mb-4 ml-1">
-                    Your Device MAC Address
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="00:00:00:00:00:00"
-                      value={formatMac(macAddress)}
-                      onChange={handleMacChange}
-                      className={`mac-input-base ${isMacValid ? 'mac-input-valid' : 'mac-input-invalid'}`}
-                    />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full transition-colors duration-300 ${isMacValid ? 'bg-green-500 text-white' : 'bg-white/20 text-white'}`}>
-                        {macAddress.length}/12
-                      </span>
+              {/* ═══ FORM ═══ */}
+              {!isSuccess && (
+                <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }}>
+
+                  {/* Section head */}
+                  <div className="wp-sec-head">
+                    <div className="wp-sec-icon"><Zap size={18} color="#2563eb" /></div>
+                    <div>
+                      <h2 className="wp-sec-title">Device Activation</h2>
+                      <p className="wp-sec-sub">Enter your MAC address to get started</p>
                     </div>
                   </div>
-                </div>
 
-                {/* Generate Activation Key Button Section */}
-                <div className="flex items-center justify-between mb-8 p-1">
-                  <button
-                    onClick={handleGenerateKey}
-                    disabled={!isMacValid || isKeyLoading}
-                    className={`btn-generate ${isMacValid && !isKeyLoading ? 'btn-generate-active' : 'btn-generate-disabled'}`}
-                  >
-                    {isKeyLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin-custom" />
-                        Generating...
-                      </>
-                    ) : (
-                      'Generate Activation Key'
-                    )}
-                  </button>
-
-                  <AnimatePresence>
-                    {isKeyGenerated ? (
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0, rotate: -45 }}
-                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                        className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-xl border border-green-200"
-                      >
-                        <span className="text-green-700 text-xs font-bold uppercase tracking-tighter">Key Ready</span>
-                        <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shadow-lg shadow-green-200">
-                          <CheckCircle2 size={18} color="white" />
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <div className="flex items-center gap-2 opacity-30">
-                        <Lock size={16} className="text-slate-400" />
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Locked</span>
-                      </div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Agreement Checkbox */}
-                <motion.label
-                  whileHover={isKeyGenerated ? { x: 5 } : {}}
-                  className={`flex items-start gap-4 mb-10 transition-opacity duration-300 ${isKeyGenerated ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
-                >
-                  <div className="relative flex items-center h-6 mt-1">
-                    <input
-                      type="checkbox"
-                      disabled={!isKeyGenerated}
-                      checked={isAgreed}
-                      onChange={() => setIsAgreed(!isAgreed)}
-                      className="peer h-6 w-6 cursor-pointer appearance-none rounded-lg border-2 border-black-200 checked:bg-red-600 checked:border-red-600 transition-all"
-                    />
-                    <CheckCircle2 className="absolute w-4 h-4 text-white opacity-0 peer-checked:opacity-100 pointer-events-none ml-1 transition-opacity" />
+                  {/* Step tracker */}
+                  <div className="wp-steps">
+                    {steps.map((step, i) => {
+                      const done = (i === 0 && isMacValid) || (i === 1 && isKeyGenerated) || (i === 2 && isSuccess);
+                      const active = (i === 0 && !isMacValid) || (i === 1 && isMacValid && !isKeyGenerated) || (i === 2 && isKeyGenerated && !isSuccess);
+                      return (
+                        <React.Fragment key={step}>
+                          <div className={`wp-step ${done ? 'wp-step--done' : active ? 'wp-step--active' : 'wp-step--idle'}`}>
+                            <div className="wp-step-dot">
+                              {done ? <CheckCircle2 size={10} /> : <span>{i + 1}</span>}
+                            </div>
+                            <span className="wp-step-label">{step}</span>
+                          </div>
+                          {i < 2 && <div className={`wp-step-line ${done ? 'wp-step-line--done' : ''}`} />}
+                        </React.Fragment>
+                      );
+                    })}
                   </div>
-                  <span className="text-sm text-slate-500 leading-relaxed font-medium">
-                    I confirm that I have my own content and I am paying for the <span className="font-bold text-slate-800 underline decoration-red-200">Wise Player lifetime license.</span>
-                  </span>
-                </motion.label>
 
-                {/* Submit Button */}
-                <div className="flex justify-center">
-                  <motion.button
-                    whileHover={canActivate ? { scale: 1.02 } : {}}
-                    whileTap={canActivate ? { scale: 0.98 } : {}}
-                    onClick={handleActivate}
-                    disabled={!canActivate || isLoading}
-                    className={`relative w-full md:w-auto min-w-[240px] flex items-center justify-center gap-3 py-4 px-10 rounded-2xl font-black text-sm uppercase tracking-widest transition-all duration-500 
-                    ${canActivate
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-2xl shadow-blue-200 cursor-pointer'
-                        : 'bg-[#E2E8F0] text-[#94A3B8] cursor-not-allowed shadow-none'
-                      }`}
-                  >
-                    <AnimatePresence mode="wait">
-                      {isLoading ? (
-                        <motion.div
-                          key="loader"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="flex items-center gap-2"
-                        >
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin-custom" />
-                          Verifying...
+                  {/* MAC input */}
+                  <div className="wp-field">
+                    <label className="wp-label">Device MAC Address</label>
+                    <div className="wp-input-wrap">
+                      <input
+                        type="text"
+                        placeholder="00:00:00:00:00:00"
+                        value={formatMac(macAddress)}
+                        onChange={handleMacChange}
+                        className={`wp-input ${isMacValid ? 'wp-input--valid' : macAddress.length > 0 ? 'wp-input--typing' : ''}`}
+                      />
+                      <div className="wp-input-badge-area">
+                        <AnimatePresence>
+                          {isMacValid ? (
+                            <motion.div key="ok" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="wp-badge-valid">
+                              <CheckCircle2 size={11} /> Valid
+                            </motion.div>
+                          ) : (
+                            <span key="cnt" className="wp-badge-count">{macAddress.length}/12</span>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                    <p className="wp-hint">Find it in device Settings → Network → About</p>
+                  </div>
+
+                  {/* Generate key row */}
+                  <div className="wp-genkey-row">
+                    <button
+                      onClick={handleGenerateKey}
+                      disabled={!isMacValid || isKeyLoading}
+                      className={`wp-btn-gen ${isMacValid && !isKeyLoading ? 'wp-btn-gen--on' : 'wp-btn-gen--off'}`}
+                    >
+                      {isKeyLoading ? (
+                        <><div className="wp-spinner" /> Generating...</>
+                      ) : isKeyGenerated ? (
+                        <><CheckCircle2 size={14} /> Key Generated</>
+                      ) : 'Generate Activation Key'}
+                    </button>
+
+                    <AnimatePresence>
+                      {isKeyGenerated ? (
+                        <motion.div key="ready" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: 'spring', stiffness: 320, damping: 22 }} className="wp-key-ready">
+                          <div className="wp-key-dot" /><span>Ready</span>
                         </motion.div>
                       ) : (
-                        <motion.div
-                          key="text"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          className="flex items-center gap-2"
-                        >
-                          Activate Device <ChevronRight className="w-5 h-5" />
-                        </motion.div>
+                        <div key="locked" className="wp-key-locked"><Lock size={12} /><span>Locked</span></div>
                       )}
                     </AnimatePresence>
-                  </motion.button>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* Success State - Attractive & Compact Version */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-6 px-2"
-                >
-                  {/* Glowing Icon Container */}
-                  <div className="relative w-24 h-24 mx-auto mb-6">
-                    <div className="absolute inset-0 bg-green-400 rounded-full blur-2xl opacity-20 animate-pulse"></div>
-                    <div className="relative w-full h-full bg-gradient-to-br from-green-50 to-emerald-100 rounded-full flex items-center justify-center shadow-inner border border-green-200">
-                      <ShieldCheck className="w-12 h-12 text-emerald-600" strokeWidth={2.5} />
+                  </div>
+
+                  {/* Agreement */}
+                  <motion.label
+                    whileHover={isKeyGenerated ? { x: 4 } : {}}
+                    transition={{ type: 'spring', stiffness: 400 }}
+                    className={`wp-agree ${isKeyGenerated ? 'wp-agree--on' : 'wp-agree--off'} ${isAgreed ? 'wp-agree--checked' : ''}`}
+                  >
+                    <div className="wp-checkbox-shell">
+                      <input
+                        type="checkbox"
+                        disabled={!isKeyGenerated}
+                        checked={isAgreed}
+                        onChange={() => setIsAgreed(!isAgreed)}
+                        className="wp-checkbox"
+                      />
+                      <CheckCircle2 size={13} className="wp-checkbox-check" />
                     </div>
-                  </div>
+                    <span className="wp-agree-text">
+                      I confirm I have my own content and I am paying for the{' '}
+                      <strong className="wp-agree-strong">Wise Player lifetime license.</strong>
+                    </span>
+                  </motion.label>
 
-                  {/* Title with Gradient */}
-                  <h2 className="text-3xl font-black mb-3 tracking-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 bg-clip-text text-transparent">
-                    Verified & Active
-                  </h2>
-
-                  {/* Device Badge */}
-                  <div className="inline-block px-4 py-2 bg-slate-50 border border-slate-200 rounded-2xl mb-8 shadow-sm">
-                    <p className="text-slate-500 text-sm font-medium">
-                      Device <span className="text-blue-600 font-mono font-bold tracking-wider">{formatMac(macAddress)}</span> is now premium.
-                    </p>
-                  </div>
-
-                  {/* Professional Button */}
-                  <div>
-                    <button
-                      onClick={() => {
-                        setIsSuccess(false);
-                        setMacAddress('');
-                        setIsKeyGenerated(false);
-                        setIsAgreed(false);
-                      }}
-                      className="px-10 py-3.5 bg-slate-900 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-slate-800 hover:shadow-lg transition-all active:scale-95"
+                  {/* Activate button */}
+                  <div className="wp-activate-wrap">
+                    <motion.button
+                      whileHover={canActivate ? { scale: 1.025, y: -2 } : {}}
+                      whileTap={canActivate ? { scale: 0.975 } : {}}
+                      onClick={handleActivate}
+                      disabled={!canActivate || isLoading}
+                      className={`wp-btn-activate ${canActivate ? 'wp-btn-activate--on' : 'wp-btn-activate--off'}`}
                     >
-                      Activate Another
-                    </button>
+                      <AnimatePresence mode="wait">
+                        {isLoading ? (
+                          <motion.span key="ld" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="wp-btn-inner">
+                            <div className="wp-spinner" /> Verifying...
+                          </motion.span>
+                        ) : (
+                          <motion.span key="tx" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="wp-btn-inner">
+                            Activate Device <ChevronRight size={18} />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
                   </div>
                 </motion.div>
-              </>
-            )}
+              )}
+
+              {/* ═══ SUCCESS ═══ */}
+              {isSuccess && (
+                <motion.div key="success" initial={{ opacity: 0, scale: 0.88, y: 24 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ type: 'spring', stiffness: 180, damping: 16 }} className="wp-success">
+                  <div className="wp-success-icon-wrap">
+                    <div className="wp-success-pulse" />
+                    <div className="wp-success-circle">
+                      <ShieldCheck size={46} strokeWidth={2} color="#16a34a" />
+                    </div>
+                    {/* Confetti dots */}
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className={`wp-confetti wp-confetti--${i % 3}`}
+                        initial={{ opacity: 0, y: 0, scale: 0 }}
+                        animate={{ opacity: [0, 1, 0], y: -50 - i * 8, x: (i % 2 === 0 ? -1 : 1) * (14 + i * 7), scale: [0, 1.2, 0] }}
+                        transition={{ delay: 0.15 + i * 0.07, duration: 0.85, ease: 'easeOut' }}
+                      />
+                    ))}
+                  </div>
+
+                  <h2 className="wp-success-title">Verified &amp; Active!</h2>
+                  <p className="wp-success-sub">Your device is now premium licensed.</p>
+
+                  <div className="wp-success-device-box">
+                    <span className="wp-success-device-lbl">Activated Device</span>
+                    <span className="wp-success-device-mac">{formatMac(macAddress)}</span>
+                  </div>
+
+                  <div className="wp-success-tags">
+                    <span className="wp-success-tag wp-success-tag--green"><CheckCircle2 size={11} /> Lifetime Access</span>
+                    <span className="wp-success-tag wp-success-tag--blue"><Shield size={11} /> Secured</span>
+                  </div>
+
+                  <button
+                    className="wp-btn-another"
+                    onClick={() => { setIsSuccess(false); setMacAddress(''); setIsKeyGenerated(false); setIsAgreed(false); setGeneratedKey(''); }}
+                  >
+                    Activate Another Device
+                  </button>
+                </motion.div>
+              )}
+
+            </AnimatePresence>
           </div>
 
-          <div className="bg-slate-50 p-6 flex justify-center items-center border-t border-slate-100 gap-8">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              <CheckCircle2 className="w-4 h-4 text-green-500" /> Secure SSL
-            </div>
-            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              <CheckCircle2 className="w-4 h-4 text-green-500" /> 24/7 Support
-            </div>
+          {/* Card footer */}
+          <div className="wp-card-footer">
+            {['Secure SSL', '24/7 Support', 'Instant Activation'].map((t, i) => (
+              <React.Fragment key={t}>
+                {i > 0 && <div className="wp-footer-sep" />}
+                <div className="wp-footer-badge"><CheckCircle2 size={12} color="#22c55e" /><span>{t}</span></div>
+              </React.Fragment>
+            ))}
           </div>
         </motion.div>
 
-        <motion.div variants={itemVars} className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
-          <div className="flex gap-8">
-            <a href="#" className="flex items-center gap-2 text-slate-400 hover:text-red-600 transition-colors text-xs font-bold uppercase tracking-wider group">
-              <HelpCircle className="w-4 h-4" />
-              Support
-            </a>
-            <a href="#" className="flex items-center gap-2 text-slate-400 hover:text-red-600 transition-colors text-xs font-bold uppercase tracking-wider group">
-              <ExternalLink className="w-4 h-4" />
-              License Policy
-            </a>
+        {/* Bottom links */}
+        <motion.div variants={itemVars} className="wp-bottom">
+          <div className="wp-bottom-links">
+            <a href="#" className="wp-link"><HelpCircle size={13} /> Support</a>
+            <a href="#" className="wp-link"><ExternalLink size={13} /> License Policy</a>
           </div>
-          <p className="text-slate-400 text-[11px] font-bold uppercase tracking-[0.1em]">
-            © 2024 <span className="text-slate-600">WISE PLAYER TECHNOLOGY</span>
-          </p>
+          <p className="wp-copyright">© 2024 <strong>WISE PLAYER TECHNOLOGY</strong></p>
         </motion.div>
+
       </motion.div>
     </div>
   );
