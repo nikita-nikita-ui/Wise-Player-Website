@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { registerReseller } from '../../auth/apiservice';
-import './Ragister.css'; 
-
+import './Ragister.css';
+import logo from '../../assets/logo.png';
 const Register = () => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
@@ -54,29 +54,29 @@ const Register = () => {
     }
   };
 
-return (
-   <div className="main-page-wrapper">
+  return (
+    <div className="main-page-wrapper">
       <div className="branding-panel"> {/* 2. class ki jagah className use karein */}
-          <div className="branding-content">
-              <p className="welcome-text">Hello,<br /><span>welcome to!</span></p> {/* 3. <br> ko <br /> likhna hoga */}
-              
-              <div className="logo-circle">
-                  <i className="fas fa-fire"></i> {/* 4. HTML comment (<!-- -->) hata diya */}
-              </div>
-              <h1 className="brand-name">wiseplayer</h1>
-              
-              <div className="branding-footer">
-                  CREATOR <span className="white-text">HERE</span> | DIRECTOR <span className="white-text">HERE</span>
-              </div>
+        <div className="branding-content">
+          <p className="welcome-text">Hello,<br /><span>welcome to!</span></p> {/* 3. <br> ko <br /> likhna hoga */}
+
+          <div className="logo-circle">
+            <img src={logo} alt="logo" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'contain' }} />
           </div>
-          <div className="corner-fold"></div>
+          <h1 className="brand-name">wiseplayer</h1>
+
+          <div className="branding-footer">
+            CREATOR <span className="white-text">HERE</span> | DIRECTOR <span className="white-text">HERE</span>
+          </div>
+        </div>
+        <div className="corner-fold"></div>
       </div>
 
       <div className="register-container">
         <div className={`content-wrapper ${isVisible ? 'visible' : ''}`}>
           <div className="header-section">
             <h1 className="logo-text">Wise <span className="logo-bold">IPTV</span></h1>
-            
+
           </div>
 
           <div className="glass-card">
@@ -158,7 +158,7 @@ return (
           </div>
         </div>
       </div>
-    
+
     </div>
   );
 };
