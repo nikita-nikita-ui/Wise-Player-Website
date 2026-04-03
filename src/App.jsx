@@ -21,6 +21,7 @@ import TwentyFourSvn from './pages/twentyfoursvn';
 import Privacy from './pages/secure';
 import RequestManagement from './pages/RequestManagement';
 import SubReseller from './pages/Subreseller';
+import Reseller from './pages/Reseller';
 
 // Constants for Design
 const maroonMain = "#800000";
@@ -38,7 +39,7 @@ const AppLayout = ({ children }) => {
   const adminPages = ['/dashboard', '/users', '/requests', '/subreseller'];
 
   // Wo pages jahan Navbar hide karna hai (Login/Register/Admin pages)
-  const hideNavbarOn = ['/login', '/register', '/registersuccess', ...adminPages];
+  const hideNavbarOn = ['/login', '/register', '/registersuccess',  ...adminPages];
 
   const isAdminPage = adminPages.includes(location.pathname.toLowerCase()); const shouldHideNavbar = hideNavbarOn.includes(location.pathname);
 
@@ -84,6 +85,7 @@ function App() {
           <Route path="/upload-list/mac-address" element={<WiseplayerUpload />} />
           <Route path="/activation" element={<WisePlayerActivation />} />
           <Route path="/register" element={<Register />} />
+          <Route path='/reseller' element={<Reseller/>}/>
           <Route path="/login" element={<Login />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/registersuccess" element={<Registersuccess />} />

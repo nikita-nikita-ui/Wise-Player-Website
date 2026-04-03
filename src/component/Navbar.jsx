@@ -204,7 +204,7 @@ const Navbar = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
                         <div className="auth-group mobile-hide">
-                            <Link to="/register" className="btn-base register-solid">
+                            <Link to="/reseller" className="btn-base register-solid">
                                 <UserPlus size={16} /> {t('nav_reseller')} {/* *** TRANSLATED *** */}
                             </Link>
                         </div>

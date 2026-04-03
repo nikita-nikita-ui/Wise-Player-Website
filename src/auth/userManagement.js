@@ -43,3 +43,31 @@ export const DisableUserAccount = async (deviceId)=>{
     };
   }
 }
+
+
+export const createUser = async (deviceId) => {
+  try {
+
+    const response = await api.post(
+      `/api/reseller/user`,
+      {
+        deviceId: deviceId, // ✅ body
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json", // ✅ good practice
+        },
+      }
+    );
+
+    return { success: true, data: response.data };
+
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message || "Failed to create user",
+    };
+  }
+};

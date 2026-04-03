@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Power, ShieldCheck, X } from "lucide-react";
 import { subscibedUserinfo } from "../auth/userManagement";
 import { formatDate } from "../auth/utilfunction";
-import { DisableUserAccount } from "../auth/userManagement";
+import { DisableUserAccount, createUser } from "../auth/userManagement";
+import { span } from "framer-motion/client";
 function UserManagement() {
   const [users, setUsers] = useState([
     {
@@ -19,10 +20,11 @@ function UserManagement() {
 
   const [showModal, setShowModal] = useState(false);
   const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    plan: "Standard",
+    deviceId: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess ] = useState('')
 
   useEffect(() => {
     document.body.style.margin = "0";
@@ -30,43 +32,48 @@ function UserManagement() {
     document.body.style.fontFamily = "'Inter', sans-serif";
   }, []);
 
+  const fetchDashboard = async () => {
+    const res = await subscibedUserinfo();
+
+    console.log("API Response:", res.data); // ✅ ab actual data aayega
+    if (res.success) {
+      setDevices(res.data);
+    } else {
+      console.error(res.message);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboard = async () => {
-      const res = await subscibedUserinfo();
-
-      console.log("API Response:", res.data); // ✅ ab actual data aayega
-      if (res.success) {
-        setDevices(res.data);
-      } else {
-        console.error(res.message);
-      }
-    };
-    const handleDisable = async (deviceId) => {
-      const response = await DisableUserAccount(deviceId);
-
-      console.log(response.data);
-      fetchDashboard();
-    };
-
     fetchDashboard();
   }, []);
 
-  const handleAddUser = (e) => {
-    e.preventDefault();
-    const user = {
-      id: Date.now(),
-      ...newUser,
-      status: "Active",
-      joinDate: new Date().toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-    };
-    setUsers([user, ...users]);
-    setShowModal(false);
+  const handleDisable = async (deviceId) => {
+    const response = await DisableUserAccount(deviceId);
+
+    console.log(response.data);
+    await fetchDashboard();
   };
 
+  const handleAddUser = async (e) => {
+    setLoading(true);
+    e.preventDefault();
+
+    if (!newUser.deviceId) return;
+
+    try {
+      const response = await createUser(newUser.deviceId);
+      console.log("API Response:", response);
+      if (response?.success === true) {
+        setShowModal(false);
+      } else {
+        setError(response?.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const toggleStatus = (id) => {
     setUsers(
       users.map((u) =>
@@ -241,7 +248,11 @@ function UserManagement() {
                       <td>
                         <button
                           onClick={() => handleDisable(item.deviceId)}
-                          style={item.active === true ? disableBtn : enableBtn}
+                          style={
+                            item.deviceStatus === "INACTIVE"
+                              ? disableBtn
+                              : enableBtn
+                          }
                         >
                           <Power size={14} />{" "}
                           {item.active === true ? "Disable" : "Enable"}
@@ -274,36 +285,58 @@ function UserManagement() {
                   onClick={() => setShowModal(false)}
                 />
               </div>
+              <div>
+                {error !== "" && (
+                  <span className="text-sm text-red-400 py-1 px-1 font-semibold">
+                    {error}
+                  </span>
+                )}
+              </div>
               <form onSubmit={handleAddUser}>
                 <input
                   required
-                  placeholder="Full Name"
+                  placeholder="Device Id : 00:1A:2B:3C:4D:5E"
                   style={inputStyle}
                   type="text"
+                  value={newUser.deviceId || ""}
                   onChange={(e) =>
-                    setNewUser({ ...newUser, name: e.target.value })
+                    setNewUser({ ...newUser, deviceId: e.target.value })
                   }
                 />
-                <input
-                  required
-                  placeholder="Email"
-                  style={inputStyle}
-                  type="email"
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, email: e.target.value })
-                  }
-                />
-                <select
-                  style={inputStyle}
-                  onChange={(e) =>
-                    setNewUser({ ...newUser, plan: e.target.value })
-                  }
+
+                <button
+                  type="submit"
+                  style={submitBtn}
+                  disabled={loading}
+                  className="flex items-center justify-center gap-2"
                 >
-                  <option value="Standard">Standard</option>
-                  <option value="Premium">Premium</option>
-                </select>
-                <button type="submit" style={submitBtn}>
-                  Confirm & Create
+                  {loading ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        ></path>
+                      </svg>
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm & Create"
+                  )}
                 </button>
               </form>
             </motion.div>

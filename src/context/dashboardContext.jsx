@@ -4,7 +4,10 @@ import { DashbaordOverview } from  '../auth/dashboard'
 const DashboardContext = createContext();
 
 export const DashboardProvider = ({ children }) => {
-  const [dashboard, setDashboard] = useState(null);
+  const [dashboard, setDashboard] = useState({
+    stats:{},
+    devices:[]
+  });
   const [loading, setLoading] = useState(false);
 
   const fetchDashboard = async () => {

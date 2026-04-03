@@ -58,13 +58,13 @@ const Dashboard = () => {
     },
     {
       title: "Active Subs",
-      count: `${dashboard.stats?.activeSub}`,
+      count: `${dashboard?.stats?.activeSub}`,
       icon: <CheckCircle size={22} />,
       trend: "+5%",
     },
     {
       title: "Pending Req.",
-      count: `${dashboard.stats?.pending}`,
+      count: `${dashboard?.stats?.pending}`,
       icon: <Clock size={22} />,
       trend: "-2%",
     },
@@ -126,7 +126,7 @@ const Dashboard = () => {
       style={{ fontSize: "12px", color: "#f59e0b" }}
     >
       <BsCoin size={18} style={{  }} />
-      {dashboard?.stats?.creditCoin} coins
+      {dashboard?.creditCoin} coins
     </p>
   </div>
 

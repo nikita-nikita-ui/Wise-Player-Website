@@ -33,11 +33,11 @@
 //           border: "1px solid rgba(255,255,255,0.1)"
 //         }}
 //       >
-//         <h2 style={{ 
-//           marginBottom: "15px", 
-//           textTransform: "uppercase", 
+//         <h2 style={{
+//           marginBottom: "15px",
+//           textTransform: "uppercase",
 //           letterSpacing: "1.5px",
-//           fontSize: "22px" 
+//           fontSize: "22px"
 //         }}>
 //           Request Management
 //         </h2>
@@ -75,41 +75,51 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Clock, CheckCircle, XCircle, Plus, Filter, ArrowLeft } from "lucide-react";
-import {activationRequest} from '../auth/ativationRequest';
+import {
+  Send,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Plus,
+  Filter,
+  ArrowLeft,
+} from "lucide-react";
+import { activationRequest } from "../auth/ativationRequest";
 import { formatDate } from "../auth/utilfunction";
-
-
 
 function RequestManagement() {
   // State for Requests
   const [requests, setRequests] = useState([]);
-  console.log('request : ', requests)
+
+  console.log("request : ", requests);
 
   const [showModal, setShowModal] = useState(false);
   const [newRequest, setNewRequest] = useState({ title: "", description: "" });
   const [filter, setFilter] = useState("All");
 
- useEffect(() => {
-  const fetchActiveRequest = async () => {
-    const response = await activationRequest();
-    const data = response.data;
+  useEffect(() => {
+    const fetchActiveRequest = async () => {
+      const response = await activationRequest();
+      const data = response.data;
 
-    console.log("API full response:", data);
+      console.log("API full response:", data);
 
-    setRequests(
-      data.map(item => ({
-        id: item.id,
-        title: item.adminNotes,
-        status: item.status,
-        createdAt: formatDate(item.updatedAt),
-      }))
-    );
-  };
+      setRequests(
+        data.map((item) => ({
+          id: item.id,
+          title: item.adminNotes,
+          status: item.status,
+          createdAt: formatDate(item.updatedAt),
+          resellerId: item.resellerId,
+          plan: item?.planName,
+          creditUsed: item.creditsUsed,
+          currency: item.currency,
+        })),
+      );
+    };
 
-  fetchActiveRequest();
-}, []);
-
+    fetchActiveRequest();
+  }, []);
 
   useEffect(() => {
     document.body.style.margin = "0";
@@ -125,27 +135,34 @@ function RequestManagement() {
       title: newRequest.title,
       description: newRequest.description,
       status: "Pending",
-      date: new Date().toISOString().split('T')[0]
+      date: new Date().toISOString().split("T")[0],
     };
     setRequests([requestObj, ...requests]);
     setShowModal(false);
     setNewRequest({ title: "", description: "" });
   };
 
-  const filteredRequests = filter === "All" ? requests : requests.filter(r => r.status === filter);
+  const filteredRequests =
+    filter === "All" ? requests : requests.filter((r) => r.status === filter);
 
   return (
     <div style={containerStyle}>
       {/* Header Section */}
       <header style={headerStyle}>
         <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-          <div style={iconBox}><Send size={24} color="#fff" /></div>
+          <div style={iconBox}>
+            <Send size={24} color="#fff" />
+          </div>
           <div>
-            <h1 style={{ margin: 0, fontSize: "24px", color: "#2d3436" }}>Request Management</h1>
-            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>Submit and track your requests in real-time</p>
+            <h1 style={{ margin: 0, fontSize: "24px", color: "#2d3436" }}>
+              Request Management
+            </h1>
+            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>
+              Submit and track your requests in real-time
+            </p>
           </div>
         </div>
-        <motion.button 
+        <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowModal(true)}
@@ -157,12 +174,11 @@ function RequestManagement() {
 
       {/* Main Content Area */}
       <main style={mainContent}>
-        
         {/* Statistics & Filter Bar */}
         <div style={filterBar}>
           <div style={{ display: "flex", gap: "10px" }}>
             {["All", "Pending", "Approved", "Rejected"].map((tab) => (
-              <button 
+              <button
                 key={tab}
                 onClick={() => setFilter(tab)}
                 style={filter === tab ? activeTabStyle : tabStyle}
@@ -171,7 +187,9 @@ function RequestManagement() {
               </button>
             ))}
           </div>
-          <div style={statsText}>Showing {filteredRequests.length} Requests</div>
+          <div style={statsText}>
+            Showing {filteredRequests.length} Requests
+          </div>
         </div>
 
         {/* Requests Grid */}
@@ -185,10 +203,15 @@ function RequestManagement() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 whileHover={{ y: -5 }}
-                style={cardStyle}
+                style={{
+                  ...cardStyle,
+                  textAlign: "center", // ✅ center everything
+                }}
               >
+                {/* HEADER */}
                 <div style={cardHeader}>
                   <h3 style={cardTitle}>{req.title}</h3>
+
                   <div style={statusBadge(req.status)}>
                     {req.status === "Pending" && <Clock size={12} />}
                     {req.status === "Approved" && <CheckCircle size={12} />}
@@ -196,11 +219,48 @@ function RequestManagement() {
                     {req.status}
                   </div>
                 </div>
-                
-                <p style={cardDesc}>{req.description}</p>
-                <span>resellerID</span>
-                <span>deviceId</span>
-                
+
+                {/* RESELLER ID + COPY */}
+                <div
+                  className="d-flex justify-content-center align-items-center gap-2 mt-2"
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    padding: "6px 10px",
+                    fontSize: "12px",
+                    color: "#666",
+                  }}
+                >
+                  <span>{req.resellerId?.slice(0, 8)}...</span>
+
+                  <span
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleCopy(req.resellerId)}
+                  >
+                    {copiedId === req.resellerId ? (
+                      <Check size={14} color="green" />
+                    ) : (
+                      <Copy size={14} />
+                    )}
+                  </span>
+                </div>
+
+                {/* PLAN / COIN / CURRENCY */}
+                <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                  <span className="px-3 py-1 rounded border text-muted">
+                    {req.plan}
+                  </span>
+
+                  <span className="px-3 py-1 rounded border text-muted">
+                    🪙 {req.creditsUsed}
+                  </span>
+
+                  <span className="px-3 py-1 rounded border text-muted">
+                    {req.currency}
+                  </span>
+                </div>
+
+                {/* FOOTER */}
                 <div style={cardFooter}>
                   <span style={dateText}>Date: {req.createdAt}</span>
                   <span style={trackLink}>Track Details →</span>
@@ -215,7 +275,7 @@ function RequestManagement() {
       <AnimatePresence>
         {showModal && (
           <div style={modalOverlay}>
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
@@ -223,31 +283,51 @@ function RequestManagement() {
             >
               <div style={modalHeader}>
                 <h2 style={{ margin: 0, color: "#800000" }}>Submit Request</h2>
-                <XCircle size={24} color="#636e72" cursor="pointer" onClick={() => setShowModal(false)} />
+                <XCircle
+                  size={24}
+                  color="#636e72"
+                  cursor="pointer"
+                  onClick={() => setShowModal(false)}
+                />
               </div>
               <form onSubmit={handleSubmit}>
                 <label style={labelStyle}>Request Title</label>
-                <input 
+                <input
                   required
                   placeholder="e.g. Access to Portal"
-                  style={inputStyle} 
+                  style={inputStyle}
                   value={newRequest.title}
-                  onChange={(e) => setNewRequest({...newRequest, title: e.target.value})}
+                  onChange={(e) =>
+                    setNewRequest({ ...newRequest, title: e.target.value })
+                  }
                 />
-                
+
                 <label style={labelStyle}>Description / Reason</label>
-                <textarea 
+                <textarea
                   required
                   rows="4"
                   placeholder="Explain why you need this..."
-                  style={{...inputStyle, resize: "none"}}
+                  style={{ ...inputStyle, resize: "none" }}
                   value={newRequest.description}
-                  onChange={(e) => setNewRequest({...newRequest, description: e.target.value})}
+                  onChange={(e) =>
+                    setNewRequest({
+                      ...newRequest,
+                      description: e.target.value,
+                    })
+                  }
                 />
 
                 <div style={modalActions}>
-                  <button type="button" onClick={() => setShowModal(false)} style={cancelBtn}>Cancel</button>
-                  <button type="submit" style={submitBtnForm}>Send Request</button>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    style={cancelBtn}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" style={submitBtnForm}>
+                    Send Request
+                  </button>
                 </div>
               </form>
             </motion.div>
@@ -273,13 +353,13 @@ const headerStyle = {
   justifyContent: "space-between",
   alignItems: "center",
   boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  borderBottom: "3px solid #800000" // Maroon accent line
+  borderBottom: "3px solid #800000", // Maroon accent line
 };
 
 const iconBox = {
   background: "#1e3a8a", // Blue
   padding: "10px",
-  borderRadius: "12px"
+  borderRadius: "12px",
 };
 
 const submitBtnTop = {
@@ -293,20 +373,20 @@ const submitBtnTop = {
   display: "flex",
   alignItems: "center",
   gap: "8px",
-  boxShadow: "0 4px 15px rgba(128, 0, 0, 0.3)"
+  boxShadow: "0 4px 15px rgba(128, 0, 0, 0.3)",
 };
 
 const mainContent = {
   padding: "40px 5%",
   maxWidth: "1400px",
-  margin: "0 auto"
+  margin: "0 auto",
 };
 
 const filterBar = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: "30px"
+  marginBottom: "30px",
 };
 
 const tabStyle = {
@@ -317,14 +397,14 @@ const tabStyle = {
   cursor: "pointer",
   fontSize: "14px",
   color: "#636e72",
-  transition: "0.3s"
+  transition: "0.3s",
 };
 
 const activeTabStyle = {
   ...tabStyle,
   background: "#1e3a8a",
   color: "#fff",
-  borderColor: "#1e3a8a"
+  borderColor: "#1e3a8a",
 };
 
 const statsText = { fontSize: "14px", color: "#636e72", fontWeight: "600" };
@@ -332,7 +412,7 @@ const statsText = { fontSize: "14px", color: "#636e72", fontWeight: "600" };
 const gridContainer = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-  gap: "25px"
+  gap: "25px",
 };
 
 const cardStyle = {
@@ -342,14 +422,14 @@ const cardStyle = {
   boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
   border: "1px solid #edf2f7",
   position: "relative",
-  overflow: "hidden"
+  overflow: "hidden",
 };
 
 const cardHeader = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "flex-start",
-  marginBottom: "15px"
+  marginBottom: "15px",
 };
 
 const cardTitle = { margin: 0, fontSize: "18px", color: "#2d3436" };
@@ -362,9 +442,19 @@ const statusBadge = (status) => ({
   fontWeight: "bold",
   padding: "4px 10px",
   borderRadius: "20px",
-  background: status === "Pending" ? "#fff7ed" : status === "Approved" ? "#f0fdf4" : "#fef2f2",
-  color: status === "Pending" ? "#c2410c" : status === "Approved" ? "#15803d" : "#b91c1c",
-  border: `1px solid ${status === "Pending" ? "#fdba74" : status === "Approved" ? "#86efac" : "#fca5a5"}`
+  background:
+    status === "Pending"
+      ? "#fff7ed"
+      : status === "Approved"
+        ? "#f0fdf4"
+        : "#fef2f2",
+  color:
+    status === "Pending"
+      ? "#c2410c"
+      : status === "Approved"
+        ? "#15803d"
+        : "#b91c1c",
+  border: `1px solid ${status === "Pending" ? "#fdba74" : status === "Approved" ? "#86efac" : "#fca5a5"}`,
 });
 
 const cardDesc = {
@@ -372,7 +462,7 @@ const cardDesc = {
   color: "#636e72",
   lineHeight: "1.6",
   marginBottom: "20px",
-  minHeight: "45px"
+  minHeight: "45px",
 };
 
 const cardFooter = {
@@ -380,22 +470,30 @@ const cardFooter = {
   justifyContent: "space-between",
   alignItems: "center",
   borderTop: "1px solid #f1f5f9",
-  paddingTop: "15px"
+  paddingTop: "15px",
 };
 
 const dateText = { fontSize: "12px", color: "#94a3b8" };
-const trackLink = { fontSize: "13px", color: "#1e3a8a", fontWeight: "bold", cursor: "pointer" };
+const trackLink = {
+  fontSize: "13px",
+  color: "#1e3a8a",
+  fontWeight: "bold",
+  cursor: "pointer",
+};
 
 // Modal Styles
 const modalOverlay = {
   position: "fixed",
-  top: 0, left: 0, right: 0, bottom: 0,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   background: "rgba(0,0,0,0.6)",
   backdropFilter: "blur(6px)",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  zIndex: 1000
+  zIndex: 1000,
 };
 
 const modalContainer = {
@@ -403,12 +501,23 @@ const modalContainer = {
   padding: "35px",
   borderRadius: "24px",
   width: "450px",
-  boxShadow: "0 25px 50px rgba(0,0,0,0.2)"
+  boxShadow: "0 25px 50px rgba(0,0,0,0.2)",
 };
 
-const modalHeader = { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" };
+const modalHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "30px",
+};
 
-const labelStyle = { display: "block", marginBottom: "8px", fontWeight: "600", color: "#2d3436", fontSize: "14px" };
+const labelStyle = {
+  display: "block",
+  marginBottom: "8px",
+  fontWeight: "600",
+  color: "#2d3436",
+  fontSize: "14px",
+};
 
 const inputStyle = {
   width: "100%",
@@ -418,7 +527,7 @@ const inputStyle = {
   border: "1px solid #e2e8f0",
   fontSize: "15px",
   outline: "none",
-  boxSizing: "border-box"
+  boxSizing: "border-box",
 };
 
 const modalActions = { display: "flex", gap: "12px", marginTop: "10px" };
@@ -431,7 +540,7 @@ const cancelBtn = {
   borderRadius: "12px",
   cursor: "pointer",
   fontWeight: "bold",
-  color: "#64748b"
+  color: "#64748b",
 };
 
 const submitBtnForm = {
@@ -443,7 +552,7 @@ const submitBtnForm = {
   borderRadius: "12px",
   fontWeight: "bold",
   cursor: "pointer",
-  fontSize: "16px"
+  fontSize: "16px",
 };
 
 export default RequestManagement;
