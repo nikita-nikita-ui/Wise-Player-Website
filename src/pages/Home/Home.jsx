@@ -59,7 +59,7 @@ const WisePlayerHome = () => {
     const [mac, setMac] = useState('');
     const [statusMsg, setStatusMsg] = useState('');
     const [isActiveDevice, setIsActiveDevice] = useState(null);
-     const [selectedPlan, setSelectedPlan] = useState('ANNUAL');
+    const [selectedPlan, setSelectedPlan] = useState('ANNUAL');
     const navigate = useNavigate();
     const handleSubmit = async () => {
         if (!mac) {
@@ -85,7 +85,7 @@ const WisePlayerHome = () => {
     };
     return (
         <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
-   
+
 
 
 
@@ -566,8 +566,7 @@ const WisePlayerHome = () => {
                                         onClick={async () => {
                                             if (isActiveDevice) {
                                                 // "ANNUAL" ki jagah selectedPlan variable use karein
-                                                const res = await checkoutPayment(mac, selectedPlan);
-                                                if (res.success && res.data?.checkoutUrl) {
+                                                const res = await checkoutPayment({ deviceId: mac, planName: selectedPlan }); if (res.success && res.data?.checkoutUrl) {
                                                     window.location.href = res.data.checkoutUrl;
                                                 }
                                             } else {

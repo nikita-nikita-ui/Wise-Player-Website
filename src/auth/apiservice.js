@@ -1,19 +1,19 @@
 import axios from 'axios';
 
-import api from './axiosInstance'; 
+import api from './axiosInstance';
 
 
 
 export const registerReseller = async (formData) => {
   try {
     const response = await api.post('/api/reseller/register', formData);
-    
+
 
     return { success: true, data: response.data };
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'Registration failed' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Registration failed'
     };
   }
 };
@@ -22,17 +22,17 @@ export const registerReseller = async (formData) => {
 export const loginReseller = async (credentials) => {
   try {
     const response = await api.post('/api/reseller/login', credentials);
-    
+
     if (response.data.success && response.data.token) {
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data)); 
+      localStorage.setItem('user', JSON.stringify(response.data));
     }
 
     return { success: true, data: response.data };
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'Login failed' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Login failed'
     };
   }
 };
@@ -41,17 +41,17 @@ export const loginReseller = async (credentials) => {
 export const generateDeviceKey = async (macAddress) => {
   try {
     const response = await api.post('/api/device/key', {
-       deviceId: macAddress   // ✅ correct place
+      deviceId: macAddress   // ✅ correct place
     });
 
-    return { 
-      success: true, 
-      data: response.data 
+    return {
+      success: true,
+      data: response.data
     };
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'Failed to generate activation key' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to generate activation key'
     };
   }
 };
@@ -99,49 +99,46 @@ export const saveM3uPlaylist = async (macAddress, playlistData) => {
   try {
 
     const url = `https://api.wise-player.com/api/playlist/public/MG:19:BB:AA:C2:AB/m3u`;
-    
+
     const response = await axios.post(url, {
       name: playlistData.name,
       m3uUrl: playlistData.m3uUrl
     });
 
-    return { 
-      success: true, 
-      message: response.data.message 
+    return {
+      success: true,
+      message: response.data.message
     };
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'Failed to save playlist' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to save playlist'
     };
   }
 };
 
-export const checkoutPayment = async (deviceId, plan) => {
+export const checkoutPayment = async ({ deviceId, planName }) => {
   try {
-   const token = localStorage.getItem("token"); // ya jaha tum token store kr rhi ho
+    const token = localStorage.getItem("token"); // ya jaha tum token store kr rhi ho
 
-const response = await api.post(
-  '/api/payment/public/checkout',
-  {
-    deviceId: deviceId,
-    plan: plan
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-);
+    const response = await api.post(
+      '/api/payment/public/checkout',
+      { deviceId: deviceId, planName: planName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
 
-    return { 
-      success: true, 
-      data: response.data 
+    return {
+      success: true,
+      data: response.data
     };
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response?.data?.message || 'Payment checkout failed' 
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Payment checkout failed'
     };
   }
 };
