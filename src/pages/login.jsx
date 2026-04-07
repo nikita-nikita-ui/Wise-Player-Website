@@ -9,6 +9,11 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const [view, setView] = useState('login');
     const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState(null);
+    const showToast = (msg, type = "info") => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3000);
+    };
     const [message, setMessage] = useState({ type: '', text: '' });
 
     const [username, setUsername] = useState('');
@@ -17,7 +22,6 @@ const LoginPage = () => {
     const handleLogin = async (e) => { // async कीवर्ड जोड़ा गया है
         e.preventDefault();
         setLoading(true);
-        setMessage({ type: '', text: '' });
 
         // const usernameRegex = /^[a-zA-Z0-9._]+$/;
         // if (!usernameRegex.test(username)) {
@@ -35,17 +39,14 @@ const LoginPage = () => {
         setLoading(false); // API response के बाद loading बंद
 
         if (result.success) {
-            setMessage({ type: 'success', text: 'Success! Redirecting to dashboard...' });
+            showToast('Success! Redirecting to dashboard...', 'success');
             localStorage.setItem('userName', username);
             setTimeout(() => {
 
                 navigate('/dashboard');
             }, 1000);
         } else {
-            setMessage({
-                type: 'danger',
-                text: result.message || 'Invalid credentials. Please try again.'
-            });
+            showToast(result.message || 'Invalid credentials. Please try again.', 'error');
         }
     };
 
@@ -54,7 +55,7 @@ const LoginPage = () => {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            setMessage({ type: 'success', text: 'Reset link has been sent to your registered account.' });
+            showToast('Reset link has been sent to your registered account.', 'success');
         }, 1500);
     };
 
@@ -120,11 +121,11 @@ const LoginPage = () => {
                                             <p className="text-muted small">Access your reseller dashboard</p>
                                         </div>
 
-                                        {message.text && (
+                                        {/* {message.text && (
                                             <Alert variant={message.type} className="py-2 small border-0 mb-4" style={{ borderRadius: '12px' }}>
                                                 {message.text}
                                             </Alert>
-                                        )}
+                                        )} */}
 
                                         <Form onSubmit={handleLogin}>
                                             <Form.Group className="mb-3">
@@ -159,7 +160,7 @@ const LoginPage = () => {
                                             </Form.Group>
 
                                             <div className="text-end mb-4">
-                                                <button type="button" onClick={() => { setView('forgot'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 small text-decoration-none text-dark hover-red">
+                                                <button type="button" onClick={() => { setView('forgot'); }} className="btn btn-link p-0 small text-decoration-none text-dark hover-red">
                                                     Forgot password?
                                                 </button>
                                             </div>
@@ -175,7 +176,7 @@ const LoginPage = () => {
                                     </motion.div>
                                 ) : (
                                     <motion.div key="forgot" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                                        <button onClick={() => { setView('login'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 mb-4 text-dark text-decoration-none small d-flex align-items-center fw-bold">
+                                        <button onClick={() => { setView('login'); }} className="btn btn-link p-0 mb-4 text-dark text-decoration-none small d-flex align-items-center fw-bold">
                                             <ArrowLeft size={16} className="me-2" /> Back to Sign In
                                         </button>
                                         <div className="mb-4">
@@ -226,6 +227,17 @@ const LoginPage = () => {
                 .hover-red:hover { color: #dc3545 !important; }
                 .bg-dark { background-color: #000 !important; }
             `}</style>
+            {toast && (
+                <div style={{
+                    position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+                    background: toast.type === 'error' ? '#dc3545' : '#198754',
+                    color: '#fff', padding: '12px 28px', borderRadius: '12px',
+                    fontWeight: '700', fontSize: '0.9rem', zIndex: 99999,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)', whiteSpace: 'nowrap'
+                }}>
+                    {toast.msg}
+                </div>
+            )}
         </div>
     );
 };

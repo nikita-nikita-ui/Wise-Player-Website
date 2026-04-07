@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Home.css';
 import { Container, Row, Col, Card, Button, Badge, Accordion, Navbar, Nav } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { validateDevice, checkoutPayment } from "../../auth/apiservice";
+import { validateDevice, checkoutPayment, fetchPublicPlans } from "../../auth/apiservice";
 
 // --- Typewriter Component ---
 const Typewriter = ({ texts }) => {
@@ -56,15 +56,38 @@ const staggerContainer = {
 const WisePlayerHome = () => {
     const { t } = useTranslation();
     const [showModal, setShowModal] = useState(false);
+    const [toast, setToast] = useState(null);
+    const showToast = (msg, type = "info") => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3000);
+    };
     const [mac, setMac] = useState('');
     const [statusMsg, setStatusMsg] = useState('');
     const [isActiveDevice, setIsActiveDevice] = useState(null);
     const [selectedPlan, setSelectedPlan] = useState('ANNUAL');
+    const [plans, setPlans] = useState([]);
+
+    useEffect(() => {
+
+        const loadPlans = async () => {
+            try {
+                const data = await fetchPublicPlans();
+                setPlans(data);
+            } catch (err) {
+                console.error("ERROR:", err);
+            }
+        };
+
+        loadPlans();
+    }, []);
+
+    const annualPlan = plans.find(p => p.name === 'ANNUAL');
+    const lifetimePlan = plans.find(p => p.name === 'LIFETIME');
+    const planRef = useRef('ANNUAL');
     const navigate = useNavigate();
     const handleSubmit = async () => {
         if (!mac) {
-            alert("Enter MAC Address");
-            return;
+            showToast("Enter MAC Address", "warning"); return;
         }
 
         try {
@@ -80,7 +103,7 @@ const WisePlayerHome = () => {
 
         } catch (err) {
             console.error(err);
-            alert("Something went wrong");
+            showToast("Something went wrong", "error");
         }
     };
     return (
@@ -110,8 +133,19 @@ const WisePlayerHome = () => {
                                 </motion.p>
                                 <motion.div variants={fadeInUp} className="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
                                     <Button className="btn-premium">{t('freeTrial')}</Button>
-                                    <Button variant="outline-dark" className="px-4 py-3 border-2 fw-bold" style={{ borderRadius: '12px' }}>{t('tutorial')}</Button>
-                                </motion.div>
+                                    <Button
+                                        className="px-4 py-3 border-2 fw-bold btn-tutorial"
+                                        style={{
+                                            borderRadius: '50px',
+                                            background: 'linear-gradient(135deg, #e91e63, #ff6b9d)',
+                                            color: 'white',
+                                            border: 'none'
+                                        }}
+                                        onMouseEnter={e => e.target.style.background = 'linear-gradient(135deg, #880e4f, #e91e63)'}
+                                        onMouseLeave={e => e.target.style.background = 'linear-gradient(135deg, #000000, #1a1a1a)'}
+                                    >
+                                        {t('tutorial')}
+                                    </Button>                                </motion.div>
                             </motion.div>
                         </Col>
                         <Col lg={6} className="mt-5 mt-lg-0">
@@ -285,16 +319,17 @@ const WisePlayerHome = () => {
                                     }}
                                 >
                                     {t('ANNUAL')}
-                                </h5>                               <h2 className="display-5 fw-bold my-4">€ 5.99</h2>
-                                <p className="text-muted small mb-4">{t('price_standard_desc')}</p>
+                                </h5>
+                                <h2 className="display-5 fw-bold my-4">€ {annualPlan?.price?.toFixed(2) ?? '...'}</h2>
+                                <p className="text-muted small mb-4">{annualPlan?.description ?? t('price_standard_desc')}</p>
                                 <div className="mb-5">
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_year_access')}</span></div>
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_email_support')}</span></div>
                                 </div>
                                 <Button
-                                    variant="outline-dark"
-                                    className="w-100 py-3 fw-bold rounded-3"
-                                    onClick={() => setShowModal(true)}
+                                    variant="outline-danger"
+                                    className="w-100 py-3 fw-bold rounded-pill"
+                                    onClick={() => { planRef.current = 'ANNUAL'; setShowModal(true); }}
                                 >{t('CHECK STATUS')}</Button>
                             </Card>
                         </Col>
@@ -302,8 +337,8 @@ const WisePlayerHome = () => {
                             <Card className="glass-card p-5 border-0 h-100 text-white" style={{ background: '#000' }}>
                                 <Badge bg="danger" className="mb-3 w-50">{t('price_lifetime_badge')}</Badge>
                                 <h5 className="fw-bold">{t('LIFETIME')}</h5>
-                                <h2 className="display-5 fw-bold my-4">€ 9.99</h2>
-                                <p className="text-white-50 small mb-4">{t('price_pro_desc')}</p>
+                                <h2 className="display-5 fw-bold my-4">€ {lifetimePlan?.price?.toFixed(2) ?? '...'}</h2>
+                                <p className="text-white-50 small mb-4">{lifetimePlan?.description ?? t('price_pro_desc')}</p>
                                 <div className="mb-5">
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_permanent_license')}</span></div>
                                     <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_priority_updates')}</span></div>
@@ -312,7 +347,7 @@ const WisePlayerHome = () => {
                                 <Button
                                     className="btn-premium w-100 py-3"
                                     onClick={() => {
-                                        setSelectedPlan('LIFETIME'); // Plan set karein
+                                        planRef.current = 'LIFETIME';
                                         setShowModal(true);
                                     }}
                                 >
@@ -566,7 +601,7 @@ const WisePlayerHome = () => {
                                         onClick={async () => {
                                             if (isActiveDevice) {
                                                 // "ANNUAL" ki jagah selectedPlan variable use karein
-                                                const res = await checkoutPayment({ deviceId: mac, planName: selectedPlan }); if (res.success && res.data?.checkoutUrl) {
+                                                const res = await checkoutPayment({ deviceId: mac, planName: planRef.current }); if (res.success && res.data?.checkoutUrl) {
                                                     window.location.href = res.data.checkoutUrl;
                                                 }
                                             } else {
@@ -611,6 +646,18 @@ const WisePlayerHome = () => {
                         </motion.div>
                     </motion.div>
                 </AnimatePresence>
+            )}
+            {toast && (
+                <div style={{
+                    position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+                    background: toast.type === 'error' ? '#ff0000' : '#ff8800',
+                    color: '#fff', padding: '12px 24px', borderRadius: '12px',
+                    fontWeight: '700', fontSize: '0.9rem', zIndex: 99999,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                    letterSpacing: '0.5px', whiteSpace: 'nowrap'
+                }}>
+                    {toast.msg}
+                </div>
             )}
         </div>
     );

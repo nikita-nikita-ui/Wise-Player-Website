@@ -119,7 +119,7 @@ export const saveM3uPlaylist = async (macAddress, playlistData) => {
 
 export const checkoutPayment = async ({ deviceId, planName }) => {
   try {
-    const token = localStorage.getItem("token"); // ya jaha tum token store kr rhi ho
+    const token = localStorage.getItem("token");
 
     const response = await api.post(
       '/api/payment/public/checkout',
@@ -140,5 +140,15 @@ export const checkoutPayment = async ({ deviceId, planName }) => {
       success: false,
       message: error.response?.data?.message || 'Payment checkout failed'
     };
+  }
+};
+
+export const fetchPublicPlans = async () => {
+  try {
+    const response = await api.get('/api/payment/public/plans');
+    return response.data; // API ka data return karega
+  } catch (error) {
+    console.error("Error fetching plans:", error);
+    throw error;
   }
 };
