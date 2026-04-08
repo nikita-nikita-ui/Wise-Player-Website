@@ -9,52 +9,53 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const [view, setView] = useState('login');
     const [loading, setLoading] = useState(false);
+    const [toast, setToast] = useState(null);
+    const showToast = (msg, type = "info") => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3000);
+    };
     const [message, setMessage] = useState({ type: '', text: '' });
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
- const handleLogin = async (e) => { // async कीवर्ड जोड़ा गया है
-    e.preventDefault();
-    setLoading(true);
-    setMessage({ type: '', text: '' });
+    const handleLogin = async (e) => { // async कीवर्ड जोड़ा गया है
+        e.preventDefault();
+        setLoading(true);
 
-    // const usernameRegex = /^[a-zA-Z0-9._]+$/;
-    // if (!usernameRegex.test(username)) {
-    //     setLoading(false);
-    //     setMessage({
-    //         type: 'danger',
-    //         text: 'Username can only contain letters, numbers, underscores, and dots.'
-    //     });
-    //     return;
-    // }
+        // const usernameRegex = /^[a-zA-Z0-9._]+$/;
+        // if (!usernameRegex.test(username)) {
+        //     setLoading(false);
+        //     setMessage({
+        //         type: 'danger',
+        //         text: 'Username can only contain letters, numbers, underscores, and dots.'
+        //     });
+        //     return;
+        // }
 
-    // 2. Real API Call (Mock logic को हटाकर)
-    const result = await loginReseller({ username, password });
+        // 2. Real API Call (Mock logic को हटाकर)
+        const result = await loginReseller({ username, password });
 
-    setLoading(false); // API response के बाद loading बंद
+        setLoading(false); // API response के बाद loading बंद
 
-    if (result.success) {
-        setMessage({ type: 'success', text: 'Success! Redirecting to dashboard...' });
-      localStorage.setItem('userName', username);
-        setTimeout(() => { 
+        if (result.success) {
+            showToast('Success! Redirecting to dashboard...', 'success');
+            localStorage.setItem('userName', username);
+            setTimeout(() => {
 
-            navigate('/dashboard'); 
-        }, 1000);
-    } else {
-        setMessage({ 
-            type: 'danger', 
-            text: result.message || 'Invalid credentials. Please try again.' 
-        });
-    }
-};
+                navigate('/dashboard');
+            }, 1000);
+        } else {
+            showToast(result.message || 'Invalid credentials. Please try again.', 'error');
+        }
+    };
 
     const handleForgot = (e) => {
         e.preventDefault();
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            setMessage({ type: 'success', text: 'Reset link has been sent to your registered account.' });
+            showToast('Reset link has been sent to your registered account.', 'success');
         }, 1500);
     };
 
@@ -66,7 +67,7 @@ const LoginPage = () => {
             fontFamily: "'Inter', sans-serif",
             color: '#000',
             overflow: 'hidden',
-            background: 'radial-gradient(circle at center, #a855f7 0%, #6b21a8 30%, #3b0764 60%, #1a0026 100%)',
+            background: 'linear-gradient(135deg, #ffffff 0%, #fff5f5 50%, #f0f7ff 100%)',
         }}>
 
             {/* Background Decorative Elements (Retained) */}
@@ -83,8 +84,7 @@ const LoginPage = () => {
 
             <Container style={{ zIndex: 1 }}>
                 <Row className="justify-content-center">
-                    <Col md={6} lg={4}>
-
+                    <Col md={7} lg={5}>
                         <motion.div
                             initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="text-center mb-5"
                         >
@@ -109,7 +109,7 @@ const LoginPage = () => {
                             whileHover={{ boxShadow: '0 40px 80px rgba(0,0,0,0.15)', borderColor: '#000' }}
                             style={{
                                 background: '#fff', padding: '45px 40px', borderRadius: '32px',
-                                boxShadow: '0 30px 60px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0',
+                                boxShadow: '0 30px 60px rgba(220,53,69,0.15)', border: '1px solid #f0f0f0',
                                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                             }}
                         >
@@ -121,11 +121,11 @@ const LoginPage = () => {
                                             <p className="text-muted small">Access your reseller dashboard</p>
                                         </div>
 
-                                        {message.text && (
+                                        {/* {message.text && (
                                             <Alert variant={message.type} className="py-2 small border-0 mb-4" style={{ borderRadius: '12px' }}>
                                                 {message.text}
                                             </Alert>
-                                        )}
+                                        )} */}
 
                                         <Form onSubmit={handleLogin}>
                                             <Form.Group className="mb-3">
@@ -227,6 +227,17 @@ const LoginPage = () => {
                 .hover-red:hover { color: #dc3545 !important; }
                 .bg-dark { background-color: #000 !important; }
             `}</style>
+            {toast && (
+                <div style={{
+                    position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+                    background: toast.type === 'error' ? '#dc3545' : '#198754',
+                    color: '#fff', padding: '12px 28px', borderRadius: '12px',
+                    fontWeight: '700', fontSize: '0.9rem', zIndex: 99999,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)', whiteSpace: 'nowrap'
+                }}>
+                    {toast.msg}
+                </div>
+            )}
         </div>
     );
 };

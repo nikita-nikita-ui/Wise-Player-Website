@@ -1,6 +1,7 @@
 /* Custom Fonts & Variables */
 :root {
-  --primary-red: #e11d48; /* Crimson Red */
+  --primary-red: #e11d48;
+  /* Crimson Red */
   --hover-red: #be123c;
   --light-red: #fff1f2;
   --white: #ffffff;
@@ -12,20 +13,45 @@
 
 /* MAIN CONTAINER ANIMATION */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
 }
 
 .page-container {
@@ -80,7 +106,7 @@
 }
 
 .logo-text span {
-  color:var(--hover-red);
+  color: var(--hover-red);
 }
 
 /* MAIN SECTION */
@@ -212,11 +238,12 @@ label {
 }
 
 .btn.active {
-  background: linear-gradient(135deg, #9e0432, #7e0317); 
+  background: linear-gradient(135deg, #9e0432, #7e0317);
   color: white;
   cursor: pointer;
   box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
 }
+
 .btn.active:hover {
   background: var(--hover-red);
   transform: translateY(-2px);
@@ -276,7 +303,7 @@ label {
     padding: 30px 20px;
     margin: 10px;
   }
-  
+
   .navbar {
     padding: 15px;
   }
