@@ -7,7 +7,7 @@ import SubReseller from "../../pages/Subreseller";
 import { DashbaordOverview } from "../../auth/dashboard";
 import { Users, UserPlus, CheckCircle, Clock } from "lucide-react";
 import { BsCoin } from "react-icons/bs";
-import  {formatDate} from '../../auth/utilfunction' 
+import { formatDate } from "../../auth/utilfunction";
 import {
   AreaChart,
   Area,
@@ -22,10 +22,10 @@ import {
   Legend,
 } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import {useDashboard} from '../../context/dashboardContext'
+import { useDashboard } from "../../context/dashboardContext";
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview"); // टैब स्टेट
-  const { dashboard, loading, refetchDashboard,} = useDashboard()
+  const { dashboard, loading, refetchDashboard } = useDashboard();
   const [dashboarddata, setDashboard] = useState({
     stats: {},
     devices: [],
@@ -82,10 +82,9 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    setDashboard(dashboard)
+    setDashboard(dashboard);
+    refetchDashboard()
   }, []);
-
- 
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -115,26 +114,25 @@ const Dashboard = () => {
               {activeTab.replace(/([A-Z])/g, " $1")}
             </span>
           </h5>
-   
 
-<div className="d-flex align-items-center gap-3">
-  <div className="text-end d-none d-sm-block">
-    <p className="m-0 fw-bold small">Admin User</p>
+          <div className="d-flex align-items-center gap-3">
+            <div className="text-end d-none d-sm-block">
+              <p className="m-0 fw-bold small">Admin User</p>
 
-    <p
-      className="m-0 fw-bold d-flex align-items-center justify-content-end gap-1"
-      style={{ fontSize: "12px", color: "#f59e0b" }}
-    >
-      <BsCoin size={18} style={{  }} />
-      {dashboard?.creditCoin} coins
-    </p>
-  </div>
+              <p
+                className="m-0 fw-bold d-flex align-items-center justify-content-end gap-1"
+                style={{ fontSize: "12px", color: "#f59e0b" }}
+              >
+                <BsCoin size={18} style={{}} />
+                {dashboard?.creditCoin} coins
+              </p>
+            </div>
 
-  <div
-    className="rounded-circle shadow-sm border border-2 border-white"
-    style={{ width: "42px", height: "42px", background: maroonMain }}
-  ></div>
-</div>
+            <div
+              className="rounded-circle shadow-sm border border-2 border-white"
+              style={{ width: "42px", height: "42px", background: maroonMain }}
+            ></div>
+          </div>
         </header>
         <main className="p-4">
           <AnimatePresence mode="wait">
@@ -237,9 +235,9 @@ const Dashboard = () => {
                         {/* Header */}
                         <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
                           <tr>
-                            <th className="px-4 py-3">Device</th>
+                            {/* <th className="px-4 py-3">Device</th> */}
                             <th className="px-4 py-3">Device ID</th>
-                            <th className="px-4 py-3">Platform</th>
+                            {/* <th className="px-4 py-3">Platform</th> */}
                             <th className="px-4 py-3">Status</th>
                             <th className="px-4 py-3">Subscription</th>
                             <th className="px-4 py-3">Expires</th>
@@ -249,18 +247,18 @@ const Dashboard = () => {
 
                         {/* Body */}
                         <tbody>
-                          {dashboard.devices.slice(0,5).map((item, index) => (
+                          {dashboard.devices.slice(0, 8).map((item, index) => (
                             <tr
                               key={index}
                               className="border-t hover:bg-gray-50"
                             >
                               {/* Device */}
-                              <td className="px-4 py-3 font-medium">
+                              {/* <td className="px-4 py-3 font-medium">
                                 {item.deviceModel}
-                              </td>
+                              </td> */}
 
                               {/* Device ID */}
-                              <td className="px-1 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
+                              <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
                                 <span>{item.deviceId.slice(0, 8)}...</span>
 
                                 <button
@@ -272,9 +270,9 @@ const Dashboard = () => {
                               </td>
 
                               {/* Platform */}
-                              <td className="px-1 py-3">
+                              {/* <td className="px-1 py-3">
                                 {item.platform} ({item.osVersion})
-                              </td>
+                              </td> */}
 
                               {/* Status */}
                               <td className="px-4 py-3">

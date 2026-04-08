@@ -24,7 +24,10 @@ function UserManagement() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess ] = useState('')
+  const [success, setSuccess ] = useState('');
+  const [totalUser, setTotalUser] = useState('');
+  const [activeUser, setActiveUser] = useState(null);
+  console.log("activeUser", activeUser)
 
   useEffect(() => {
     document.body.style.margin = "0";
@@ -36,6 +39,14 @@ function UserManagement() {
     const res = await subscibedUserinfo();
 
     console.log("API Response:", res.data); // ✅ ab actual data aayega
+      console.log('length : ',res.data.length)
+    setTotalUser(res.data.length);
+    setActiveUser(
+  res.data?.filter(
+    u => u.deviceStatus === 'ACTIVE'
+  )?.length || 0
+);
+
     if (res.success) {
       setDevices(res.data);
     } else {
@@ -51,6 +62,7 @@ function UserManagement() {
     const response = await DisableUserAccount(deviceId);
 
     console.log(response.data);
+  
     await fetchDashboard();
   };
 
@@ -116,9 +128,9 @@ function UserManagement() {
 
         {/* Stats Row */}
         <div style={statsRow}>
-          <div style={statCard}>Total Users: {users.length}</div>
+          <div style={statCard}>Total Users: {totalUser}</div>
           <div style={{ ...statCard, borderLeft: "4px solid #1e3a8a" }}>
-            Active: {users.filter((u) => u.status === "Active").length}
+            Active: {activeUser}
           </div>
         </div>
 
@@ -180,9 +192,9 @@ function UserManagement() {
                 {/* Header */}
                 <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
                   <tr>
-                    <th className="px-4 py-3">Device</th>
+                    
                     <th className="px-4 py-3">Device ID</th>
-                    <th className="px-4 py-3">Platform</th>
+                  
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Subscription</th>
                     <th className="px-4 py-3">Expires</th>
@@ -193,15 +205,13 @@ function UserManagement() {
 
                 {/* Body */}
                 <tbody>
-                  {devices.slice(0, 5).map((item, index) => (
+                  {devices.slice(0, 8).map((item, index) => (
                     <tr key={index} className="border-t hover:bg-gray-50">
                       {/* Device */}
-                      <td className="px-2 py-3 font-medium">
-                        {item.deviceModel}
-                      </td>
+                     
 
                       {/* Device ID */}
-                      <td className="px-1 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
+                      <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
                         <span>{item.deviceId.slice(0, 8)}...</span>
 
                         <button
@@ -213,9 +223,7 @@ function UserManagement() {
                       </td>
 
                       {/* Platform */}
-                      <td className="px-1 py-3">
-                        {item.platform} ({item.osVersion})
-                      </td>
+                     
 
                       {/* Status */}
                       <td className="px-3 py-3">

@@ -160,7 +160,7 @@ const LoginPage = () => {
                                             </Form.Group>
 
                                             <div className="text-end mb-4">
-                                                <button type="button" onClick={() => { setView('forgot'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 small text-decoration-none text-muted hover-red">
+                                                <button type="button" onClick={() => { setView('forgot'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 small  text-decoration-none text-white hover-red">
                                                     Forgot password?
                                                 </button>
                                             </div>
@@ -176,7 +176,7 @@ const LoginPage = () => {
                                     </motion.div>
                                 ) : (
                                     <motion.div key="forgot" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                                        <button onClick={() => { setView('login'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 mb-4 text-dark text-decoration-none small d-flex align-items-center fw-bold">
+                                        <button onClick={() => { setView('login'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 mb-4 text-white hover-red text-decoration-none small d-flex align-items-center fw-bold">
                                             <ArrowLeft size={16} className="me-2" /> Back to Sign In
                                         </button>
                                         <div className="mb-4">
