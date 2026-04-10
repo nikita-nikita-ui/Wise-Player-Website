@@ -65,8 +65,8 @@ const SubresellerDashboard = () => {
       setDashboardData((prev) => ({
         ...prev,
         totalUser: res?.data?.length,
-        activeuser:res?.data.filter(
-        (user) => user.active === true,
+        activeuser:res?.data?.filter(
+        (user) => user?.active === true,
       ).length
       }));
      
@@ -235,7 +235,7 @@ const SubresellerDashboard = () => {
                 </thead>
 
                 <tbody>
-                  {users.map((user) => (
+                  {users?.map((user) => (
                     <tr key={user.id}>
                       {/* USER DETAILS */}
                       <td className="text-start ps-4">

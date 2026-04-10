@@ -26,10 +26,7 @@ import { useDashboard } from "../../context/dashboardContext";
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview"); // टैब स्टेट
   const { dashboard, loading, refetchDashboard } = useDashboard();
-  const [dashboarddata, setDashboard] = useState({
-    stats: {},
-    devices: [],
-  });
+  console.log("dashbapord : ", dashboard);
 
   const maroonMain = "#800000";
   const maroonLight = "#fdf2f2";
@@ -69,9 +66,9 @@ const Dashboard = () => {
       trend: "-2%",
     },
     {
-      title: "New Users",
-      count: "45",
-      icon: <UserPlus size={22} />,
+      title: "Total Coins",
+      count: `${dashboard?.stats?.creditCoin || 0}`,
+      icon: <BsCoin size={22} />,
       trend: "+18%",
     },
   ];
@@ -82,8 +79,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    setDashboard(dashboard);
-    refetchDashboard()
+    refetchDashboard();
   }, []);
 
   const copyToClipboard = (text) => {
@@ -119,17 +115,22 @@ const Dashboard = () => {
             <div className="text-end d-none d-sm-block">
               <p className="m-0 fw-bold small">Admin User</p>
 
-              <p
-                className="m-0 fw-bold d-flex align-items-center justify-content-end gap-1"
-                style={{ fontSize: "12px", color: "#f59e0b" }}
-              >
-                <BsCoin size={18} style={{}} />
-                {dashboard?.creditCoin} coins
+              <p className="m-0 text-success small d-flex align-items-center justify-content-end gap-1">
+                <span
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    backgroundColor: "green",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                  }}
+                ></span>
+                Online
               </p>
             </div>
 
             <div
-              className="rounded-circle shadow-sm border border-2 border-white"
+              className="rounded-circle shadow-sm border  border-white"
               style={{ width: "42px", height: "42px", background: maroonMain }}
             ></div>
           </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, Layers, Clock, PlusCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Layers, Clock, PlusCircle, LogOut, ShoppingCart  } from 'lucide-react';
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -13,6 +13,7 @@ const Sidebar = () => {
     { path: '/subreseller', label: 'Sub Resellers', icon: Layers },
     { path: '/requests', label: 'Activation Requests', icon: Clock },
     { path: '/new-activation', label: ' Track Activation Request', icon: PlusCircle },
+     { path: '/purchase-credit', label: 'Purchase Credit', icon: ShoppingCart  },
     { path: '/logout', label: 'Logout', icon: LogOut },
   ];
 

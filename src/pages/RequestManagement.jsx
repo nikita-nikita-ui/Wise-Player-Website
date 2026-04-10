@@ -86,6 +86,7 @@ import {
 } from "lucide-react";
 import { activationRequest } from "../auth/ativationRequest";
 import { formatDate } from "../auth/utilfunction";
+import { submitRequest } from "../auth/activationRequest";
 
 function RequestManagement() {
   // State for Requests
@@ -94,8 +95,10 @@ function RequestManagement() {
   console.log("request : ", requests);
 
   const [showModal, setShowModal] = useState(false);
-  const [newRequest, setNewRequest] = useState({ title: "", description: "" });
+  const [newRequest, setNewRequest] = useState({ deviceId: "", planeName: "" });
+  console.log(" newRequest : ", newRequest);
   const [filter, setFilter] = useState("All");
+  const [apiError, setApiError] = useState("");
 
   useEffect(() => {
     const fetchActiveRequest = async () => {
@@ -128,23 +131,30 @@ function RequestManagement() {
   }, []);
 
   // Submit Logic
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const requestObj = {
-      id: Date.now(),
-      title: newRequest.title,
-      description: newRequest.description,
-      status: "Pending",
-      date: new Date().toISOString().split("T")[0],
-    };
-    setRequests([requestObj, ...requests]);
-    setShowModal(false);
-    setNewRequest({ title: "", description: "" });
+    const response = await submitRequest(newRequest);
+    console.log(response);
+    if (response.success == false) {
+      setApiError(response.message);
+    }
+    // setRequests([requestObj, ...requests]);
+    // setShowModal(false);
+    // setNewRequest({ title: "", description: "" });
   };
 
   const filteredRequests =
     filter === "All" ? requests : requests.filter((r) => r.status === filter);
 
+  const tiers = [
+    { planName: "Starter Plan" },
+    { planName: "Basic Plan" },
+    { planName: "Standard Plan" },
+    { planName: "Premium Plan" },
+    { planName: "Best Premium Annually" },
+    { planName: "Pro Plan" },
+    { planName: "Enterprise Plan" },
+  ];
   return (
     <div style={containerStyle}>
       {/* Header Section */}
@@ -237,11 +247,11 @@ function RequestManagement() {
                     style={{ cursor: "pointer" }}
                     onClick={() => handleCopy(req.resellerId)}
                   >
-                    {copiedId === req.resellerId ? (
+                    {/* {copiedId === req.resellerId ? (
                       <Check size={14} color="green" />
                     ) : (
                       <Copy size={14} />
-                    )}
+                    )} */}
                   </span>
                 </div>
 
@@ -290,20 +300,23 @@ function RequestManagement() {
                   onClick={() => setShowModal(false)}
                 />
               </div>
+              {apiError && (
+                <p className="text-red-500 text-sm mt-2">{apiError}</p>
+              )}
               <form onSubmit={handleSubmit}>
-                <label style={labelStyle}>Request Title</label>
+                <label style={labelStyle}>Enter the DeviceId</label>
                 <input
                   required
                   placeholder="e.g. Access to Portal"
                   style={inputStyle}
-                  value={newRequest.title}
+                  value={newRequest.deviceId}
                   onChange={(e) =>
-                    setNewRequest({ ...newRequest, title: e.target.value })
+                    setNewRequest({ ...newRequest, deviceId: e.target.value })
                   }
                 />
 
-                <label style={labelStyle}>Description / Reason</label>
-                <textarea
+                <label style={labelStyle}>Select the Plane Name</label>
+                {/* <textarea
                   required
                   rows="4"
                   placeholder="Explain why you need this..."
@@ -315,7 +328,23 @@ function RequestManagement() {
                       description: e.target.value,
                     })
                   }
-                />
+                /> */}
+                <select
+                  style={inputStyle}
+                  onChange={(e) => {
+                    const value = tiers.find(
+                      (t) => t.planName === e.target.value,
+                    );
+                    setNewRequest({ ...newRequest, planeName: e.target.value });
+                  }}
+                >
+                  <option value="">Select Plan</option>
+                  {tiers.map((tier, index) => (
+                    <option key={index} value={tier.planName}>
+                      {tier.planName}
+                    </option>
+                  ))}
+                </select>
 
                 <div style={modalActions}>
                   <button

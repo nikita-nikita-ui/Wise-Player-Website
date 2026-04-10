@@ -48,6 +48,7 @@ function UserManagement() {
 );
 
     if (res.success) {
+      
       setDevices(res.data);
     } else {
       console.error(res.message);
@@ -76,6 +77,7 @@ function UserManagement() {
       const response = await createUser(newUser.deviceId);
       console.log("API Response:", response);
       if (response?.success === true) {
+        fetchDashboard();
         setShowModal(false);
       } else {
         setError(response?.message);
