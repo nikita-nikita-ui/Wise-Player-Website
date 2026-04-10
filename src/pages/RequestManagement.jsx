@@ -1,361 +1,282 @@
-// import React from 'react';
-// import { motion } from 'framer-motion';
-
-// function RequestManagement() {
-//   return (
-//     <div
-//       style={{
-//         width: "100%",
-//         minHeight: "100vh",
-//         background: "linear-gradient(135deg, #667eea, #764ba2)",
-//         display: "flex",
-//         justifyContent: "center",
-//         alignItems: "center",
-//         color: "#fff",
-//         fontFamily: "sans-serif",
-//         margin: 0,
-//         padding: 0,
-//         boxSizing: "border-box"
-//       }}
-//     >
-//       <motion.div
-//         initial={{ opacity: 0, scale: 0.9 }}
-//         animate={{ opacity: 1, scale: 1 }}
-//         transition={{ duration: 0.5 }}
-//         style={{
-//           background: "rgba(255,255,255,0.1)",
-//           backdropFilter: "blur(12px)",
-//           padding: "40px",
-//           borderRadius: "24px",
-//           boxShadow: "0 15px 35px rgba(0,0,0,0.2)",
-//           textAlign: "center",
-//           width: "380px",
-//           border: "1px solid rgba(255,255,255,0.1)"
-//         }}
-//       >
-//         <h2 style={{
-//           marginBottom: "15px",
-//           textTransform: "uppercase",
-//           letterSpacing: "1.5px",
-//           fontSize: "22px"
-//         }}>
-//           Request Management
-//         </h2>
-//         <p style={{ opacity: 0.8, marginBottom: "30px" }}>
-//           Manage incoming requests here 📨
-//         </p>
-
-//         <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-//           <button style={buttonStyle}>Pending Requests</button>
-//           <button style={buttonStyle}>Approved Requests</button>
-//           <button style={{...buttonStyle, background: "rgba(255,255,255,0.1)", border: "1px solid white"}}>
-//             Back to Dashboard
-//           </button>
-//         </div>
-//       </motion.div>
-//     </div>
-//   );
-// }
-
-// // Buttons के लिए कॉमन स्टाइल
-// const buttonStyle = {
-//   padding: "14px",
-//   borderRadius: "12px",
-//   border: "none",
-//   background: "#1e293b",
-//   color: "white",
-//   fontSize: "15px",
-//   fontWeight: "600",
-//   cursor: "pointer",
-//   transition: "all 0.3s ease",
-//   boxShadow: "0 4px 15px rgba(0,0,0,0.2)"
-// };
-
-// export default RequestManagement;
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Send,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Plus,
-  Filter,
-  ArrowLeft,
-} from "lucide-react";
+import { IoCopyOutline } from "react-icons/io5";
+import { Plus } from "lucide-react";
 import { activationRequest } from "../auth/ativationRequest";
-import { formatDate } from "../auth/utilfunction";
 import { submitRequest } from "../auth/activationRequest";
+import { formatDate } from "../auth/utilfunction";
 
 function RequestManagement() {
-  // State for Requests
   const [requests, setRequests] = useState([]);
-
-  console.log("request : ", requests);
-
   const [showModal, setShowModal] = useState(false);
-  const [newRequest, setNewRequest] = useState({ deviceId: "", planeName: "" });
-  console.log(" newRequest : ", newRequest);
+  const [newRequest, setNewRequest] = useState({
+    deviceId: "",
+    planName: "",
+  });
   const [filter, setFilter] = useState("All");
   const [apiError, setApiError] = useState("");
 
-  useEffect(() => {
-    const fetchActiveRequest = async () => {
+  // ✅ Fetch Requests
+  const fetchRequests = async () => {
+    try {
       const response = await activationRequest();
       const data = response.data;
-
-      console.log("API full response:", data);
 
       setRequests(
         data.map((item) => ({
           id: item.id,
-          title: item.adminNotes,
           status: item.status,
-          createdAt: formatDate(item.updatedAt),
+          createdAt: formatDate(item.createdAt),
           resellerId: item.resellerId,
-          plan: item?.planName,
-          creditUsed: item.creditsUsed,
-          currency: item.currency,
+          deviceId: item.deviceId,
+          planName: item.planName,
+          creditsUsed: item.creditsUsed,
         })),
       );
-    };
-
-    fetchActiveRequest();
-  }, []);
-
-  useEffect(() => {
-    document.body.style.margin = "0";
-    document.body.style.backgroundColor = "#f8fafc";
-    document.body.style.fontFamily = "'Inter', sans-serif";
-  }, []);
-
-  // Submit Logic
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await submitRequest(newRequest);
-    console.log(response);
-    if (response.success == false) {
-      setApiError(response.message);
+    } catch (err) {
+      console.error(err);
     }
-    // setRequests([requestObj, ...requests]);
-    // setShowModal(false);
-    // setNewRequest({ title: "", description: "" });
   };
 
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  // ✅ Copy
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  // ✅ Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setApiError("");
+
+    try {
+      const response = await submitRequest(newRequest);
+
+      if (!response.success) {
+        setApiError(response.message);
+        return;
+      }
+
+      setShowModal(false);
+      setNewRequest({ deviceId: "", planName: "" });
+      fetchRequests(); // refresh
+    } catch {
+      setApiError("Something went wrong");
+    }
+  };
+
+  // ✅ Filter
   const filteredRequests =
-    filter === "All" ? requests : requests.filter((r) => r.status === filter);
+    filter === "All"
+      ? requests
+      : requests.filter((r) => r.status === filter.toUpperCase());
 
-  const tiers = [
-    { planName: "Starter Plan" },
-    { planName: "Basic Plan" },
-    { planName: "Standard Plan" },
-    { planName: "Premium Plan" },
-    { planName: "Best Premium Annually" },
-    { planName: "Pro Plan" },
-    { planName: "Enterprise Plan" },
-  ];
+  const tiers = [{ planName: "ANNUAL" }];
+
   return (
-    <div style={containerStyle}>
-      {/* Header Section */}
-      <header style={headerStyle}>
-        <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-          <div style={iconBox}>
-            <Send size={24} color="#fff" />
-          </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: "24px", color: "#2d3436" }}>
-              Request Management
-            </h1>
-            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>
-              Submit and track your requests in real-time
-            </p>
-          </div>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+    <div style={{ padding: "20px" }}>
+      {/* Header */}
+      <div style={header}>
+        <h2 className="text-xl font-semibold">Request Management</h2>
+        <button
+          style={primaryBtn}
           onClick={() => setShowModal(true)}
-          style={submitBtnTop}
+          className="flex flex-row items-center space-x-3 gap-2"
         >
-          <Plus size={18} /> Submit New Request
-        </motion.button>
-      </header>
+          <Plus size={16} /> New Request
+        </button>
+      </div>
 
-      {/* Main Content Area */}
-      <main style={mainContent}>
-        {/* Statistics & Filter Bar */}
-        <div style={filterBar}>
-          <div style={{ display: "flex", gap: "10px" }}>
-            {["All", "Pending", "Approved", "Rejected"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setFilter(tab)}
-                style={filter === tab ? activeTabStyle : tabStyle}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div style={statsText}>
-            Showing {filteredRequests.length} Requests
-          </div>
-        </div>
+      {/* Filters */}
+      <div style={{ margin: "20px 0" }}>
+        {["All", "Pending", "Approved", "Rejected"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            style={{
+              ...filterBtn,
+              background: filter === tab ? "#333" : "#eee",
+              color: filter === tab ? "#fff" : "#000",
+            }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
 
-        {/* Requests Grid */}
-        <div style={gridContainer}>
-          <AnimatePresence mode="popLayout">
-            {filteredRequests.map((req) => (
-              <motion.div
-                key={req.id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                whileHover={{ y: -5 }}
-                style={{
-                  ...cardStyle,
-                  textAlign: "center", // ✅ center everything
-                }}
-              >
-                {/* HEADER */}
-                <div style={cardHeader}>
-                  <h3 style={cardTitle}>{req.title}</h3>
+      {/* ✅ SINGLE TABLE */}
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>Device Id </th>
+            <th>Reseller Id</th>
+            <th>Plan Name</th>
+            <th>Credits Used</th>
+            <th>Created At</th>
+            <th>Status</th>
+          </tr>
+        </thead>
 
-                  <div style={statusBadge(req.status)}>
-                    {req.status === "Pending" && <Clock size={12} />}
-                    {req.status === "Approved" && <CheckCircle size={12} />}
-                    {req.status === "Rejected" && <XCircle size={12} />}
-                    {req.status}
-                  </div>
-                </div>
-
-                {/* RESELLER ID + COPY */}
+        <tbody>
+          {filteredRequests.map((req) => (
+            <tr key={req.id}>
+              <td>
+                {/* Device ID */}
                 <div
-                  className="d-flex justify-content-center align-items-center gap-2 mt-2"
+                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
+                  className="flex"
+                >
+                  <span
+                    style={{
+                      maxWidth: "120px",
+                      display: "inline-block",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                      cursor: "pointer",
+                    }}
+                    title={req.deviceId} // 👈 full value on hover
+                  >
+                    {req.deviceId}
+                  </span>
+
+                  <button onClick={() => handleCopy(req.resellerId)}>
+                    <IoCopyOutline />
+                  </button>
+                </div>
+              </td>
+              <td>
+                {/* Reseller ID */}
+                <div
                   style={{
-                    border: "1px solid #ccc",
-                    borderRadius: "8px",
-                    padding: "6px 10px",
-                    fontSize: "12px",
-                    color: "#666",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    marginTop: "4px",
                   }}
                 >
-                  <span>{req.resellerId?.slice(0, 8)}...</span>
-
                   <span
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleCopy(req.resellerId)}
+                    style={{
+                      maxWidth: "120px",
+                      display: "inline-block",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                      cursor: "pointer",
+                    }}
+                    title={req.resellerId}
                   >
-                    {/* {copiedId === req.resellerId ? (
-                      <Check size={14} color="green" />
-                    ) : (
-                      <Copy size={14} />
-                    )} */}
+                    {req.resellerId}
                   </span>
+
+                  <button onClick={() => handleCopy(req.resellerId)}>
+                    <IoCopyOutline />
+                  </button>
                 </div>
+              </td>
 
-                {/* PLAN / COIN / CURRENCY */}
-                <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-                  <span className="px-3 py-1 rounded border text-muted">
-                    {req.plan}
-                  </span>
+              <td>{req.planName}</td>
 
-                  <span className="px-3 py-1 rounded border text-muted">
-                    🪙 {req.creditsUsed}
-                  </span>
+              <td>{req.creditsUsed ?? "N/A"}</td>
 
-                  <span className="px-3 py-1 rounded border text-muted">
-                    {req.currency}
-                  </span>
-                </div>
+              <td>{req.createdAt}</td>
 
-                {/* FOOTER */}
-                <div style={cardFooter}>
-                  <span style={dateText}>Date: {req.createdAt}</span>
-                  <span style={trackLink}>Track Details →</span>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </main>
+              <td>
+                {req.status === "PENDING" && (
+                  <span style={{ color: "orange" }}>Pending</span>
+                )}
+                {req.status === "APPROVED" && (
+                  <span style={{ color: "green" }}>Approved</span>
+                )}
+                {req.status === "REJECTED" && (
+                  <span style={{ color: "red" }}>Rejected</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {/* Submit Request Modal */}
+      {/* Modal */}
       <AnimatePresence>
         {showModal && (
-          <div style={modalOverlay}>
+          <div style={overlay}>
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              style={modalContainer}
+              initial={{ y: 50 }}
+              animate={{ y: 0 }}
+              exit={{ y: 50 }}
+              style={modal}
+              className="fixed ml-[13%]"
             >
-              <div style={modalHeader}>
-                <h2 style={{ margin: 0, color: "#800000" }}>Submit Request</h2>
-                <XCircle
-                  size={24}
-                  color="#636e72"
-                  cursor="pointer"
-                  onClick={() => setShowModal(false)}
-                />
-              </div>
-              {apiError && (
-                <p className="text-red-500 text-sm mt-2">{apiError}</p>
-              )}
-              <form onSubmit={handleSubmit}>
-                <label style={labelStyle}>Enter the DeviceId</label>
-                <input
-                  required
-                  placeholder="e.g. Access to Portal"
-                  style={inputStyle}
-                  value={newRequest.deviceId}
-                  onChange={(e) =>
-                    setNewRequest({ ...newRequest, deviceId: e.target.value })
-                  }
-                />
+              <h3 className="text-2xl text-red-500 font-semibold">
+                Submit Request
+              </h3>
 
-                <label style={labelStyle}>Select the Plane Name</label>
-                {/* <textarea
-                  required
-                  rows="4"
-                  placeholder="Explain why you need this..."
-                  style={{ ...inputStyle, resize: "none" }}
-                  value={newRequest.description}
+              {apiError && <p style={errorText}>{apiError}</p>}
+
+              <form onSubmit={handleSubmit}>
+                <input
+                  placeholder="Device ID"
+                  value={newRequest.deviceId}
                   onChange={(e) =>
                     setNewRequest({
                       ...newRequest,
-                      description: e.target.value,
+                      deviceId: e.target.value,
                     })
                   }
-                /> */}
+                  required
+                  className="border border-gray-400"
+                  style={input}
+                />
+
                 <select
-                  style={inputStyle}
-                  onChange={(e) => {
-                    const value = tiers.find(
-                      (t) => t.planName === e.target.value,
-                    );
-                    setNewRequest({ ...newRequest, planeName: e.target.value });
-                  }}
+                  value={newRequest.planName}
+                  onChange={(e) =>
+                    setNewRequest({
+                      ...newRequest,
+                      planName: e.target.value,
+                    })
+                  }
+                  required
+                    className="border border-gray-400"
+                  style={input}
                 >
                   <option value="">Select Plan</option>
-                  {tiers.map((tier, index) => (
-                    <option key={index} value={tier.planName}>
-                      {tier.planName}
+                  {tiers.map((t, i) => (
+                    <option key={i} value={t.planName}>
+                      {t.planName}
                     </option>
                   ))}
                 </select>
 
-                <div style={modalActions}>
+                <div
+                  style={{ marginTop: "12px", display: "flex", gap: "10px" }}
+                >
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      ...primaryBtn,
+                    }}
+                  >
+                    Submit
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    style={cancelBtn}
+                    style={{
+                      flex: 1,
+                      background: "#e5e7eb",
+                      borderRadius: "8px",
+                      padding: "8px",
+                      cursor: "pointer",
+                    }}
                   >
                     Cancel
-                  </button>
-                  <button type="submit" style={submitBtnForm}>
-                    Send Request
                   </button>
                 </div>
               </form>
@@ -367,221 +288,69 @@ function RequestManagement() {
   );
 }
 
-// --- Styles (Maroon & Blue Professional Theme) ---
-
-const containerStyle = {
-  width: "100%",
-  minHeight: "100vh",
-  boxSizing: "border-box",
-};
-
-const headerStyle = {
-  background: "#fff",
-  padding: "20px 5%",
+/* Styles */
+const header = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  borderBottom: "3px solid #800000", // Maroon accent line
 };
 
-const iconBox = {
-  background: "#1e3a8a", // Blue
-  padding: "10px",
-  borderRadius: "12px",
-};
-
-const submitBtnTop = {
-  background: "#800000", // Maroon
+const primaryBtn = {
+  background: "#333",
   color: "#fff",
+  padding: "8px 14px",
   border: "none",
-  padding: "12px 24px",
-  borderRadius: "10px",
-  fontWeight: "bold",
+  borderRadius: "6px",
   cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  boxShadow: "0 4px 15px rgba(128, 0, 0, 0.3)",
 };
 
-const mainContent = {
-  padding: "40px 5%",
-  maxWidth: "1400px",
-  margin: "0 auto",
+const cancelBtn = {
+  marginLeft: "10px",
+  padding: "8px 14px",
 };
 
-const filterBar = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "30px",
-};
-
-const tabStyle = {
-  padding: "8px 20px",
-  borderRadius: "20px",
-  border: "1px solid #ddd",
-  background: "#fff",
+const filterBtn = {
+  marginRight: "10px",
+  padding: "6px 12px",
+  borderRadius: "6px",
+  border: "none",
   cursor: "pointer",
+};
+
+const copyBtn = {
+  padding: "4px 8px",
+  cursor: "pointer",
+};
+
+const errorText = {
+  color: "red",
   fontSize: "14px",
-  color: "#636e72",
-  transition: "0.3s",
 };
 
-const activeTabStyle = {
-  ...tabStyle,
-  background: "#1e3a8a",
-  color: "#fff",
-  borderColor: "#1e3a8a",
-};
-
-const statsText = { fontSize: "14px", color: "#636e72", fontWeight: "600" };
-
-const gridContainer = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-  gap: "25px",
-};
-
-const cardStyle = {
-  background: "#fff",
-  borderRadius: "20px",
-  padding: "25px",
-  boxShadow: "0 10px 25px rgba(0,0,0,0.03)",
-  border: "1px solid #edf2f7",
-  position: "relative",
-  overflow: "hidden",
-};
-
-const cardHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  marginBottom: "15px",
-};
-
-const cardTitle = { margin: 0, fontSize: "18px", color: "#2d3436" };
-
-const statusBadge = (status) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: "5px",
-  fontSize: "12px",
-  fontWeight: "bold",
-  padding: "4px 10px",
-  borderRadius: "20px",
-  background:
-    status === "Pending"
-      ? "#fff7ed"
-      : status === "Approved"
-        ? "#f0fdf4"
-        : "#fef2f2",
-  color:
-    status === "Pending"
-      ? "#c2410c"
-      : status === "Approved"
-        ? "#15803d"
-        : "#b91c1c",
-  border: `1px solid ${status === "Pending" ? "#fdba74" : status === "Approved" ? "#86efac" : "#fca5a5"}`,
-});
-
-const cardDesc = {
-  fontSize: "14px",
-  color: "#636e72",
-  lineHeight: "1.6",
-  marginBottom: "20px",
-  minHeight: "45px",
-};
-
-const cardFooter = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  borderTop: "1px solid #f1f5f9",
-  paddingTop: "15px",
-};
-
-const dateText = { fontSize: "12px", color: "#94a3b8" };
-const trackLink = {
-  fontSize: "13px",
-  color: "#1e3a8a",
-  fontWeight: "bold",
-  cursor: "pointer",
-};
-
-// Modal Styles
-const modalOverlay = {
+const overlay = {
   position: "fixed",
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  background: "rgba(0,0,0,0.6)",
-  backdropFilter: "blur(6px)",
+  background: "rgba(0,0,0,0.5)",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  zIndex: 1000,
 };
 
-const modalContainer = {
+const modal = {
   background: "#fff",
-  padding: "35px",
-  borderRadius: "24px",
-  width: "450px",
-  boxShadow: "0 25px 50px rgba(0,0,0,0.2)",
+  padding: "20px",
+  borderRadius: "10px",
+  width: "400px",
 };
 
-const modalHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "30px",
-};
-
-const labelStyle = {
-  display: "block",
-  marginBottom: "8px",
-  fontWeight: "600",
-  color: "#2d3436",
-  fontSize: "14px",
-};
-
-const inputStyle = {
+const input = {
   width: "100%",
-  padding: "14px",
-  marginBottom: "20px",
-  borderRadius: "12px",
-  border: "1px solid #e2e8f0",
-  fontSize: "15px",
-  outline: "none",
-  boxSizing: "border-box",
-};
-
-const modalActions = { display: "flex", gap: "12px", marginTop: "10px" };
-
-const cancelBtn = {
-  flex: 1,
-  padding: "14px",
-  background: "#f1f5f9",
-  border: "none",
-  borderRadius: "12px",
-  cursor: "pointer",
-  fontWeight: "bold",
-  color: "#64748b",
-};
-
-const submitBtnForm = {
-  flex: 2,
-  padding: "14px",
-  background: "linear-gradient(90deg, #800000, #1e3a8a)",
-  color: "#fff",
-  border: "none",
-  borderRadius: "12px",
-  fontWeight: "bold",
-  cursor: "pointer",
-  fontSize: "16px",
+  padding: "10px",
+  marginBottom: "10px",
+  marginTop:'10px'
 };
 
 export default RequestManagement;

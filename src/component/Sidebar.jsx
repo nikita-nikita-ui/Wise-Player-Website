@@ -1,5 +1,13 @@
-import React from 'react';
-import { LayoutDashboard, Users, Layers, Clock, PlusCircle, LogOut, ShoppingCart  } from 'lucide-react';
+import React from "react";
+import {
+  LayoutDashboard,
+  Users,
+  Layers,
+  Clock,
+  PlusCircle,
+  LogOut,
+  ShoppingCart,
+} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -8,14 +16,29 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/users', label: 'User Management', icon: Users },
-    { path: '/subreseller', label: 'Sub Resellers', icon: Layers },
-    { path: '/requests', label: 'Activation Requests', icon: Clock },
-    { path: '/new-activation', label: ' Track Activation Request', icon: PlusCircle },
-     { path: '/purchase-credit', label: 'Purchase Credit', icon: ShoppingCart  },
-    { path: '/logout', label: 'Logout', icon: LogOut },
+    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/users", label: "User Management", icon: Users },
+    { path: "/subreseller", label: "Sub Resellers", icon: Layers },
+    { path: "/requests", label: "Activation Requests", icon: Clock },
+    {
+      path: "/new-activation",
+      label: " Track Activation Request",
+      icon: PlusCircle,
+    },
+    { path: "/purchase-credit", label: "Purchase Credit", icon: ShoppingCart },
+    { path: "/logout", label: "Logout", icon: LogOut },
   ];
+
+  const handleLogout = () => {
+    // ❌ remove stored auth data
+    localStorage.removeItem("token");
+    localStorage.removeItem("id");
+    localStorage.removeItem("admin");
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userName");
+    navigate("/");
+  };
 
   return (
     <div
@@ -23,15 +46,15 @@ const Sidebar = () => {
       style={{
         width: "280px",
         backgroundColor: maroonMain,
-        position: 'sticky',
+        position: "sticky",
         top: 0,
-        height: '100vh',
-        zIndex: 1000
+        height: "100vh",
+        zIndex: 1000,
       }}
     >
       <div className="p-4 mb-4 text-center">
         <h3 className="text-white fw-bold letter-spacing-1">
-          RESELLER<span style={{ color: '#ffc107' }}>HUB</span>
+          RESELLER<span style={{ color: "#ffc107" }}>HUB</span>
         </h3>
       </div>
 
@@ -42,13 +65,20 @@ const Sidebar = () => {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              // onClick={() => navigate(item.path)}
+              onClick={() => {
+                if (item.path === "/logout") {
+                  handleLogout();
+                } else {
+                  navigate(item.path);
+                }
+              }}
               className={`nav-link w-100 text-start border-0 px-4 py-3 d-flex align-items-center mb-1 transition-all
-              ${isActive ? 'bg-white shadow-sm' : 'bg-transparent text-white opacity-75'}`}
+              ${isActive ? "bg-white shadow-sm" : "bg-transparent text-white opacity-75"}`}
               style={{
-                borderRadius: '12px 0 0 12px',
-                color: isActive ? maroonMain : 'white',
-                transition: 'all 0.3s ease'
+                borderRadius: "12px 0 0 12px",
+                color: isActive ? maroonMain : "white",
+                transition: "all 0.3s ease",
               }}
             >
               <item.icon size={20} className="me-3" />
