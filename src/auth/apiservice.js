@@ -152,3 +152,29 @@ export const fetchPublicPlans = async () => {
     throw error;
   }
 };
+
+export const submitSupportTicket = async (ticketData) => {
+  try {
+    const formData = new FormData();
+    formData.append('firstName', ticketData.firstName);
+    formData.append('lastName', ticketData.lastName);
+    formData.append('email', ticketData.email);
+    formData.append('macAddress', ticketData.macAddress);
+    formData.append('inquiryType', ticketData.inquiryType);
+    formData.append('message', ticketData.message);
+    if (ticketData.attachment) {
+      formData.append('attachment', ticketData.attachment);
+    }
+    const response = await api.post('/api/public/support/ticket', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to submit ticket'
+    };
+  }
+};

@@ -5,7 +5,9 @@ import { Flame, User, Lock, ArrowRight, ShieldCheck, ArrowLeft, KeyRound } from 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { loginReseller } from '../auth/apiservice';
+import { useTranslation } from "react-i18next";
 const LoginPage = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [view, setView] = useState('login');
     const [loading, setLoading] = useState(false);
@@ -98,7 +100,7 @@ const LoginPage = () => {
                                 WISE <span style={{ color: '#dc3545' }}>PLAYER</span>
                             </h1>
                             <div className="badge bg-dark px-3 py-2 mt-2" style={{ fontSize: '10px', borderRadius: '100px', letterSpacing: '1px' }}>
-                                RESELLER PORTAL
+                                {t('reseller_portal')}
                             </div>
                         </motion.div>
 
@@ -117,8 +119,8 @@ const LoginPage = () => {
                                 {view === 'login' ? (
                                     <motion.div key="login" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
                                         <div className="mb-4">
-                                            <h3 className="fw-bold mb-1">Sign In</h3>
-                                            <p className="text-muted small">Access your reseller dashboard</p>
+                                            <h3 className="fw-bold mb-1">{t('sign_in_title')}</h3>
+                                            <p className="text-muted small">{t('sign_in_subtitle')}</p>
                                         </div>
 
                                         {/* {message.text && (
@@ -146,29 +148,30 @@ const LoginPage = () => {
                                             </Form.Group>
 
                                             <Form.Group className="mb-3">
-                                                <Form.Label className="small fw-bold text-dark ms-1">Password</Form.Label>
-                                                <InputGroup className="custom-input">
+                                                <Form.Label className="...">{t('password')}</Form.Label>                                                <InputGroup className="custom-input">
                                                     <InputGroup.Text className="bg-transparent border-end-0">
                                                         <Lock size={18} className="text-muted" />
                                                     </InputGroup.Text>
                                                     <Form.Control
-                                                        type="password" placeholder="••••••••" required
-                                                        className="border-start-0 ps-0 shadow-none"
-                                                        value={password} onChange={(e) => setPassword(e.target.value)}
+                                                        type="password"
+                                                        placeholder="••••••••"
+                                                        required
+                                                        value={password} // Value hamesha 'password' hi rahegi
+                                                        onChange={(e) => setPassword(e.target.value)}
                                                     />
                                                 </InputGroup>
                                             </Form.Group>
 
                                             <div className="text-end mb-4">
-                                                <button type="button" onClick={() => { setView('forgot'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 small  text-decoration-none text-white hover-red">
-                                                    Forgot password?
+                                                <button type="button" onClick={() => { setView('forgot'); }} className="btn btn-link p-0 small text-decoration-none text-dark hover-red">
+                                                    {t('forgot_password')}
                                                 </button>
                                             </div>
 
                                             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
                                                 <Button type="submit" disabled={loading} className="w-100 py-3 border-0 d-flex align-items-center justify-content-center shadow-lg premium-btn">
                                                     {loading ? <Spinner animation="border" size="sm" /> : (
-                                                        <><span className="me-2">SIGN IN TO PORTAL</span><ArrowRight size={18} /></>
+                                                        <><span className="me-2">{t('btn_sign_in')}</span><ArrowRight size={18} /></>
                                                     )}
                                                 </Button>
                                             </motion.div>
@@ -176,24 +179,28 @@ const LoginPage = () => {
                                     </motion.div>
                                 ) : (
                                     <motion.div key="forgot" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                                        <button onClick={() => { setView('login'); setMessage({ type: '', text: '' }); }} className="btn btn-link p-0 mb-4 text-white hover-red text-decoration-none small d-flex align-items-center fw-bold">
-                                            <ArrowLeft size={16} className="me-2" /> Back to Sign In
+                                        <button onClick={() => { setView('login'); }} className="btn btn-link p-0 mb-4 text-dark text-decoration-none small d-flex align-items-center fw-bold">
+                                            <ArrowLeft size={16} className="me-2" /> {t('back_to_signin')}
                                         </button>
                                         <div className="mb-4">
                                             <div className="p-3 bg-light d-inline-block rounded-circle mb-3"><KeyRound size={24} className="text-dark" /></div>
                                             <h3 className="fw-bold mb-1">Recover Password</h3>
-                                            <p className="text-muted small">We'll send a recovery link to your username contact.</p>
+                                            <p className="text-muted small">{t('recover_title')} aur {t('recover_subtitle')}</p>
                                         </div>
                                         <Form onSubmit={handleForgot}>
                                             <Form.Group className="mb-4">
-                                                <Form.Label className="small fw-bold text-dark ms-1">Username</Form.Label>
-                                                <InputGroup className="custom-input">
+                                                <Form.Label className="...">{t('username')}</Form.Label>                                                 <InputGroup className="custom-input">
                                                     <InputGroup.Text className="bg-transparent border-end-0"><User size={18} className="text-muted" /></InputGroup.Text>
-                                                    <Form.Control type="text" placeholder="Username" required className="border-start-0 ps-0 shadow-none" />
-                                                </InputGroup>
+                                                    <Form.Control
+                                                        type="text"
+                                                        placeholder={t('username')}
+                                                        required
+                                                        value={username}
+                                                        onChange={(e) => setUsername(e.target.value)}
+                                                    />                                                </InputGroup>
                                             </Form.Group>
                                             <Button type="submit" disabled={loading} className="w-100 py-3 bg-dark border-0 fw-bold" style={{ borderRadius: '14px' }}>
-                                                {loading ? <Spinner animation="border" size="sm" /> : 'SEND RECOVERY LINK'}
+                                                {loading ? <Spinner animation="border" size="sm" /> : t('btn_send_recovery')}
                                             </Button>
                                         </Form>
                                     </motion.div>
@@ -204,7 +211,7 @@ const LoginPage = () => {
                         <motion.div style={{ color: '#ffffff' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center mt-5">
                             <div className="d-flex align-items-center justify-content-center text-muted gap-2" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
                                 <ShieldCheck size={14} className="text-success" />
-                                <span style={{ color: '#fff' }} className="text-uppercase fw-bold">Authorized Access Only</span>
+                                <span style={{ color: '#fff' }} className="text-uppercase fw-bold">{t('authorized_only')}</span>
                             </div>
                             {/* <p className="mt-4 text-muted" style={{ color: '#fff' ,fontSize: '10px', opacity: 0.6 }}>
                                 &copy; {new Date().getFullYear()} WISE PLAYER GLOBAL LTD. <br />
