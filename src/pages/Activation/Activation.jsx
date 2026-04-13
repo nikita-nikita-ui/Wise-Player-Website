@@ -6,8 +6,9 @@ import {
 } from 'lucide-react';
 import { generateDeviceKey, activateDeviceApi } from '../../auth/apiservice';
 import './Activation.css';
-
+import { useTranslation } from 'react-i18next';
 const WisePlayerActivation = () => {
+  const { t } = useTranslation();
   const [macAddress, setMacAddress] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +55,7 @@ const WisePlayerActivation = () => {
   };
 
 
-  const steps = ['Enter MAC', 'Generate Key', 'Activate'];
+  const steps = [t('act_step1'), t('act_step2'), t('act_step3')];
 
   return (
     <div className="wp-root">
@@ -91,8 +92,7 @@ const WisePlayerActivation = () => {
           {/* Warning banner */}
           <div className="wp-banner">
             <div className="wp-banner-icon"><AlertCircle size={13} /></div>
-            <p className="wp-banner-text">No content / channels included — Player license only.</p>
-          </div>
+            <p className="wp-banner-text">{t('act_banner')}</p>          </div>
 
           <div className="wp-card-body">
             <AnimatePresence mode="wait">
@@ -105,9 +105,8 @@ const WisePlayerActivation = () => {
                   <div className="wp-sec-head">
                     <div className="wp-sec-icon"><Zap size={18} color="#2563eb" /></div>
                     <div>
-                      <h2 className="wp-sec-title">Device Activation</h2>
-                      <p className="wp-sec-sub">Enter your MAC address to get started</p>
-                    </div>
+                      <h2 className="wp-sec-title">{t('act_title')}</h2>
+                      <p className="wp-sec-sub">{t('act_subtitle')}</p>                    </div>
                   </div>
 
                   {/* Step tracker */}
@@ -131,7 +130,7 @@ const WisePlayerActivation = () => {
 
                   {/* MAC input */}
                   <div className="wp-field">
-                    <label className="wp-label">Device MAC Address</label>
+                    <label className="wp-label">{t('act_mac_label')}</label>
                     <div className="wp-input-wrap">
                       <input
                         type="text"
@@ -152,7 +151,7 @@ const WisePlayerActivation = () => {
                         </AnimatePresence>
                       </div>
                     </div>
-                    <p className="wp-hint">Find it in device Settings → Network → About</p>
+                    <p className="wp-hint">{t('act_mac_hint')}</p>
                   </div>
 
                   {/* Generate key row */}
@@ -162,11 +161,8 @@ const WisePlayerActivation = () => {
                       disabled={!isMacValid || isKeyLoading}
                       className={`wp-btn-gen ${isMacValid && !isKeyLoading ? 'wp-btn-gen--on' : 'wp-btn-gen--off'}`}
                     >
-                      {isKeyLoading ? (
-                        <><div className="wp-spinner" /> Generating...</>
-                      ) : isKeyGenerated ? (
-                        <><CheckCircle2 size={14} /> Key Generated</>
-                      ) : 'Generate Activation Key'}
+                      {isKeyLoading ? t('act_generating') : isKeyGenerated ? t('act_key_generated') : t('act_generate_key')}
+
                     </button>
 
                     <AnimatePresence>
@@ -197,7 +193,7 @@ const WisePlayerActivation = () => {
                       <CheckCircle2 size={13} className="wp-checkbox-check" />
                     </div>
                     <span className="wp-agree-text">
-                      I confirm I have my own content and I am paying for the{' '}
+                      {t('act_agree_text')}{' '}
                       <strong className="wp-agree-strong">Wise Player lifetime license.</strong>
                     </span>
                   </motion.label>
@@ -264,7 +260,7 @@ const WisePlayerActivation = () => {
                     className="wp-btn-another"
                     onClick={() => { setIsSuccess(false); setMacAddress(''); setIsKeyGenerated(false); setIsAgreed(false); setGeneratedKey(''); }}
                   >
-                    Activate Another Device
+                    t('act_another')
                   </button>
                 </motion.div>
               )}
@@ -286,8 +282,8 @@ const WisePlayerActivation = () => {
         {/* Bottom links */}
         <motion.div variants={itemVars} className="wp-bottom">
           <div className="wp-bottom-links">
-            <a href="#" className="wp-link"><HelpCircle size={13} /> Support</a>
-            <a href="#" className="wp-link"><ExternalLink size={13} /> License Policy</a>
+            <a href="#" className="wp-link">{t('act_support')}</a>
+            <a href="#" className="wp-link">{t('act_license')}</a>
           </div>
           <p className="wp-copyright">© 2024 <strong>WISE PLAYER TECHNOLOGY</strong></p>
         </motion.div>

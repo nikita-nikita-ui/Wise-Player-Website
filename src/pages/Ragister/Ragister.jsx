@@ -5,7 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { registerReseller } from '../../auth/apiservice';
 import './Ragister.css';
 import logo from '../../assets/logo.png';
+import { useTranslation } from "react-i18next";
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
@@ -33,16 +35,16 @@ const Register = () => {
     e.preventDefault();
     setError('');
     if (!validations.hasSpecial || !validations.hasNumber || !validations.hasLower || !validations.hasUpper || !validations.isLengthValid) {
-      setError("Password requirements not met."); return;
+      setError(t("reg_err_pass_req")); return;
     }
     if (!validations.usernameLength || !validations.usernameAllowedChars) {
-      setError("Invalid Username format."); return;
+      setError(t("reg_err_user_format")); return;
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match!"); return;
+      setError(t("reg_err_mismatch")); return;
     }
     if (!agree) {
-      setError("Please agree to terms."); return;
+      setError(t("reg_err_terms")); return;
     }
 
     const formData = { fullName, username, password };
@@ -58,7 +60,7 @@ const Register = () => {
     <div className="main-page-wrapper">
       <div className="branding-panel"> {/* 2. class ki jagah className use karein */}
         <div className="branding-content">
-          <p className="welcome-text">Hello,<br /><span>welcome to!</span></p> {/* 3. <br> ko <br /> likhna hoga */}
+          <p className="welcome-text">{t('reg_hello')}<br /><span>{t('reg_welcome')}</span></p> {/* 3. <br> ko <br /> likhna hoga */}
 
           <div className="logo-circle">
             <img src={logo} alt="logo" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'contain' }} />
@@ -80,11 +82,11 @@ const Register = () => {
           </div>
 
           <div className="glass-card">
-            <div className="reseller-badge">RESELLER SIGNUP</div>
+            <div className="reseller-badge">{t('reg_signup_badge')}</div>
             <form onSubmit={handleSubmit} className="form-content">
               <div className="input-row">
                 <div className="input-group">
-                  <label className="custom-label">Full Name</label>
+                  <label className="custom-label">{t('reg_fullname')}</label>
                   <input
                     className="modern-input"
                     placeholder="John Doe"
@@ -95,8 +97,7 @@ const Register = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="custom-label">Username</label>
-                  <input
+                  <label className="custom-label">{t('reg_username')}</label>                  <input
                     type="text"
                     className="modern-input"
                     placeholder="username123"
@@ -108,8 +109,7 @@ const Register = () => {
               </div>
 
               <div className="input-group">
-                <label className="custom-label">Password</label>
-                <input
+                <label className="custom-label">{t('reg_password')}</label>                <input
                   type="password"
                   className="modern-input"
                   placeholder="••••••••"
@@ -118,16 +118,15 @@ const Register = () => {
                   required
                 />
                 <div className="validation-grid">
-                  <span className={validations.hasSpecial ? 'v-done' : 'v-pending'}>Special Char</span>
-                  <span className={validations.hasNumber ? 'v-done' : 'v-pending'}>Number</span>
-                  <span className={validations.hasLower && validations.hasUpper ? 'v-done' : 'v-pending'}>Aa/BB</span>
-                  <span className={validations.isLengthValid ? 'v-done' : 'v-pending'}>8+ Chars</span>
+                  <span className={validations.hasSpecial ? 'v-done' : 'v-pending'}>{t('reg_v_special')}</span>
+                  <span className={validations.hasNumber ? 'v-done' : 'v-pending'}> {t('reg_v_number')}</span>
+                  <span className={validations.hasLower && validations.hasUpper ? 'v-done' : 'v-pending'}>{t('reg_v_case')}</span>
+                  <span className={validations.isLengthValid ? 'v-done' : 'v-pending'}>{t('reg_v_length')}</span>
                 </div>
               </div>
 
               <div className="input-group">
-                <label className="custom-label">Confirm Password</label>
-                <input
+                <label className="custom-label">{t('reg_confirm_password')}</label>                <input
                   type="password"
                   className="modern-input"
                   placeholder="Confirm password"
@@ -143,16 +142,15 @@ const Register = () => {
                 <div className={`custom-checkbox ${agree ? 'checked' : ''}`}>
                   {agree && "✓"}
                 </div>
-                <span className="terms-txt">I agree to the <span className="highlight">Terms & Privacy</span></span>
-              </div>
+                <span className="terms-txt">{t('reg_agree')} <span className="highlight">{t('reg_terms')}</span></span>              </div>
 
               <button type="submit" className="main-signup-btn">
-                Create Account
+                {t('reg_create_btn')}
               </button>
 
               <div className="footer-login">
-                <span>Already a member?</span>
-                <button type="button" onClick={() => navigate('/login')} className="text-btn">Login Now</button>
+                <span>{t('reg_already_member')}</span>
+                <button type="button" onClick={() => navigate('/login')} className="text-btn">{t('reg_login_now')}</button>
               </div>
             </form>
           </div>
