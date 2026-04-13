@@ -52,7 +52,7 @@ const Coincalculator = () => {
       return;
     }
     const res = await purchaseCredit(coins);
-    console.log(res.data);
+    console.log("res :",res?.data);
     if (res?.data?.checkoutUrl) {
       // window.location.href = res.checkoutUrl;
       // window.open(res?.data?.checkoutUrl, "_blank");

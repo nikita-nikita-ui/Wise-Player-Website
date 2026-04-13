@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginReseller } from '../auth/apiservice';
 import { useDashboard } from '../context/dashboardContext'
 import { useTranslation } from "react-i18next";
+import { useAuth } from '../context/AuthContext';
 const LoginPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -18,6 +19,7 @@ const LoginPage = () => {
         setToast({ msg, type });
         setTimeout(() => setToast(null), 3000);
     };
+    const {setUser } = useAuth()
     const [message, setMessage] = useState({ type: '', text: '' });
 
     const [username, setUsername] = useState('');
@@ -45,11 +47,15 @@ const LoginPage = () => {
         if (result.success) {
             showToast('Success! Redirecting to dashboard...', 'success');
             localStorage.setItem('userName', username);
-            setTimeout(() => {
+           
 
                 navigate('/dashboard');
-                refetchDashboard()
-            }, 1000);
+                refetchDashboard();
+                 setUser(result?.data?.role)
+      
+           
+
+        console.log('result : ', result)
         } else {
             showToast(result.message || 'Invalid credentials. Please try again.', 'error');
         }

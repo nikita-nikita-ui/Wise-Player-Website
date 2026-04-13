@@ -14,6 +14,7 @@ import translationEN from './locales/en.json';
 import translationFR from './locales/fr.json';
 
 
+import {AuthProvider} from '../src/context/AuthContext.jsx'
 // Configure i18n
 i18n
   .use(initReactI18next)
@@ -33,7 +34,9 @@ i18n
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <DashboardProvider>
+      <AuthProvider>
       <App />
+      </AuthProvider>
     </DashboardProvider>
   </React.StrictMode>,
 )
