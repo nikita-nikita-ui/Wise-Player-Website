@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, InputGroup, Alert, Spinner } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, User, Lock, ArrowRight, ShieldCheck, ArrowLeft, KeyRound } from 'lucide-react'; // Mail ki jagah User
+import { Flame, User, Lock, ArrowRight, ShieldCheck, ArrowLeft, KeyRound, Eye, EyeOff } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { loginReseller } from '../auth/apiservice';
@@ -24,8 +24,9 @@ const LoginPage = () => {
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = async (e) => { // async कीवर्ड जोड़ा गया है
+    const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
 
@@ -157,17 +158,27 @@ const LoginPage = () => {
                                             </Form.Group>
 
                                             <Form.Group className="mb-3">
-                                                <Form.Label className="...">{t('password')}</Form.Label>                                                <InputGroup className="custom-input">
+                                                <Form.Label className="small fw-bold text-dark ms-1">{t('password')}</Form.Label>
+                                                <InputGroup className="custom-input">
                                                     <InputGroup.Text className="bg-transparent border-end-0">
                                                         <Lock size={18} className="text-muted" />
                                                     </InputGroup.Text>
                                                     <Form.Control
-                                                        type="password"
+                                                        type={showPassword ? "text" : "password"} // Type change hoga
                                                         placeholder="••••••••"
                                                         required
-                                                        value={password} // Value hamesha 'password' hi rahegi
+                                                        className="border-start-0 border-end-0 ps-0 shadow-none"
+                                                        value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
                                                     />
+                                                    {/* Toggle Button Icon */}
+                                                    <InputGroup.Text
+                                                        className="bg-transparent border-start-0"
+                                                        style={{ cursor: 'pointer' }}
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                    >
+                                                        {showPassword ? <Eye size={18} className="text-muted" /> : <EyeOff size={18} className="text-muted" />}
+                                                    </InputGroup.Text>
                                                 </InputGroup>
                                             </Form.Group>
 
@@ -234,9 +245,9 @@ const LoginPage = () => {
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-                .custom-input .input-group-text, .custom-input .form-control { background-color: #fcfcfc !important; border: 1.5px solid #eee !important; padding: 12px 15px; transition: all 0.3s ease; }
-                .custom-input .form-control { border-radius: 0 14px 14px 0 !important; font-size: 15px; }
-                .custom-input .input-group-text { border-radius: 14px 0 0 14px !important; }
+                .custom-input .input-group-text,
+                .custom-input .form-control { border-radius: 0 !important; font-size: 15px; }
+.custom-input .input-group-text:last-child { border-radius: 0 14px 14px 0 !important; }.custom-input .input-group-text { border-radius: 14px 0 0 14px !important; }
                 .custom-input .form-control:focus { border-color: #000 !important; background-color: #fff !important; }
                 .premium-btn { background: #000 !important; border-radius: 14px !important; font-weight: 800 !important; font-size: 14px !important; letter-spacing: 1px !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
                 .premium-btn:hover { background: #c5a0a0 !important; transform: translateY(-3px) scale(1.01); box-shadow: 0 15px 30px rgba(167, 97, 207, 0.2), 0 0 10px rgba(100, 200, 214, 0.3) !important; color: #fff !important; }

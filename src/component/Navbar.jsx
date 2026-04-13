@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Flame, Home, CloudDownload, Tag, Menu, X, ChevronRight, UserPlus } from 'lucide-react'; // LogIn and Store removed as unused
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-
 const Navbar = () => {
     const { t, i18n } = useTranslation(); // Use both t and i18n
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
-    
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     // Set initial language based on i18n state or default ('EN')
-    const [currentLang, setCurrentLang] = useState(i18n.language || 'EN'); 
-    
+    const [currentLang, setCurrentLang] = useState(i18n.language || 'EN');
+
     const availableLanguages = [
         { code: 'EN', name: 'English' },
         { code: 'FR', name: 'French' }, // Only EN and FR are configured in your i18n setup
@@ -25,7 +24,7 @@ const Navbar = () => {
         { code: 'RU', name: 'Russian' },
         { code: 'ID', name: 'Indonesian' },
     ];
-    
+
     const colors = {
         primary: '#b11905', // Deep Red
         secondary: '#690a72', // Purple
@@ -167,6 +166,15 @@ const Navbar = () => {
             z-index: 2000; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
           }
         }
+
+        @media (min-width: 769px) {
+  .desktop-hide { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .mobile-hide { display: none !important; }
+  .desktop-hide { display: block !important; }
+}
       `}</style>
 
             <header className="nav-glass" style={{
@@ -215,7 +223,13 @@ const Navbar = () => {
                             <span className="mobile-hide">{t('nav_contact')}</span> {/* *** TRANSLATED *** */}
                             <ChevronRight size={16} />
                         </Link>
-
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            className="desktop-hide" // You'll need to define this to hide on desktop
+                        >
+                            {isMenuOpen ? <X size={28} color={colors.dark} /> : <Menu size={28} color={colors.dark} />}
+                        </button>
                         {/* LANGUAGE */}
                         <div style={{ position: 'relative' }}>
                             {/* Language Button (EN/Current Lang) */}
@@ -275,6 +289,72 @@ const Navbar = () => {
                         </div>
                     </div>
                 </div>
+                {/* MOBILE DROPDOWN MENU */}
+                {/* MOBILE DROPDOWN MENU */}
+                {isMenuOpen && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '90%', // Small gap from top
+                        left: '5%', // Margin from left
+                        width: '90%', // Not full width (looks more premium)
+                        background: 'white',
+                        borderRadius: '20px', // Smooth rounded corners
+                        padding: '25px 20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '20px',
+                        boxShadow: '0 15px 40px rgba(0,0,0,0.12)', // Soft shadow
+                        border: '1px solid rgba(0,0,0,0.05)',
+                        zIndex: 1001
+                    }}>
+                        {/* Navigation Links */}
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                to={link.path}
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{
+                                    textDecoration: 'none',
+                                    color: '#475569',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    fontSize: '16px'
+                                }}
+                            >
+                                <span style={{ color: colors.primary }}>{link.icon}</span>
+                                {link.name}
+                            </Link>
+                        ))}
+
+                        {/* Separator Line */}
+                        <div style={{ height: '1px', background: '#f1f5f9', margin: '5px 0' }}></div>
+
+                        {/* Reseller Button - More Balanced */}
+                        <Link
+                            to="/reseller"
+                            onClick={() => setIsMenuOpen(false)}
+                            style={{
+                                textDecoration: 'none',
+                                background: colors.dark,
+                                color: 'white',
+                                padding: '14px',
+                                borderRadius: '14px',
+                                textAlign: 'center',
+                                fontWeight: '700',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '10px',
+                                fontSize: '15px',
+                                transition: '0.2s'
+                            }}
+                        >
+                            <UserPlus size={18} /> {t('nav_reseller')}
+                        </Link>
+                    </div>
+                )}
             </header>
 
 

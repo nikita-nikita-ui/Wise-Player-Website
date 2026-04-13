@@ -9,8 +9,9 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useTranslation } from 'react-i18next';
 const Sidebar = () => {
+  const { t } = useTranslation();
   const maroonMain = "#800000";
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,23 +20,14 @@ const Sidebar = () => {
   console.log("user : ", userRole);
 
   const menuItems = [
-    { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { path: "/users", label: "User Management", icon: Users },
-    // 👇 ONLY show for reseller
-    userRole === "RESELLER" && {
-      path: "/subreseller",
-      label: "Sub Resellers",
-      icon: Layers,
-    },
-    { path: "/requests", label: "Activation Requests", icon: Clock },
-    {
-      path: "/transition-history",
-      label: "Transition History",
-      icon: PlusCircle,
-    },
-    { path: "/purchase-credit", label: "Purchase Credit", icon: ShoppingCart },
-    { path: "/logout", label: "Logout", icon: LogOut },
-  ].filter(Boolean);
+    { path: "/dashboard", label: t('side_dashboard'), icon: LayoutDashboard },
+    { path: "/users", label: t('side_users'), icon: Users },
+    { path: "/subreseller", label: t('side_subreseller'), icon: Layers },
+    { path: "/requests", label: t('side_requests'), icon: Clock },
+    { path: "/new-activation", label: t('side_track'), icon: PlusCircle },
+    { path: "/purchase-credit", label: t('side_purchase'), icon: ShoppingCart },
+    { path: "/logout", label: t('side_logout'), icon: LogOut },
+  ];
 
   const handleLogout = () => {
     // ❌ remove stored auth data

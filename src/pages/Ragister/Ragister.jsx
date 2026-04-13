@@ -16,7 +16,8 @@ const Register = () => {
   const [agree, setAgree] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [error, setError] = useState('');
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   useEffect(() => {
     setIsVisible(true);
   }, []);
@@ -109,14 +110,20 @@ const Register = () => {
               </div>
 
               <div className="input-group">
-                <label className="custom-label">{t('reg_password')}</label>                <input
-                  type="password"
-                  className="modern-input"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <label className="custom-label">{t('reg_password')}</label>
+                <div className="password-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="modern-input"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button type="button" className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? "👁️" : "🔒"}
+                  </button>
+                </div>
                 <div className="validation-grid">
                   <span className={validations.hasSpecial ? 'v-done' : 'v-pending'}>{t('reg_v_special')}</span>
                   <span className={validations.hasNumber ? 'v-done' : 'v-pending'}> {t('reg_v_number')}</span>
@@ -126,14 +133,20 @@ const Register = () => {
               </div>
 
               <div className="input-group">
-                <label className="custom-label">{t('reg_confirm_password')}</label>                <input
-                  type="password"
-                  className="modern-input"
-                  placeholder="Confirm password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
+                <label className="custom-label">{t('reg_confirm_password')}</label>
+                <div className="password-wrapper">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="modern-input"
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                  <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    {showConfirmPassword ? "👁️" : "🔒"}
+                  </button>
+                </div>
               </div>
 
               {error && <div className="error-alert">{error}</div>}

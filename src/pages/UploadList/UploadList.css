@@ -71,8 +71,8 @@
   display: flex;
   justify-content: center;
   background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(225, 29, 72, 0.1);
   position: sticky;
   top: 0;

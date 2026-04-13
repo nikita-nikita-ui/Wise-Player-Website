@@ -354,3 +354,26 @@ input:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0px 1000px rgb(245, 240, 247) inset !important;
     transition: background-color 5000s ease-in-out 0s;
 }
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    z-index: 10;
+}
+
+/* Ensure input doesn't overlap text with the icon */
+.password-wrapper .modern-input {
+    padding-right: 45px;
+}
