@@ -51,26 +51,28 @@ const SubresellerDashboard = () => {
         password: "",
         fullName: "",
       });
+      fetchdata()
     } else {
       console.error("❌ Error:", res.message);
       setError(res.message);
     }
   };
 
-  useEffect(() => {
-    const fetchdata = async () => {
+   const fetchdata = async () => {
       const res = await getAllResellerInfo();
       console.log(res.data);
-      setUsers(res?.data);
+      const usersData = res?.data?.content || [];
+
+      setUsers(usersData);
       setDashboardData((prev) => ({
         ...prev,
-        totalUser: res?.data?.length,
-        activeuser:res?.data?.filter(
-        (user) => user?.active === true,
-      ).length
+        totalUser: usersData?.length || 0,
+        activeuser: usersData.filter((user) => user?.active === true).length,
       }));
-     
     };
+
+  useEffect(() => {
+   
     fetchdata();
   }, []);
 
@@ -181,7 +183,9 @@ const SubresellerDashboard = () => {
         <div className="col-md-3">
           <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-success border-4">
             <small className="text-muted fw-bold">ACTIVE USERS</small>
-            <h3 className="fw-bold mt-1 text-success">{dashboardData?.activeuser}</h3>
+            <h3 className="fw-bold mt-1 text-success">
+              {dashboardData?.activeuser}
+            </h3>
           </div>
         </div>
         <div className="col-md-3">

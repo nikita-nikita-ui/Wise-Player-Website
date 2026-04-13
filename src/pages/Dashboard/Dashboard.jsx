@@ -49,19 +49,19 @@ const Dashboard = () => {
   const stats = [
     {
       title: "Total Users",
-      count: `${dashboard?.stats?.totalUsers}`,
+      count: `${dashboard?.stats?.totalUsers || 0}`,
       icon: <Users size={22} />,
       trend: "+12%",
     },
     {
       title: "Active Subs",
-      count: `${dashboard?.stats?.activeSub}`,
+      count: `${dashboard?.stats?.activeSub || 0}`,
       icon: <CheckCircle size={22} />,
       trend: "+5%",
     },
     {
       title: "Pending Req.",
-      count: `${dashboard?.stats?.pending}`,
+      count: `${dashboard?.stats?.pending || 0}`,
       icon: <Clock size={22} />,
       trend: "-2%",
     },
@@ -98,8 +98,8 @@ const Dashboard = () => {
       <div className="flex-grow-1 overflow-auto w-100" style={{ minWidth: 0 }}>
         {" "}
         <header
-          className="bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center sticky-top"
-          style={{ zIndex: 999 }}
+          className="bg-white z-0 border-bottom px-4 py-3 d-flex justify-content-between align-items-center sticky-top"
+          // style={{ zIndex: 999 }}
         >
           <h5
             className="fw-bold text-dark m-0 text-uppercase"
@@ -247,63 +247,71 @@ const Dashboard = () => {
                         </thead>
 
                         {/* Body */}
-                        <tbody>
-                          {dashboard.devices.slice(0, 8).map((item, index) => (
-                            <tr
-                              key={index}
-                              className="border-t hover:bg-gray-50"
-                            >
-                              {/* Device */}
-                              {/* <td className="px-4 py-3 font-medium">
-                                {item.deviceModel}
-                              </td> */}
+                    
+                          <tbody>
+                            {dashboard?.devices?.length > 0 ? (
+                              dashboard.devices
+                                .slice(0, 8)
+                                .map((item, index) => (
+                                  <tr
+                                    key={index}
+                                    className="border-t hover:bg-gray-50"
+                                  >
+                                    {/* Device ID */}
+                                    <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
+                                      <span>
+                                        {item.deviceId?.slice(0, 8)}...
+                                      </span>
 
-                              {/* Device ID */}
-                              <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
-                                <span>{item.deviceId.slice(0, 8)}...</span>
+                                      <button
+                                        onClick={() =>
+                                          copyToClipboard(item.deviceId)
+                                        }
+                                        className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
+                                      >
+                                        Copy
+                                      </button>
+                                    </td>
 
-                                <button
-                                  onClick={() => copyToClipboard(item.deviceId)}
-                                  className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
-                                >
-                                  Copy
-                                </button>
-                              </td>
+                                    {/* Status */}
+                                    <td className="px-4 py-3">
+                                      <span
+                                        className={`px-2 py-1 text-xs rounded-full font-semibold ${
+                                          item.deviceStatus === "ACTIVE"
+                                            ? "bg-green-100 text-green-700"
+                                            : "bg-red-100 text-red-600"
+                                        }`}
+                                      >
+                                        {item.deviceStatus}
+                                      </span>
+                                    </td>
 
-                              {/* Platform */}
-                              {/* <td className="px-1 py-3">
-                                {item.platform} ({item.osVersion})
-                              </td> */}
+                                    {/* Subscription */}
+                                    <td className="px-4 py-3">
+                                      {item.subscriptionType}
+                                    </td>
 
-                              {/* Status */}
-                              <td className="px-4 py-3">
-                                <span
-                                  className={`px-2 py-1 text-xs rounded-full font-semibold ${
-                                    item.deviceStatus === "ACTIVE"
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-red-100 text-red-600"
-                                  }`}
-                                >
-                                  {item.deviceStatus}
-                                </span>
-                              </td>
+                                    {/* Expires */}
+                                    <td className="px-4 py-3">
+                                      {formatDate(item.expiresAt)}
+                                    </td>
 
-                              {/* Subscription */}
-                              <td className="px-4 py-3">
-                                {item.subscriptionType}
-                              </td>
-
-                              {/* Expires */}
-                              <td className="px-4 py-3">
-                                {formatDate(item.expiresAt)}
-                              </td>
-
-                              {/* Registered */}
-                              <td className="px-4 py-3">
-                                {formatDate(item.registeredAt)}
-                              </td>
-                            </tr>
-                          ))}
+                                    {/* Registered */}
+                                    <td className="px-4 py-3">
+                                      {formatDate(item.registeredAt)}
+                                    </td>
+                                  </tr>
+                                ))
+                            ) : (
+                              <tr className="w-full ">
+                                <td colSpan="5" className="py-6">
+                                  <div className="w-full flex justify-center items-center text-gray-500">
+                                    No devices found
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                        
                         </tbody>
                       </table>
                     </div>

@@ -1,19 +1,35 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { purchaseCredit } from "../auth/creditManagement";
 
 const Coincalculator = () => {
   const [coins, setCoins] = useState("");
   const [price, setPrice] = useState(0);
- 
+  const params = new URLSearchParams(location.search);
+
+  const token = params.get("token");
+  const payerId = params.get("PayerID");
+  useEffect(() => {
+    if (token & payerId) {
+      console.log("Token:", token);
+      console.log("PayerID:", payerId);
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 2000);
+    }
+  }, []);
+
+  console.log("Token:", token);
+  console.log("PayerID:", payerId);
 
   const tiers = [
-    { min: 1, max: 10, rate: 2.5 },
-    { min: 10, max: 50, rate: 2.2 },
-    { min: 50, max: 100, rate: 2.0 },
-    { min: 100, max: 200, rate: 1.75 },
-    { min: 200, max: 500, rate: 1.5 },
-    { min: 500, max: 1000, rate: 1.25 },
+    { min: 10, max: 10, rate: 2.5 },
+    { min: 11, max: 49, rate: 2.2 },
+    { min: 50, max: 99, rate: 2.0 },
+    { min: 100, max: 199, rate: 1.75 },
+    { min: 200, max: 499, rate: 1.5 },
+    { min: 500, max: 999, rate: 1.25 },
     { min: 1000, max: Infinity, rate: 1.0 },
   ];
 
@@ -31,15 +47,18 @@ const Coincalculator = () => {
   };
 
   const fetchdata = async (coins) => {
+    if (coins < 10) {
+      alert("Coins should be atleast 10");
+      return;
+    }
     const res = await purchaseCredit(coins);
     console.log(res.data);
     if (res?.data?.checkoutUrl) {
       // window.location.href = res.checkoutUrl;
-      window.open(res?.data?.checkoutUrl, "_blank");
+      // window.open(res?.data?.checkoutUrl, "_blank");
+      window.location.href = res?.data?.checkoutUrl;
     }
   };
-
-   
 
   return (
     <div className=" p-6 flex flex-col items-center">
@@ -62,10 +81,10 @@ const Coincalculator = () => {
 
           <button
             onClick={() => fetchdata(coins)}
-            disabled={!coins}
+            disabled={Number(coins) < 10}
             className={`px-4 py-2 rounded-lg w-full md:w-auto transition-all duration-200
     ${
-      coins
+      Number(coins) >= 10
         ? "bg-gray-700 text-white hover:bg-gray-800 cursor-pointer"
         : "bg-gray-300 text-gray-500 cursor-not-allowed"
     }

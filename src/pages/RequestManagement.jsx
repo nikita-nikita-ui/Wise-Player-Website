@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { IoCopyOutline } from "react-icons/io5";
 import { Plus } from "lucide-react";
 import { activationRequest } from "../auth/ativationRequest";
-import { submitRequest } from "../auth/activationRequest";
+import { submitRequest, ActivationplanRequest } from "../auth/activationRequest";
 import { formatDate } from "../auth/utilfunction";
 
 function RequestManagement() {
@@ -11,8 +11,9 @@ function RequestManagement() {
   const [showModal, setShowModal] = useState(false);
   const [newRequest, setNewRequest] = useState({
     deviceId: "",
-    planName: "",
+    planName: "ANNUAL",
   });
+  const [tiers, setTiers] = useState([])
   const [filter, setFilter] = useState("All");
   const [apiError, setApiError] = useState("");
 
@@ -20,26 +21,37 @@ function RequestManagement() {
   const fetchRequests = async () => {
     try {
       const response = await activationRequest();
-      const data = response.data;
+      const data = response?.data || [];
 
       setRequests(
-        data.map((item) => ({
+        data?.content?.map((item) => ({
           id: item.id,
-          status: item.status,
+          status: item?.status,
           createdAt: formatDate(item.createdAt),
-          resellerId: item.resellerId,
-          deviceId: item.deviceId,
-          planName: item.planName,
-          creditsUsed: item.creditsUsed,
+          resellerId: item?.resellerId,
+          deviceId: item?.deviceId,
+          planName: item?.planName,
+          creditsUsed: item?.creditsUsed,
         })),
       );
     } catch (err) {
       console.error(err);
     }
   };
+  const fetchPlan =async ()=>{
+    const response = await ActivationplanRequest();
+     const names = response?.map(item => item.name);
+
+  console.log(names); // ["ANNUAL"]
+
+  setTiers(names);
+    
+
+  }
 
   useEffect(() => {
     fetchRequests();
+    fetchPlan()
   }, []);
 
   // ✅ Copy
@@ -54,17 +66,19 @@ function RequestManagement() {
 
     try {
       const response = await submitRequest(newRequest);
+      console.log(response);
 
-      if (!response.success) {
-        setApiError(response.message);
+      if (response.success == false) {
+        setApiError(response?.message || "Something went wrong");
         return;
       }
 
+      // ✅ success
       setShowModal(false);
       setNewRequest({ deviceId: "", planName: "" });
-      fetchRequests(); // refresh
-    } catch {
-      setApiError("Something went wrong");
+      fetchRequests();
+    } catch (error) {
+      setApiError(error?.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -74,13 +88,21 @@ function RequestManagement() {
       ? requests
       : requests.filter((r) => r.status === filter.toUpperCase());
 
-  const tiers = [{ planName: "ANNUAL" }];
+  // const tiers = [
+  //   { planName: "ANNUAL" },
+  //   { planName: "ANNUAL" },
+  //   { planName: "LIFETIME" },
+  //   { planName: "MONTHLY" },
+  // ];
+  const maroonMain = "#800000";
 
   return (
     <div style={{ padding: "20px" }}>
       {/* Header */}
       <div style={header}>
-        <h2 className="text-xl font-semibold">Request Management</h2>
+        <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
+          Subreseller Panel
+        </h3>
         <button
           style={primaryBtn}
           onClick={() => setShowModal(true)}
@@ -121,82 +143,98 @@ function RequestManagement() {
         </thead>
 
         <tbody>
-          {filteredRequests.map((req) => (
-            <tr key={req.id}>
-              <td>
-                {/* Device ID */}
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "6px" }}
-                  className="flex"
-                >
-                  <span
+          {filteredRequests?.length > 0 ? (
+            filteredRequests?.map((req) => (
+              <tr key={req.id}>
+                <td>
+                  {/* Device ID */}
+                  <div
                     style={{
-                      maxWidth: "120px",
-                      display: "inline-block",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
                     }}
-                    title={req.deviceId} // 👈 full value on hover
+                    className="flex"
                   >
-                    {req.deviceId}
-                  </span>
+                    <span
+                      style={{
+                        maxWidth: "120px",
+                        display: "inline-block",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        cursor: "pointer",
+                      }}
+                      title={req.deviceId} // 👈 full value on hover
+                    >
+                      {req.deviceId}
+                    </span>
 
-                  <button onClick={() => handleCopy(req.resellerId)}>
-                    <IoCopyOutline />
-                  </button>
-                </div>
-              </td>
-              <td>
-                {/* Reseller ID */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    marginTop: "4px",
-                  }}
-                >
-                  <span
+                    <button onClick={() => handleCopy(req.resellerId)}>
+                      <IoCopyOutline />
+                    </button>
+                  </div>
+                </td>
+                <td>
+                  {/* Reseller ID */}
+                  <div
                     style={{
-                      maxWidth: "120px",
-                      display: "inline-block",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      marginTop: "4px",
                     }}
-                    title={req.resellerId}
                   >
-                    {req.resellerId}
-                  </span>
+                    <span
+                      style={{
+                        maxWidth: "120px",
+                        display: "inline-block",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        cursor: "pointer",
+                      }}
+                      title={req.resellerId}
+                    >
+                      {req.resellerId}
+                    </span>
 
-                  <button onClick={() => handleCopy(req.resellerId)}>
-                    <IoCopyOutline />
-                  </button>
-                </div>
-              </td>
+                    <button onClick={() => handleCopy(req.resellerId)}>
+                      <IoCopyOutline />
+                    </button>
+                  </div>
+                </td>
 
-              <td>{req.planName}</td>
+                <td>{req.planName}</td>
 
-              <td>{req.creditsUsed ?? "N/A"}</td>
+                <td>{req.creditsUsed ?? "N/A"}</td>
 
-              <td>{req.createdAt}</td>
+                <td>{req.createdAt}</td>
 
-              <td>
-                {req.status === "PENDING" && (
-                  <span style={{ color: "orange" }}>Pending</span>
-                )}
-                {req.status === "APPROVED" && (
-                  <span style={{ color: "green" }}>Approved</span>
-                )}
-                {req.status === "REJECTED" && (
-                  <span style={{ color: "red" }}>Rejected</span>
-                )}
-              </td>
-            </tr>
-          ))}
+                <td>
+                  {req.status === "PENDING" && (
+                    <span style={{ color: "orange" }}>Pending</span>
+                  )}
+                  {req.status === "APPROVED" && (
+                    <span style={{ color: "green" }}>Approved</span>
+                  )}
+                  {req.status === "REJECTED" && (
+                    <span style={{ color: "red" }}>Rejected</span>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <>
+              <tr className="w-full ">
+                <td colSpan="6" className="py-6">
+                  <div className="w-full flex justify-center items-center text-gray-500">
+                    No devices found
+                  </div>
+                </td>
+              </tr>
+            </>
+          )}
         </tbody>
       </table>
 
@@ -241,13 +279,13 @@ function RequestManagement() {
                     })
                   }
                   required
-                    className="border border-gray-400"
+                  className="border border-gray-400"
                   style={input}
                 >
                   <option value="">Select Plan</option>
                   {tiers.map((t, i) => (
                     <option key={i} value={t.planName}>
-                      {t.planName}
+                      {t}
                     </option>
                   ))}
                 </select>
@@ -296,7 +334,7 @@ const header = {
 };
 
 const primaryBtn = {
-  background: "#333",
+  background: "#800000",
   color: "#fff",
   padding: "8px 14px",
   border: "none",
@@ -350,7 +388,7 @@ const input = {
   width: "100%",
   padding: "10px",
   marginBottom: "10px",
-  marginTop:'10px'
+  marginTop: "10px",
 };
 
 export default RequestManagement;

@@ -23,6 +23,10 @@ import RequestManagement from './pages/RequestManagement';
 import SubReseller from './pages/Subreseller';
 import Reseller from './pages/Reseller';
 import PurchaseCredit from './pages/PurchaseCredit';
+import TransitionHistory from './pages/TransitionHistory';
+// import PaymentStatus from './pages/PaymentStatus';
+import PaymentRedirectHandler from './pages/PaymentRedirectHandler';
+import PaymentStatus from './pages/PaymentStatus';
 
 // Constants for Design
 const maroonMain = "#800000";
@@ -37,12 +41,13 @@ const AppLayout = ({ children }) => {
   const location = useLocation();
 
   // Wo pages jahan Sidebar dikhana hai
-  const adminPages = ['/dashboard', '/users', '/requests', '/subreseller', '/purchase-credit'];
+  const adminPages = ['/dashboard', '/users', '/requests', '/subreseller', '/purchase-credit', '/transition-history', '/payment-status'];
 
   // Wo pages jahan Navbar hide karna hai (Login/Register/Admin pages)
   const hideNavbarOn = ['/login', '/register', '/registersuccess',  ...adminPages];
 
-  const isAdminPage = adminPages.includes(location.pathname.toLowerCase()); const shouldHideNavbar = hideNavbarOn.includes(location.pathname);
+  const isAdminPage = adminPages.includes(location.pathname.toLowerCase()); 
+  const shouldHideNavbar = hideNavbarOn.includes(location.pathname);
 
   return (
     <div className="app-container">
@@ -77,6 +82,7 @@ const AppLayout = ({ children }) => {
 function App() {
   return (
     <Router>
+       <PaymentRedirectHandler />
       <AppLayout>
         <Routes>
           {/* Sirf <Route> components hi hone chahiye yahan */}
@@ -96,6 +102,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<UserManagement />} />
            <Route path="/purchase-credit" element={<PurchaseCredit />} />
+           <Route path='/payment-status' element={<PaymentStatus/>}/>
+          
+            <Route path="/transition-history" element={<TransitionHistory/>} />
           <Route
             path="/requests"
             element={<RequestManagement containerVariants={containerVariants} maroonMain={maroonMain} />}

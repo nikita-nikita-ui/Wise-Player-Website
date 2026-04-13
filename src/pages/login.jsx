@@ -5,11 +5,13 @@ import { Flame, User, Lock, ArrowRight, ShieldCheck, ArrowLeft, KeyRound } from 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { loginReseller } from '../auth/apiservice';
+import { useDashboard } from '../context/dashboardContext'
 const LoginPage = () => {
     const navigate = useNavigate();
     const [view, setView] = useState('login');
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState(null);
+    const { refetchDashboard } = useDashboard();
     const showToast = (msg, type = "info") => {
         setToast({ msg, type });
         setTimeout(() => setToast(null), 3000);
@@ -44,6 +46,7 @@ const LoginPage = () => {
             setTimeout(() => {
 
                 navigate('/dashboard');
+                refetchDashboard()
             }, 1000);
         } else {
             showToast(result.message || 'Invalid credentials. Please try again.', 'error');

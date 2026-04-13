@@ -16,6 +16,7 @@ function UserManagement() {
       joinDate: "1-1-1",
     },
   ]);
+    const maroonMain = "#800000";
   const [devices, setDevices] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
@@ -24,10 +25,10 @@ function UserManagement() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess ] = useState('');
-  const [totalUser, setTotalUser] = useState('');
+  const [success, setSuccess] = useState("");
+  const [totalUser, setTotalUser] = useState("");
   const [activeUser, setActiveUser] = useState(null);
-  console.log("activeUser", activeUser)
+  console.log("activeUser", activeUser);
 
   useEffect(() => {
     document.body.style.margin = "0";
@@ -38,18 +39,16 @@ function UserManagement() {
   const fetchDashboard = async () => {
     const res = await subscibedUserinfo();
 
-    console.log("API Response:", res.data); // ✅ ab actual data aayega
-      console.log('length : ',res.data.length)
-    setTotalUser(res.data.length);
+    console.log("API Response:", res.data); // ✅ ab actual data aaye
+    console.log("length : ", res.data.length);
+    setTotalUser(res.data?.content?.length || 0);
     setActiveUser(
-  res.data?.filter(
-    u => u.deviceStatus === 'ACTIVE'
-  )?.length || 0
-);
+      res?.data?.content?.filter((u) => u.deviceStatus === "ACTIVE")?.length ||
+        0,
+    );
 
     if (res.success) {
-      
-      setDevices(res.data);
+      setDevices(res.data?.content || []);
     } else {
       console.error(res.message);
     }
@@ -63,7 +62,7 @@ function UserManagement() {
     const response = await DisableUserAccount(deviceId);
 
     console.log(response.data);
-  
+
     await fetchDashboard();
   };
 
@@ -79,6 +78,7 @@ function UserManagement() {
       if (response?.success === true) {
         fetchDashboard();
         setShowModal(false);
+        await fetchDashboard();
       } else {
         setError(response?.message);
       }
@@ -98,13 +98,25 @@ function UserManagement() {
     );
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        console.log("Copied to clipboard:", text);
+        // optional: show toast
+      })
+      .catch((err) => {
+        console.error("Failed to copy:", err);
+      });
+  };
+
   return (
     <div style={layoutStyle}>
       {/* Main Content - Now 100% Width */}
       <div style={mainContentStyle}>
         <header style={headerStyle}>
           <div>
-            <h2
+            {/* <h2
               style={{
                 margin: 0,
                 color: "#2d3436",
@@ -116,7 +128,15 @@ function UserManagement() {
             </h2>
             <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>
               Manage members and subscriptions
-            </p>
+            </p> */}
+            <div className="col-md-12">
+          <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
+            User Management
+          </h3>
+          <p className="text-muted">
+             Manage members and subscriptions
+          </p>
+        </div>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -194,9 +214,8 @@ function UserManagement() {
                 {/* Header */}
                 <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
                   <tr>
-                    
                     <th className="px-4 py-3">Device ID</th>
-                  
+
                     <th className="px-4 py-3">Status</th>
                     <th className="px-4 py-3">Subscription</th>
                     <th className="px-4 py-3">Expires</th>
@@ -207,69 +226,79 @@ function UserManagement() {
 
                 {/* Body */}
                 <tbody>
-                  {devices.slice(0, 8).map((item, index) => (
-                    <tr key={index} className="border-t hover:bg-gray-50">
-                      {/* Device */}
-                     
+                  {devices.length > 0 ? (
+                    devices.slice(0, 8).map((item, index) => (
+                      <tr key={index} className="border-t hover:bg-gray-50">
+                        {/* Device */}
 
-                      {/* Device ID */}
-                      <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
-                        <span>{item.deviceId.slice(0, 8)}...</span>
+                        {/* Device ID */}
+                        <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
+                          <span>{item.deviceId.slice(0, 8)}...</span>
 
-                        <button
-                          onClick={() => copyToClipboard(item.deviceId)}
-                          className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
-                        >
-                          Copy
-                        </button>
-                      </td>
+                          <button
+                            onClick={() => copyToClipboard(item.deviceId)}
+                            className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
+                          >
+                            Copy
+                          </button>
+                        </td>
 
-                      {/* Platform */}
-                     
+                        {/* Platform */}
 
-                      {/* Status */}
-                      <td className="px-3 py-3">
-                        <span
-                          className={`px-2 py-1 text-center text-xs rounded-full font-semibold ${
-                            item.deviceStatus === "ACTIVE"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-600"
-                          }`}
-                        >
-                          {item.deviceStatus}
-                        </span>
-                      </td>
+                        {/* Status */}
+                        <td className="px-3 py-3">
+                          <span
+                            className={`px-2 py-1 text-center text-xs rounded-full font-semibold ${
+                              item.deviceStatus === "ACTIVE"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {item.deviceStatus}
+                          </span>
+                        </td>
 
-                      {/* Subscription */}
-                      <td className="px-2 text-center py-3">
-                        {item.subscriptionType}
-                      </td>
+                        {/* Subscription */}
+                        <td className="px-2 text-center py-3">
+                          {item.subscriptionType}
+                        </td>
 
-                      {/* Expires */}
-                      <td className="px-2 text-center py-3">
-                        {formatDate(item.expiresAt)}
-                      </td>
+                        {/* Expires */}
+                        <td className="px-2 text-center py-3">
+                          {formatDate(item.expiresAt)}
+                        </td>
 
-                      {/* Registered */}
-                      <td className="px-2 text-center py-3">
-                        {formatDate(item.registeredAt)}
-                      </td>
+                        {/* Registered */}
+                        <td className="px-2 text-center py-3">
+                          {formatDate(item.registeredAt)}
+                        </td>
 
-                      <td>
-                        <button
-                          onClick={() => handleDisable(item.deviceId)}
-                          style={
-                            item.deviceStatus === "INACTIVE"
-                              ? disableBtn
-                              : enableBtn
-                          }
-                        >
-                          <Power size={14} />{" "}
-                          {item.active === true ? "Disable" : "Enable"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        <td>
+                          <button
+                            onClick={() => handleDisable(item.deviceId)}
+                            style={
+                              item.deviceStatus === "INACTIVE"
+                                ? disableBtn
+                                : enableBtn
+                            }
+                          >
+                            <Power size={14} />{" "}
+                            {item.active === false ? "Disable" : "Enable"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <>
+                      <tr className="w-full ">
+                        <td colSpan="6" className="py-6">
+                          <div className="w-full flex justify-center items-center text-gray-500">
+                            No User found
+                          </div>
+                        </td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
