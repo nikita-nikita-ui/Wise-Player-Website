@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useAuth } from "../context/AuthContext";
 const Sidebar = () => {
   const { t } = useTranslation();
   const maroonMain = "#800000";
