@@ -94,11 +94,13 @@ export const validateDevice = async (fingerprint) => {
 };
 
 
-
 export const saveM3uPlaylist = async (macAddress, playlistData) => {
   try {
+    if (!macAddress) {
+      return { success: false, message: "MAC address is missing!" };
+    }
 
-    const url = `https://api.wise-player.com/api/playlist/public/MG:19:BB:AA:C2:AB/m3u`;
+    const url = `https://api.wise-player.com/api/playlist/public/${macAddress}/m3u`;
 
     const response = await axios.post(url, {
       name: playlistData.name,
@@ -107,12 +109,13 @@ export const saveM3uPlaylist = async (macAddress, playlistData) => {
 
     return {
       success: true,
-      message: response.data.message
+      message: response.data.message || "Playlist saved!"
     };
   } catch (error) {
+    console.error("API Error Detail:", error.response); // Error check karne ke liye
     return {
       success: false,
-      message: error.response?.data?.message || 'Failed to save playlist'
+      message: error.response?.data?.error || error.response?.data?.message || 'Failed to save playlist'
     };
   }
 };
