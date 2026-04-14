@@ -141,14 +141,10 @@ function App() {
           <Route path="/security" element={<Privacy />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<UserManagement />} />
-<<<<<<< HEAD
            <Route path="/purchase-credit" element={<PurchaseCredit />} />
            <Route path='/payment-status' element={<PaymentStatus/>}/>
           
             <Route path="/transition-history" element={<TransitionHistory/>} />
-=======
-          <Route path="/purchase-credit" element={<PurchaseCredit />} />
->>>>>>> c0ef4f0 (dashboard toggle done)
           <Route
             path="/requests"
             element={<RequestManagement containerVariants={containerVariants} maroonMain={maroonMain} />}
