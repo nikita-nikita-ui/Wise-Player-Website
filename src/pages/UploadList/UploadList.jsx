@@ -40,7 +40,8 @@ const WiseplayerUpload = () => {
       }
 
       if (status === "ACTIVE") {
-        navigate('/upload-playlist');
+        navigate('/upload-playlist', { state: { mac: uploadMac } });
+
       } else if (status === "INACTIVE") {
         setStatusError("Device is registered but status is Inactive.");
       } else {

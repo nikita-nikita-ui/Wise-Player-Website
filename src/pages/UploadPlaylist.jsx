@@ -8,16 +8,21 @@ import { FaPlus, FaTrash, FaChevronLeft, FaChevronRight, FaExclamationCircle } f
 import { saveM3uPlaylist } from '../auth/apiservice';
 const PlaylistManager = () => {
   const location = useLocation();
-
+  const uploadMac = location.state?.uploadMac;
   const [macAddress, setMacAddress] = useState("");
   useEffect(() => {
+    // Priority 1: Navigation state se MAC lo
+    const macFromState = location.state?.mac;
+    // Priority 2: LocalStorage se lo (agar page refresh ho jaye)
     const savedMac = localStorage.getItem("macAddress");
 
-    if (location.state?.mac) {
-      setMacAddress(location.state.mac);
-      console.log(location.state.mac);
+    if (macFromState) {
+      setMacAddress(macFromState);
+      localStorage.setItem("macAddress", macFromState); // Isse refresh par data nahi jayega
+      setDeleteMac(macFromState);
     } else if (savedMac) {
       setMacAddress(savedMac);
+      setDeleteMac(savedMac);
     }
   }, [location.state]);
   const [deleteMac, setDeleteMac] = useState("");
@@ -77,6 +82,7 @@ const PlaylistManager = () => {
     hover: { scale: 1.05, filter: "brightness(1.1)" },
     tap: { scale: 0.95 }
   };
+
 
   return (
     <div style={{
@@ -209,13 +215,33 @@ const PlaylistManager = () => {
               whileTap="tap"
               className="btn px-4 py-2 d-flex align-items-center border-0"
               style={{ backgroundColor: '#1B2631', color: 'white', borderRadius: '10px' }}
+              // PlaylistManager.js mein "Save Playlist" button ka onClick check karein:
+
               onClick={async () => {
-                const playlistData = links.map(link => ({
-                  name: link.name,
-                  m3uUrl: link.url
-                }))[0]; // pick first link for example
-                const result = await saveM3uPlaylist(macAddress, playlistData);
-                toast.success(result.message);
+                const firstLink = links[0];
+
+                // 1. Pehle check karein ki kya macAddress state mein value hai?
+                if (!macAddress) {
+                  toast.error("MAC Address not found. Please go back and validate again.");
+                  return;
+                }
+
+                if (!firstLink.url || !firstLink.name) {
+                  toast.error("Please enter Name and Link");
+                  return;
+                }
+
+                // 2. Yahan 'macAddress' variable pass karein (jo state upar define ki hai)
+                const result = await saveM3uPlaylist(macAddress, {
+                  name: firstLink.name,
+                  m3uUrl: firstLink.url
+                });
+
+                if (result.success) {
+                  toast.success(result.message || "Saved!");
+                } else {
+                  toast.error(result.message);
+                }
               }}
             >
               Save Playlist
