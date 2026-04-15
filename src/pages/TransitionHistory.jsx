@@ -113,7 +113,7 @@ const styles = {
     padding: "24px",
    
     minHeight: "100vh",
-    color: "#f9fafb",
+   
   },
 
   title: {
@@ -123,7 +123,7 @@ const styles = {
   },
 
   card: {
-    background: "#111827",
+   
     borderRadius: "12px",
     padding: "16px",
     boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
@@ -138,7 +138,7 @@ const styles = {
     textAlign: "left",
     borderBottom: "1px solid #374151",
     color: "#9ca3af",
-    padding:"10px 10px"
+    padding:"12px 10px"
   },
 
   row: {

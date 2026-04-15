@@ -20,15 +20,24 @@ const Sidebar = () => {
   const { userRole } = useAuth();
   console.log("user : ", userRole);
 
-  const menuItems = [
+ const menuItems = [
     { path: "/dashboard", label: t('side_dashboard'), icon: LayoutDashboard },
-    { path: "/users", label: t('side_users'), icon: Users },
-    { path: "/subreseller", label: t('side_subreseller'), icon: Layers },
+    { path: "/users", label:  t('side_users'), icon: Users },
+    // 👇 ONLY show for reseller
+    userRole === "RESELLER" && {
+      path: "/subreseller",
+      label: t('side_subreseller'),
+      icon: Layers,
+    },
     { path: "/requests", label: t('side_requests'), icon: Clock },
-    { path: "/new-activation", label: t('side_track'), icon: PlusCircle },
-    { path: "/purchase-credit", label: t('side_purchase'), icon: ShoppingCart },
+    {
+      path: "/transition-history",
+      label: "Transition History",
+      icon: PlusCircle,
+    },
+    { path: "/purchase-credit", label:  t('side_purchase'), icon: ShoppingCart },
     { path: "/logout", label: t('side_logout'), icon: LogOut },
-  ];
+  ].filter(Boolean);
 
   const handleLogout = () => {
     // ❌ remove stored auth data
