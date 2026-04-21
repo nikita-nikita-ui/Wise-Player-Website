@@ -34,3 +34,24 @@ export const getAllResellerInfo = async () => {
     };
   }
 };
+
+
+export const transferCredits = async (payload) => {
+  try {
+    const response = await api.post(
+      "/api/reseller/credits/transfer",
+      payload
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message || "Transfer failed",
+    };
+  }
+};

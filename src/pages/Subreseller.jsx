@@ -13,8 +13,19 @@ import { motion } from "framer-motion";
 import { MdClose } from "react-icons/md";
 import { createReseller, getAllResellerInfo } from "../auth/reSeller";
 import { formatDate } from "../auth/utilfunction";
+import TransferModal from "../component/TransferModal";
+import { DashbaordOverview } from "../auth/dashboard"
 
 const SubresellerDashboard = () => {
+  //for the credit transfer
+  const [transferModal, setTransferModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const handleOpenTransfer = (user) => {
+    setSelectedUser(user);
+    setTransferModal(true);
+  };
+
   const [openModel, setOpenModel] = useState(false);
   console.log("open Model : ", openModel);
   const [formData, setFormData] = useState({
@@ -29,6 +40,7 @@ const SubresellerDashboard = () => {
     pendingRequest: "",
     activeuser: "",
     Rejected: "",
+    credits: "",
   });
 
   const handleChange = (e) => {
@@ -58,23 +70,30 @@ const SubresellerDashboard = () => {
     }
   };
 
-   const fetchdata = async () => {
-      const res = await getAllResellerInfo();
-      console.log(res.data);
-      const usersData = res?.data?.content || [];
+  const fetchdata = async () => {
+    const res = await getAllResellerInfo();
+    console.log(res.data);
+    const usersData = res?.data?.content || [];
 
-      setUsers(usersData);
-      setDashboardData((prev) => ({
-        ...prev,
-        totalUser: usersData?.length || 0,
-        activeuser: usersData.filter((user) => user?.active === true).length,
-      }));
-    };
+    const dashRes = await DashbaordOverview();
+    setUsers(usersData);
+    console.log("userData", usersData);
+    console.log("dashRes", dashRes);
+    setDashboardData((prev) => ({
+      ...prev,
+      totalUser: usersData?.length || 0,
+      activeuser: usersData.filter((user) => user?.active === true).length,
+      credits: dashRes?.data?.credits || 0,
+      pendingRequest: dashRes?.data?.pendingRequests || 0,
+    }));
+  };
 
   useEffect(() => {
-   
+
     fetchdata();
   }, []);
+
+
 
   const maroonMain = "#800000";
 
@@ -145,10 +164,10 @@ const SubresellerDashboard = () => {
       <div className="row mb-4 align-items-center">
         <div className="col-md-6">
           <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            Subreseller Panel
+            Sub-reseller Management
           </h3>
           <p className="text-muted">
-            Manage your end-users and activation requests
+            Manage your sub-reseller and activation requests
           </p>
         </div>
         <div className="col-md-6 text-md-end">
@@ -161,66 +180,13 @@ const SubresellerDashboard = () => {
             onClick={() => setOpenModel(true)}
           >
             <UserPlus size={20} className="me-2" />
-            Create New End-User
+            Create New Sub-Reseller
           </button>
-        </div>
-      </div>
-
-      {/* Stats Cards (Quick Tracking) */}
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4">
-            <small className="text-muted fw-bold">TOTAL USERS</small>
-            <h3 className="fw-bold mt-1">{dashboardData?.totalUser}</h3>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-warning border-4">
-            <small className="text-muted fw-bold">PENDING REQUESTS</small>
-            <h3 className="fw-bold mt-1 text-warning">12</h3>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-success border-4">
-            <small className="text-muted fw-bold">ACTIVE USERS</small>
-            <h3 className="fw-bold mt-1 text-success">
-              {dashboardData?.activeuser}
-            </h3>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-danger border-4">
-            <small className="text-muted fw-bold">REJECTED</small>
-            <h3 className="fw-bold mt-1 text-danger">6</h3>
-          </div>
         </div>
       </div>
 
       {/* Main Content Card */}
       <div className=" border-0 shadow-sm  rounded-4  w-full">
-        <div className="card-header bg-white border-0 p-4">
-          {/* <div className="d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold m-0">User Directory & Status Tracking</h5>
-            <div className="d-flex gap-2">
-              <div
-                className="input-group input-group-sm"
-                style={{ width: "250px" }}
-              >
-                <span className="input-group-text bg-white border-end-0">
-                  <Search size={16} />
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-start-0"
-                  placeholder="Search users..."
-                />
-              </div>
-              <button className="btn btn-outline-secondary btn-sm">
-                <Filter size={16} />
-              </button>
-            </div>
-          </div> */}
-        </div>
 
         <div className="card-body p-0">
           <div className="table-responsive">
@@ -235,6 +201,7 @@ const SubresellerDashboard = () => {
                     <th>Created At</th>
                     <th>Last Update</th>
                     <th>Coin</th>
+                    <th>Transfer Credit</th>
                   </tr>
                 </thead>
 
@@ -245,9 +212,6 @@ const SubresellerDashboard = () => {
                       <td className="text-start ps-4">
                         <div className="fw-bold">{user.fullName}</div>
                         <div className="small text-muted">
-                          parentId:{" "}
-                          <span className="text-red-400"> {user.parentId}</span>{" "}
-                          <br />
                           creatorId:{" "}
                           <span className="text-blue-400">
                             {user.creatorId}
@@ -273,6 +237,18 @@ const SubresellerDashboard = () => {
                       <td className="fw-bold text-yellow-400">
                         {user?.credits ?? 0}
                       </td>
+
+                      {/* transfer coin */}
+                      <td>
+                        <button
+                          className="btn btn-sm text-white"
+                          style={{ backgroundColor: "#800000", borderRadius: "8px", marginTop: "-4px" }}
+                          onClick={() => handleOpenTransfer(user)}
+                        >
+                          Transfer
+                        </button>
+                      </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -402,6 +378,13 @@ const SubresellerDashboard = () => {
           </div>
         </>
       )}
+      <TransferModal
+        open={transferModal}
+        onClose={() => setTransferModal(false)}
+        selectedUser={selectedUser}
+        availableCredits={dashboardData?.credits}
+        refreshData={fetchdata}
+      />
     </motion.div>
   );
 };

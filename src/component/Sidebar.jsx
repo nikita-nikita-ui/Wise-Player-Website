@@ -32,7 +32,7 @@ const Sidebar = () => {
     { path: "/requests", label: t('side_requests'), icon: Clock },
     {
       path: "/transition-history",
-      label: "Transition History",
+      label: "Transaction History",
       icon: PlusCircle,
     },
     { path: "/purchase-credit", label:  t('side_purchase'), icon: ShoppingCart },
@@ -55,7 +55,7 @@ const Sidebar = () => {
       <div
         className="sidebar d-none d-lg-block shadow"
         style={{
-          width: "280px",
+          width: "310px",
           backgroundColor: maroonMain,
           position: "sticky",
           top: 0,

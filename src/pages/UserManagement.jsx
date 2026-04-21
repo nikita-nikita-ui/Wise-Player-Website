@@ -131,7 +131,7 @@ function UserManagement() {
             </p> */}
             <div className="col-md-12">
           <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            User Management
+            Device Management
           </h3>
           <p className="text-muted">
              Manage members and subscriptions
@@ -144,7 +144,7 @@ function UserManagement() {
             onClick={() => setShowModal(true)}
             style={addBtnStyle}
           >
-            <UserPlus size={18} /> Create New User
+            <UserPlus size={18} /> Create New Device
           </motion.button>
         </header>
 
