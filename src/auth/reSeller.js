@@ -55,3 +55,23 @@ export const transferCredits = async (payload) => {
     };
   }
 };
+
+export const updateSubReseller = async (id, payload) => {
+  try {
+    const response = await api.put(
+      `/api/reseller/sub-resellers/${id}`,
+      payload
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error.response?.data?.message || "Update failed",
+    };
+  }
+};

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { TransitionHistoryData } from "../auth/transitionHistory";
 
-
-
 function TransitionHistory() {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
@@ -22,88 +20,102 @@ function TransitionHistory() {
     fetchData(page);
   }, [page]);
 
+  // ✅ REAL FIX (no fake 1)
+  const itemsPerPage = 10;
+
+  const computedTotalPages =
+    totalPages > 0
+      ? totalPages
+      : Math.ceil((data?.length || 0) / itemsPerPage);
+
+  const showPagination = computedTotalPages > 1;
+
   return (
     <div style={styles.container}>
-      <h2 style={styles.title} className="text-gray-700">Transaction History</h2>
+      <h2 style={styles.title}>Transaction History</h2>
 
       <div style={styles.card}>
-        <table style={styles.table}>
-          <thead>
-            <tr style={styles.theadRow}>
-              <th>ID</th>
-              <th>Amount</th>
-              <th>Type</th>
-              <th>Notes</th>
-              <th>Date</th>
-            </tr>
-          </thead>
+        <div style={styles.tableWrapper}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.th}>ID</th>
+                <th style={styles.th}>Amount</th>
+                <th style={styles.th}>Type</th>
+                <th style={styles.th}>Notes</th>
+                <th style={styles.th}>Date</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {data.length > 0 ? (
-              data.map((item) => (
-                <tr key={item.id} style={styles.row} className="py-2 text-sm">
-                  <td style={styles.cellId} className="py-3">{item.id}</td>
+            <tbody>
+              {data.length > 0 ? (
+                data.map((item) => (
+                  <tr key={item.id} style={styles.row}>
+                    <td style={styles.tdId}>{item.id}</td>
 
-                  <td style={styles.amount}>
-                    €{item.amount}
-                  </td>
+                    <td style={styles.tdAmount}>
+                      €{item.amount}
+                    </td>
 
-                  <td>
-                    <span
-                      style={{
-                        ...styles.badge,
-                        background:
-                          item.type === "PURCHASE"
-                            ? "#dc2626"
-                            : "#6b7280",
-                      }}
-                    >
-                      {item.type}
-                    </span>
-                  </td>
+                    <td style={styles.tdCenter}>
+                      <span
+                        style={{
+                          ...styles.badge,
+                          background:
+                            item.type === "PURCHASE"
+                              ? "#dc2626"
+                              : "#2563eb",
+                        }}
+                      >
+                        {item.type}
+                      </span>
+                    </td>
 
-                  <td style={styles.notes}>{item.notes}</td>
+                    <td style={styles.td}>{item.notes}</td>
 
-                  <td style={styles.date}>
-                    {new Date(item.createdAt).toLocaleString()}
+                    <td style={styles.tdDate}>
+                      {new Date(item.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={styles.empty}>
+                    No Data Found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" style={styles.empty}>
-                  No Data Found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* PAGINATION */}
-      <div style={styles.pagination}>
-        <button
-          disabled={page === 0}
-          onClick={() => setPage(page - 1)}
-          style={styles.btn}
-          className="bg-gray-500"
-        >
-          ⬅ Prev
-        </button>
+      {/* ✅ CONSISTENT + CORRECT PAGINATION */}
+      {showPagination && (
+        <div className="d-flex justify-content-center align-items-center gap-3 p-3 flex-wrap">
 
-        <span style={styles.pageText} className="text-red-500 font-semibold">
-          Page {page + 1} of {totalPages}
-        </span>
+          <button
+            disabled={page === 0}
+            onClick={() => setPage((p) => p - 1)}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Prev
+          </button>
 
-        <button
-          disabled={page + 1 === totalPages}
-          onClick={() => setPage(page + 1)}
-          style={styles.btn}
-           className="bg-gray-500"
-        >
-          Next ➡
-        </button>
-      </div>
+          <span style={{ fontWeight: "500" }}>
+            Page {page + 1} of {computedTotalPages}
+          </span>
+
+          <button
+            disabled={page + 1 === computedTotalPages}
+            onClick={() => setPage((p) => p + 1)}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Next
+          </button>
+
+        </div>
+      )}
     </div>
   );
 }
@@ -111,90 +123,79 @@ function TransitionHistory() {
 const styles = {
   container: {
     padding: "24px",
-   
     minHeight: "100vh",
-   
+    background: "#f9fafb",
   },
-
   title: {
     marginBottom: "20px",
     fontSize: "22px",
-    fontWeight: "600",
+    fontWeight: "700",
+    color: "#1f2937",
   },
-
   card: {
-   
-    borderRadius: "12px",
-    padding: "16px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+    borderRadius: "16px",
+    padding: "12px",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+    background: "#ffffff",
   },
-
+  tableWrapper: {
+    width: "100%",
+    overflowX: "auto",
+  },
   table: {
     width: "100%",
     borderCollapse: "collapse",
+    minWidth: "700px",
   },
-
-  theadRow: {
-    textAlign: "left",
-    borderBottom: "1px solid #374151",
-    color: "#9ca3af",
-    padding:"12px 10px"
+  th: {
+    textAlign: "center",
+    padding: "14px",
+    fontSize: "13px",
+    fontWeight: "700",
+    color: "#ffffff",
+    background: "#374151",
   },
-
   row: {
-    borderBottom: "1px solid #374151",
-     padding:"10px 10px"
+    borderBottom: "1px solid #f1f5f9",
   },
-
-  cellId: {
-    fontSize: "18px",
-    color: "#9ca3af",
-  },
-
-  amount: {
+  td: {
+    padding: "14px",
     fontWeight: "600",
-    color: "#ef4444", // red
+    textAlign: "center",
   },
-
+  tdId: {
+    padding: "14px",
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  tdAmount: {
+    padding: "14px",
+    fontWeight: "700",
+    color: "#dc2626",
+    textAlign: "center",
+  },
+  tdCenter: {
+    padding: "14px",
+    textAlign: "center",
+  },
+  tdDate: {
+    padding: "14px",
+    fontSize: "13px",
+    textAlign: "center",
+  },
   badge: {
-    padding: "4px 10px",
+    padding: "6px 14px",
     borderRadius: "999px",
     color: "#fff",
     fontSize: "12px",
+    fontWeight: "700",
   },
-
-  notes: {
-    color: "#d1d5db",
-  },
-
-  date: {
-    fontSize: "12px",
-    color: "#9ca3af",
-  },
-
   empty: {
     textAlign: "center",
-    padding: "20px",
+    padding: "30px",
     color: "#9ca3af",
+    fontWeight: "600",
   },
-
-  pagination: {
-    marginTop: "20px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  btn: {
-    padding: "8px 16px",
-    // background: "#dc2626",
-    color: "#fff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-
- 
 };
 
 export default TransitionHistory;
