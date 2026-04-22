@@ -20,9 +20,9 @@ const Sidebar = () => {
   const { userRole } = useAuth();
   console.log("user : ", userRole);
 
- const menuItems = [
+  const menuItems = [
     { path: "/dashboard", label: t('side_dashboard'), icon: LayoutDashboard },
-    { path: "/users", label:  t('side_users'), icon: Users },
+    { path: "/users", label: t('side_users'), icon: Users },
     // 👇 ONLY show for reseller
     userRole === "RESELLER" && {
       path: "/subreseller",
@@ -32,10 +32,10 @@ const Sidebar = () => {
     { path: "/requests", label: t('side_requests'), icon: Clock },
     {
       path: "/transition-history",
-      label: "Transition History",
+      label: t("transition_history"),
       icon: PlusCircle,
     },
-    { path: "/purchase-credit", label:  t('side_purchase'), icon: ShoppingCart },
+    { path: "/purchase-credit", label: t('side_purchase'), icon: ShoppingCart },
     { path: "/logout", label: t('side_logout'), icon: LogOut },
   ].filter(Boolean);
 
@@ -103,11 +103,10 @@ const Sidebar = () => {
         <div className="fixed pl-[26%]  inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-md text-center">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Confirm Logout
-            </h2>
+              {t("confirm_logout")}            </h2>
 
             <p className="text-gray-600 mb-6">
-              Are you sure you want to logout?
+              {t("logout_confirmation")}
             </p>
 
             <div className="flex justify-center gap-4">
@@ -116,7 +115,7 @@ const Sidebar = () => {
                 onClick={() => setShowLogoutPopup(false)}
                 className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
               >
-                Cancel
+                {t("cancel")}
               </button>
 
               {/* Confirm Logout */}
@@ -127,7 +126,7 @@ const Sidebar = () => {
                 }}
                 className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
               >
-                Logout
+                {t("logout")}
               </button>
             </div>
           </div>

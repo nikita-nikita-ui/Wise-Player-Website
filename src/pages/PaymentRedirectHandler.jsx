@@ -1,68 +1,79 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { downloadInvoicePdf } from "../auth/apiservice";
 const PaymentRedirectHandler = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [countdown, setCountdown] = useState(5);
   const [show, setShow] = useState(false);
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const status = params.get("paymentStatus");
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const status = params.get("paymentStatus");
 
-  if (status === "success") {
-    setShow(true);
-    setCountdown(5);
+    if (status === "success") {
+      setShow(true);
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === 1) {
-          clearInterval(timer);
 
-          setShow(false); // ✅ CLOSE POPUP
-          navigate("/dashboard", { replace: true });
 
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    } else {
+      // ✅ If no success param → ensure popup hidden
+      setShow(false);
+    }
+  }, [location]);
 
-    return () => clearInterval(timer);
-  } else {
-    // ✅ If no success param → ensure popup hidden
-    setShow(false);
-  }
-}, [location]);
-
-  // If no payment success → render nothing
   if (!show) return null;
 
   return (
     <>
-   {
-    show && (
-        <>
-         <div style={styles.overlay}>
-      <div style={styles.card}>
-        <div style={styles.icon}>✅</div>
-        <h2 style={styles.title}>Payment Successful</h2>
-        <p style={styles.text}>
-          Redirecting to dashboard in <b>{countdown}</b> seconds...
-        </p>
+      {
+        show && (
+          <>
+            <div style={styles.overlay}>
+              <div style={styles.card}>
+                <div style={styles.icon}>✅</div>
+                <p style={styles.text}>
+                  Payment Successful!
+                </p>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
 
-        <button
-          style={styles.button}
-          onClick={() => navigate("/dashboard", { replace: true })}
-        >
-          Go Now
-        </button>
-      </div>
-    </div>
-        </>
-    )
-   }
-   </>
+                  <button
+                    style={{ ...styles.button, background: "#999" }}
+                    onClick={() => setShow(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    style={styles.button}
+                    onClick={async () => {
+                      const params = new URLSearchParams(location.search);
+                      const invoiceNo = params.get("invoiceNo"); // URL se lena hoga
+                      const deviceId = params.get("deviceId");   // URL se lena hoga
+
+                      const res = await downloadInvoicePdf(deviceId, invoiceNo);
+
+                      if (res.success) {
+                        const url = window.URL.createObjectURL(new Blob([res.data]));
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.setAttribute("download", `invoice_${invoiceNo}.pdf`);
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                      } else {
+                        alert("Download failed");
+                      }
+                    }}
+                  >
+                    Download
+                  </button>
+
+                </div>
+              </div>
+            </div>
+          </>
+        )
+      }
+    </>
   );
 };
 

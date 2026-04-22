@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoCopyOutline } from "react-icons/io5";
+import { useTranslation } from "react-i18next";
 import { Plus } from "lucide-react";
 import { activationRequest } from "../auth/ativationRequest";
 import { submitRequest, ActivationplanRequest } from "../auth/activationRequest";
@@ -16,7 +17,7 @@ function RequestManagement() {
   const [tiers, setTiers] = useState([])
   const [filter, setFilter] = useState("All");
   const [apiError, setApiError] = useState("");
-
+  const { t } = useTranslation();
   // ✅ Fetch Requests
   const fetchRequests = async () => {
     try {
@@ -38,14 +39,14 @@ function RequestManagement() {
       console.error(err);
     }
   };
-  const fetchPlan =async ()=>{
+  const fetchPlan = async () => {
     const response = await ActivationplanRequest();
-     const names = response?.map(item => item.name);
+    const names = response?.map(item => item.name);
 
-  console.log(names); // ["ANNUAL"]
+    console.log(names); // ["ANNUAL"]
 
-  setTiers(names);
-    
+    setTiers(names);
+
 
   }
 
@@ -101,14 +102,14 @@ function RequestManagement() {
       {/* Header */}
       <div style={header}>
         <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-          Subreseller Panel
+          {t("subreseller_panel")}
         </h3>
         <button
           style={primaryBtn}
           onClick={() => setShowModal(true)}
           className="flex flex-row items-center space-x-3 gap-2"
         >
-          <Plus size={16} /> New Request
+          <Plus size={16} /> {t("new_request")}
         </button>
       </div>
 
@@ -124,7 +125,7 @@ function RequestManagement() {
               color: filter === tab ? "#fff" : "#000",
             }}
           >
-            {tab}
+            {t(tab)}
           </button>
         ))}
       </div>
@@ -133,12 +134,12 @@ function RequestManagement() {
       <table className="table table-bordered">
         <thead>
           <tr>
-            <th>Device Id </th>
-            <th>Reseller Id</th>
-            <th>Plan Name</th>
-            <th>Credits Used</th>
-            <th>Created At</th>
-            <th>Status</th>
+            <th>{t("device_id")}</th>
+            <th>{t("reseller_id")}</th>
+            <th>{t("plan_name")}</th>
+            <th>{t("credits_used")}</th>
+            <th>{t("created_at")}</th>
+            <th>{t("status")}</th>
           </tr>
         </thead>
 
@@ -213,13 +214,13 @@ function RequestManagement() {
 
                 <td>
                   {req.status === "PENDING" && (
-                    <span style={{ color: "orange" }}>Pending</span>
+                    <span style={{ color: "orange" }}>{t("pending")}</span>
                   )}
                   {req.status === "APPROVED" && (
-                    <span style={{ color: "green" }}>Approved</span>
+                    <span style={{ color: "green" }}>{t("approved")}</span>
                   )}
                   {req.status === "REJECTED" && (
-                    <span style={{ color: "red" }}>Rejected</span>
+                    <span style={{ color: "red" }}>{t("rejected")}</span>
                   )}
                 </td>
               </tr>
@@ -229,7 +230,7 @@ function RequestManagement() {
               <tr className="w-full ">
                 <td colSpan="6" className="py-6">
                   <div className="w-full flex justify-center items-center text-gray-500">
-                    No devices found
+                    {t("no_devices")}
                   </div>
                 </td>
               </tr>
@@ -250,14 +251,14 @@ function RequestManagement() {
               className="fixed ml-[13%]"
             >
               <h3 className="text-2xl text-red-500 font-semibold">
-                Submit Request
+                {t("submit_request")}
               </h3>
 
               {apiError && <p style={errorText}>{apiError}</p>}
 
               <form onSubmit={handleSubmit}>
                 <input
-                  placeholder="Device ID"
+                  placeholder={t("device_id")}
                   value={newRequest.deviceId}
                   onChange={(e) =>
                     setNewRequest({
@@ -282,8 +283,7 @@ function RequestManagement() {
                   className="border border-gray-400"
                   style={input}
                 >
-                  <option value="">Select Plan</option>
-                  {tiers.map((t, i) => (
+                  <option value="">{t("select_plan")}</option>                  {tiers.map((t, i) => (
                     <option key={i} value={t.planName}>
                       {t}
                     </option>
@@ -299,9 +299,7 @@ function RequestManagement() {
                       flex: 1,
                       ...primaryBtn,
                     }}
-                  >
-                    Submit
-                  </button>
+                  >{t("submit")}         </button>
 
                   <button
                     type="button"
@@ -314,7 +312,7 @@ function RequestManagement() {
                       cursor: "pointer",
                     }}
                   >
-                    Cancel
+                    {t("cancel")}
                   </button>
                 </div>
               </form>

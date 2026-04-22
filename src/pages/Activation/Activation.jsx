@@ -260,7 +260,7 @@ const WisePlayerActivation = () => {
                     className="wp-btn-another"
                     onClick={() => { setIsSuccess(false); setMacAddress(''); setIsKeyGenerated(false); setIsAgreed(false); setGeneratedKey(''); }}
                   >
-                    t('act_another')
+                    {t('act_another')}
                   </button>
                 </motion.div>
               )}

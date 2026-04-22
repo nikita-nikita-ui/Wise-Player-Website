@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Home.css';
 import { Container, Row, Col, Card, Button, Badge, Accordion, Navbar, Nav } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
+import PaymentRedirectHandler from '../../pages/PaymentRedirectHandler';
 import {
     Flame, ShieldCheck, Zap, Monitor, Search,
     Lock, List, Star, CheckCircle, Smartphone,
@@ -72,6 +73,7 @@ const WisePlayerHome = () => {
         const loadPlans = async () => {
             try {
                 const data = await fetchPublicPlans();
+                console.log("PLANS DATA:", data);
                 setPlans(data);
             } catch (err) {
                 console.error("ERROR:", err);
@@ -81,8 +83,7 @@ const WisePlayerHome = () => {
         loadPlans();
     }, []);
 
-    const annualPlan = plans.find(p => p.name === 'ANNUAL');
-    const lifetimePlan = plans.find(p => p.name === 'LIFETIME');
+
     const planRef = useRef('ANNUAL');
     const navigate = useNavigate();
     const handleSubmit = async () => {
@@ -110,6 +111,7 @@ const WisePlayerHome = () => {
         <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
 
 
+            <PaymentRedirectHandler />
 
 
             {/* --- HERO SECTION --- */}
@@ -309,52 +311,40 @@ const WisePlayerHome = () => {
             <section className="py-5" style={{ background: '#ebecee' }}>
                 <Container>
                     <Row className="justify-content-center">
-                        <Col lg={4} md={6} className="mb-4">
-                            <Card className="glass-card p-5 border-0 h-100">
-                                <h5
-                                    className="fw-bold"
-                                    style={{
-                                        fontWeight: '900',
-                                        textShadow: '0 0 10px red, 0 0 20px gray, 0 0 30px gray'
-                                    }}
-                                >
-                                    {t('ANNUAL')}
-                                </h5>
-                                <h2 className="display-5 fw-bold my-4">€ {annualPlan?.price?.toFixed(2) ?? '...'}</h2>
-                                <p className="text-muted small mb-4">{annualPlan?.description ?? t('price_standard_desc')}</p>
-                                <div className="mb-5">
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_year_access')}</span></div>
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_email_support')}</span></div>
-                                </div>
-                                <Button
-                                    variant="outline-danger"
-                                    className="w-100 py-3 fw-bold rounded-pill"
-                                    onClick={() => { planRef.current = 'ANNUAL'; setShowModal(true); }}
-                                >{t('CHECK STATUS')}</Button>
-                            </Card>
-                        </Col>
-                        <Col lg={4} md={6} className="mb-4">
-                            <Card className="glass-card p-5 border-0 h-100 text-white" style={{ background: '#000' }}>
-                                <Badge bg="danger" className="mb-3 w-50">{t('price_lifetime_badge')}</Badge>
-                                <h5 className="fw-bold">{t('LIFETIME')}</h5>
-                                <h2 className="display-5 fw-bold my-4">€ {lifetimePlan?.price?.toFixed(2) ?? '...'}</h2>
-                                <p className="text-white-50 small mb-4">{lifetimePlan?.description ?? t('price_pro_desc')}</p>
-                                <div className="mb-5">
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_permanent_license')}</span></div>
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_priority_updates')}</span></div>
-                                    <div className="d-flex align-items-center mb-2"><CheckCircle size={16} className="me-2 text-danger" /> <span>{t('price_247_support')}</span></div>
-                                </div>
-                                <Button
-                                    className="btn-premium w-100 py-3"
-                                    onClick={() => {
-                                        planRef.current = 'LIFETIME';
-                                        setShowModal(true);
-                                    }}
-                                >
-                                    {t('price_activate_lifetime')}
-                                </Button>
-                            </Card>
-                        </Col>
+                        {plans.map((plan) => (
+                            <Col lg={4} md={6} key={plan.id} className="mb-4">
+                                <Card className="glass-card p-5 border-0 h-100" style={{ background: plan.name === 'LIFETIME' ? '#000' : '#fff', color: plan.name === 'LIFETIME' ? '#fff' : '#1a1a1a' }}>
+                                    {plan.name === 'LIFETIME' && <Badge bg="danger" className="mb-3 w-50">{t('price_lifetime_badge')}</Badge>}
+                                    <h5 className="fw-bold" style={{ fontWeight: '900', textTransform: 'uppercase' }}>
+                                        {plan.name}
+                                    </h5>
+                                    <h2 className="display-5 fw-bold my-4">€ {plan.price?.toFixed(2)}</h2>
+                                    <p className={`${plan.name === 'LIFETIME' ? 'text-white-50' : 'text-muted'} small mb-4`}>
+                                        {plan.description}
+                                    </p>
+                                    <div className="mb-5">
+                                        <div className="d-flex align-items-center mb-2">
+                                            <CheckCircle size={16} className="me-2 text-danger" />
+                                            <span>{plan.durationDays} {t('Days Access')}</span>
+                                        </div>
+                                        <div className="d-flex align-items-center mb-2">
+                                            <CheckCircle size={16} className="me-2 text-danger" />
+                                            <span>{t('Instant Activation')}</span>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant={plan.name === 'LIFETIME' ? "danger" : "outline-danger"}
+                                        className={`w-100 py-3 fw-bold rounded-pill ${plan.name === 'LIFETIME' ? 'btn-premium' : ''}`}
+                                        onClick={() => {
+                                            planRef.current = plan.name;
+                                            setShowModal(true);
+                                        }}
+                                    >
+                                        {t('CHECK STATUS')}
+                                    </Button>
+                                </Card>
+                            </Col>
+                        ))}
                     </Row>
                 </Container>
             </section>
@@ -598,11 +588,29 @@ const WisePlayerHome = () => {
                                     <Button
                                         className="w-100 mt-3 btn-premium"
                                         style={{ padding: '15px', borderRadius: '12px' }}
+                                        // WisePlayerHome code ke andar proceed button ka logic:
                                         onClick={async () => {
                                             if (isActiveDevice) {
-                                                // "ANNUAL" ki jagah selectedPlan variable use karein
-                                                const res = await checkoutPayment({ deviceId: mac, planName: planRef.current }); if (res.success && res.data?.checkoutUrl) {
-                                                    window.location.href = res.data.checkoutUrl;
+                                                try {
+                                                    // Success URL aise banayein jo wapas Home par laaye
+                                                    const successUrl = `${window.location.origin}/invoice?paymentStatus=success`;
+                                                    const cancelUrl = `${window.location.origin}/home?paymentStatus=cancel`;
+
+                                                    const res = await checkoutPayment({
+                                                        deviceId: mac,
+                                                        planName: planRef.current,
+                                                        successUrl: successUrl,
+                                                        cancelUrl: cancelUrl
+                                                    });
+
+                                                    if (res.success && res.data?.checkoutUrl) {
+                                                        window.location.href = res.data.checkoutUrl;
+                                                    } else {
+                                                        showToast(res.message, "error");
+                                                    }
+                                                } catch (err) {
+                                                    const errorMessage = err.response?.data?.message || "Something went wrong";
+                                                    showToast(errorMessage, "error");
                                                 }
                                             } else {
                                                 navigate("/activation");

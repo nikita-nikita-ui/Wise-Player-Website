@@ -25,7 +25,6 @@ import TransitionHistory from './pages/TransitionHistory';
 // import PaymentStatus from './pages/PaymentStatus';
 import PaymentRedirectHandler from './pages/PaymentRedirectHandler';
 import PaymentStatus from './pages/PaymentStatus';
-
 // Constants for Design
 const maroonMain = "#800000";
 const containerVariants = {
@@ -44,9 +43,9 @@ const AppLayout = ({ children }) => {
   const adminPages = ['/dashboard', '/users', '/requests', '/subreseller', '/purchase-credit', '/transition-history', '/payment-status'];
 
   // Wo pages jahan Navbar hide karna hai (Login/Register/Admin pages)
-  const hideNavbarOn = ['/login', '/register', '/registersuccess', ...adminPages];
+  const hideNavbarOn = ['/login', '/register', '/registersuccess', '/invoice', ...adminPages];
 
-  const isAdminPage = adminPages.includes(location.pathname.toLowerCase()); 
+  const isAdminPage = adminPages.includes(location.pathname.toLowerCase());
   const shouldHideNavbar = hideNavbarOn.includes(location.pathname);
 
   return (
@@ -122,7 +121,7 @@ const AppLayout = ({ children }) => {
 function App() {
   return (
     <Router>
-       <PaymentRedirectHandler />
+      <PaymentRedirectHandler />
       <AppLayout>
         <Routes>
           {/* Sirf <Route> components hi hone chahiye yahan */}
@@ -141,10 +140,10 @@ function App() {
           <Route path="/security" element={<Privacy />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<UserManagement />} />
-           <Route path="/purchase-credit" element={<PurchaseCredit />} />
-           <Route path='/payment-status' element={<PaymentStatus/>}/>
-          
-            <Route path="/transition-history" element={<TransitionHistory/>} />
+          <Route path="/purchase-credit" element={<PurchaseCredit />} />
+          <Route path='/payment-status' element={<PaymentStatus />} />
+
+          <Route path="/transition-history" element={<TransitionHistory />} />
           <Route
             path="/requests"
             element={<RequestManagement containerVariants={containerVariants} maroonMain={maroonMain} />}

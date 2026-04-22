@@ -5,6 +5,7 @@ import { subscibedUserinfo } from "../auth/userManagement";
 import { formatDate } from "../auth/utilfunction";
 import { DisableUserAccount, createUser } from "../auth/userManagement";
 import { span } from "framer-motion/client";
+import { useTranslation } from "react-i18next";
 function UserManagement() {
   const [users, setUsers] = useState([
     {
@@ -16,7 +17,7 @@ function UserManagement() {
       joinDate: "1-1-1",
     },
   ]);
-    const maroonMain = "#800000";
+  const maroonMain = "#800000";
   const [devices, setDevices] = useState([]);
 
   const [showModal, setShowModal] = useState(false);
@@ -28,6 +29,7 @@ function UserManagement() {
   const [success, setSuccess] = useState("");
   const [totalUser, setTotalUser] = useState("");
   const [activeUser, setActiveUser] = useState(null);
+  const { t, i18n } = useTranslation();
   console.log("activeUser", activeUser);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ function UserManagement() {
     setTotalUser(res.data?.content?.length || 0);
     setActiveUser(
       res?.data?.content?.filter((u) => u.deviceStatus === "ACTIVE")?.length ||
-        0,
+      0,
     );
 
     if (res.success) {
@@ -116,27 +118,15 @@ function UserManagement() {
       <div style={mainContentStyle}>
         <header style={headerStyle}>
           <div>
-            {/* <h2
-              style={{
-                margin: 0,
-                color: "#2d3436",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-              }}
-            >
-              User Management
-            </h2>
-            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>
-              Manage members and subscriptions
-            </p> */}
+
             <div className="col-md-12">
-          <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            User Management
-          </h3>
-          <p className="text-muted">
-             Manage members and subscriptions
-          </p>
-        </div>
+              <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
+                {t("side_users")}
+              </h3>
+              <p className="text-muted">
+                {t("manage_members")}
+              </p>
+            </div>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -144,15 +134,15 @@ function UserManagement() {
             onClick={() => setShowModal(true)}
             style={addBtnStyle}
           >
-            <UserPlus size={18} /> Create New User
+            <UserPlus size={18} /> {t("create_user")}
           </motion.button>
         </header>
 
         {/* Stats Row */}
         <div style={statsRow}>
-          <div style={statCard}>Total Users: {totalUser}</div>
+          <div style={statCard}>{t("total_users")}: {totalUser}</div>
           <div style={{ ...statCard, borderLeft: "4px solid #1e3a8a" }}>
-            Active: {activeUser}
+            {t("active_subs")}: {activeUser}
           </div>
         </div>
 
@@ -214,12 +204,12 @@ function UserManagement() {
                 {/* Header */}
                 <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
                   <tr>
-                    <th className="px-4 py-3">Device ID</th>
+                    <th className="px-4 py-3">{t("device_id")}</th>
 
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Subscription</th>
-                    <th className="px-4 py-3">Expires</th>
-                    <th className="px-4 py-3">Registered</th>
+                    <th className="px-4 py-3">{t("status")}</th>
+                    <th className="px-4 py-3">{t("subscription")}</th>
+                    <th className="px-4 py-3">{t("expires")}</th>
+                    <th className="px-4 py-3">{t("registered")}</th>
                     <th className="px-4 py-3">action</th>
                   </tr>
                 </thead>
@@ -239,7 +229,7 @@ function UserManagement() {
                             onClick={() => copyToClipboard(item.deviceId)}
                             className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
                           >
-                            Copy
+                            {t("copy")}
                           </button>
                         </td>
 
@@ -248,11 +238,10 @@ function UserManagement() {
                         {/* Status */}
                         <td className="px-3 py-3">
                           <span
-                            className={`px-2 py-1 text-center text-xs rounded-full font-semibold ${
-                              item.deviceStatus === "ACTIVE"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-600"
-                            }`}
+                            className={`px-2 py-1 text-center text-xs rounded-full font-semibold ${item.deviceStatus === "ACTIVE"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-600"
+                              }`}
                           >
                             {item.deviceStatus}
                           </span>
@@ -293,7 +282,7 @@ function UserManagement() {
                       <tr className="w-full ">
                         <td colSpan="6" className="py-6">
                           <div className="w-full flex justify-center items-center text-gray-500">
-                            No User found
+                            {t("no_user_found")}
                           </div>
                         </td>
                       </tr>

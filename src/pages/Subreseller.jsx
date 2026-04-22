@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   UserPlus,
   Eye,
@@ -30,7 +31,7 @@ const SubresellerDashboard = () => {
     activeuser: "",
     Rejected: "",
   });
-
+  const { t } = useTranslation();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -58,21 +59,21 @@ const SubresellerDashboard = () => {
     }
   };
 
-   const fetchdata = async () => {
-      const res = await getAllResellerInfo();
-      console.log(res.data);
-      const usersData = res?.data?.content || [];
+  const fetchdata = async () => {
+    const res = await getAllResellerInfo();
+    console.log(res.data);
+    const usersData = res?.data?.content || [];
 
-      setUsers(usersData);
-      setDashboardData((prev) => ({
-        ...prev,
-        totalUser: usersData?.length || 0,
-        activeuser: usersData.filter((user) => user?.active === true).length,
-      }));
-    };
+    setUsers(usersData);
+    setDashboardData((prev) => ({
+      ...prev,
+      totalUser: usersData?.length || 0,
+      activeuser: usersData.filter((user) => user?.active === true).length,
+    }));
+  };
 
   useEffect(() => {
-   
+
     fetchdata();
   }, []);
 
@@ -126,11 +127,11 @@ const SubresellerDashboard = () => {
   const getStatusBadge = (active) => {
     return active ? (
       <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-        Active
+        {t("active")}
       </span>
     ) : (
       <span className="px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-        Inactive
+        {t("inactive")}
       </span>
     );
   };
@@ -145,11 +146,10 @@ const SubresellerDashboard = () => {
       <div className="row mb-4 align-items-center">
         <div className="col-md-6">
           <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            Subreseller Panel
+            {t("subreseller_panel")}
           </h3>
           <p className="text-muted">
-            Manage your end-users and activation requests
-          </p>
+            {t("manage_end_users")}          </p>
         </div>
         <div className="col-md-6 text-md-end">
           {/* POINT 1: CREATE END USERS BUTTON */}
@@ -161,7 +161,7 @@ const SubresellerDashboard = () => {
             onClick={() => setOpenModel(true)}
           >
             <UserPlus size={20} className="me-2" />
-            Create New End-User
+            {t("create_end_user")}
           </button>
         </div>
       </div>
@@ -170,19 +170,19 @@ const SubresellerDashboard = () => {
       <div className="row mb-4">
         <div className="col-md-3">
           <div className="card border-0 shadow-sm p-3 rounded-4">
-            <small className="text-muted fw-bold">TOTAL USERS</small>
+            <small className="text-muted fw-bold">{t("total_users")}</small>
             <h3 className="fw-bold mt-1">{dashboardData?.totalUser}</h3>
           </div>
         </div>
         <div className="col-md-3">
           <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-warning border-4">
-            <small className="text-muted fw-bold">PENDING REQUESTS</small>
+            <small className="text-muted fw-bold">{t("pending_req")}</small>
             <h3 className="fw-bold mt-1 text-warning">12</h3>
           </div>
         </div>
         <div className="col-md-3">
           <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-success border-4">
-            <small className="text-muted fw-bold">ACTIVE USERS</small>
+            <small className="text-muted fw-bold">{t("active_subs")}</small>
             <h3 className="fw-bold mt-1 text-success">
               {dashboardData?.activeuser}
             </h3>
@@ -190,7 +190,7 @@ const SubresellerDashboard = () => {
         </div>
         <div className="col-md-3">
           <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-danger border-4">
-            <small className="text-muted fw-bold">REJECTED</small>
+            <small className="text-muted fw-bold">{t("rejected")}</small>
             <h3 className="fw-bold mt-1 text-danger">6</h3>
           </div>
         </div>
@@ -229,12 +229,12 @@ const SubresellerDashboard = () => {
               <table className="table table-hover align-middle mb-0 text-center">
                 <thead className="table-light">
                   <tr>
-                    <th className="text-start ps-4">User Details</th>
-                    <th>Email</th>
-                    <th>Activation Status</th>
-                    <th>Created At</th>
-                    <th>Last Update</th>
-                    <th>Coin</th>
+                    <th className="text-start ps-4">{t("user_details")}</th>
+                    <th>{t("email")}</th>
+                    <th>{t("activation_status")}</th>
+                    <th>{t("created_at")}</th>
+                    <th>{t("last_update")}</th>
+                    <th>{t("total_coins")}</th>
                   </tr>
                 </thead>
 
@@ -245,10 +245,10 @@ const SubresellerDashboard = () => {
                       <td className="text-start ps-4">
                         <div className="fw-bold">{user.fullName}</div>
                         <div className="small text-muted">
-                          parentId:{" "}
+                          {t("parent_id")}:{" "}
                           <span className="text-red-400"> {user.parentId}</span>{" "}
                           <br />
-                          creatorId:{" "}
+                          {t("creator_id")}:{" "}
                           <span className="text-blue-400">
                             {user.creatorId}
                           </span>
@@ -257,7 +257,7 @@ const SubresellerDashboard = () => {
 
                       {/* EMAIL */}
                       <td className="text-secondary fw-semibold">
-                        {user?.email || "No Email Available"}
+                        {user?.email || t("no_email")}
                       </td>
 
                       {/* STATUS */}
@@ -288,7 +288,7 @@ const SubresellerDashboard = () => {
           <div className="modal-content rounded-4 border-0 shadow">
             <div className="modal-header border-0 p-4">
               <h5 className="modal-title fw-bold" style={{ color: maroonMain }}>
-                Add New End-User
+                {t("add_end_user")}
               </h5>
               <button
                 type="button"
@@ -299,7 +299,7 @@ const SubresellerDashboard = () => {
             <div className="modal-body p-4 pt-0">
               <form>
                 <div className="mb-3">
-                  <label className="form-label small fw-bold">Full Name</label>
+                  <label className="form-label small fw-bold">{t("reg_fullname")}</label>
                   <input
                     type="text"
                     className="form-control rounded-3"
@@ -308,7 +308,7 @@ const SubresellerDashboard = () => {
                 </div>
                 <div className="mb-3">
                   <label className="form-label small fw-bold">
-                    Email Address
+                    {t("contact_email")}
                   </label>
                   <input
                     type="email"
@@ -318,7 +318,7 @@ const SubresellerDashboard = () => {
                 </div>
                 <div className="mb-3">
                   <label className="form-label small fw-bold">
-                    Select Plan Type
+                    {t("select_plan")}
                   </label>
                   <select className="form-select rounded-3">
                     <option>Monthly Basic</option>
@@ -327,11 +327,11 @@ const SubresellerDashboard = () => {
                   </select>
                 </div>
                 <button
-                  type="submit"
+                  type={t("submit")}
                   className="btn w-100 text-white py-2 fw-bold mt-2"
                   style={{ backgroundColor: maroonMain, borderRadius: "10px" }}
                 >
-                  Save & Create User
+                  {t("save_create_user")}
                 </button>
               </form>
             </div>
@@ -349,7 +349,7 @@ const SubresellerDashboard = () => {
               className="bg-white/90 backdrop-blur-md px-4 py-4 rounded-2xl shadow-2xl w-[500px]"
             >
               <motion.h2 className="text-xl font-bold mb-4  flex justify-between">
-                <span>Create Sub-Reseller</span>
+                <span>{t("create_subreseller")}</span>
                 <span
                   className="cursor-pointer hover:text-red-500"
                   onClick={() => setOpenModel(false)}
@@ -365,7 +365,7 @@ const SubresellerDashboard = () => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Username"
+                placeholder={t("username")}
                 className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
               />
 
@@ -375,7 +375,7 @@ const SubresellerDashboard = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Password"
+                placeholder={t("password")}
                 className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
               />
 
@@ -385,7 +385,7 @@ const SubresellerDashboard = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                placeholder="Full Name"
+                placeholder={t("reg_fullname")}
                 className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
               />
 
