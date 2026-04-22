@@ -228,5 +228,19 @@
   "side_requests": "Demandes d'activation",
   "side_track": "Suivre la demande",
   "side_purchase": "Acheter des crédits",
-  "side_logout": "Se déconnecter"
+  "side_logout": "Se déconnecter",
+  "dashboard": "Tableau de bord",
+  "device_management": "Gestion des appareils",
+  "sub_reseller": "Sous-revendeur",
+  "activation_requests": "Demandes d'activation",
+  "purchase_credit": "Acheter du crédit",
+  "transaction_history": "Historique des transaction",
+  "logout": "Se déconnecter",
+  "confirm_logout": "Confirmer la déconnexion",
+  "cancel": "Annuler",
+  "overview": "Aperçu",
+  "users": "Utilisateurs",
+  "requests": "Demandes",
+  "subreseller": "Sous-revendeur",
+  "are_you_sure_logout": "Êtes-vous sûr de vouloir vous déconnecter ?"
 }

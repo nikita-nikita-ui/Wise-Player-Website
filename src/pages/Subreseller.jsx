@@ -1,53 +1,46 @@
 import React, { useEffect, useState } from "react";
-import {
-  UserPlus,
-  Eye,
-  Send,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Search,
-  Filter,
-} from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { MdClose } from "react-icons/md";
 import { createReseller, getAllResellerInfo } from "../auth/reSeller";
 import { formatDate } from "../auth/utilfunction";
 import TransferModal from "../component/TransferModal";
-import { DashbaordOverview } from "../auth/dashboard"
+import { DashbaordOverview } from "../auth/dashboard";
+import { useTranslation } from "react-i18next"; // ✅ ADD THIS
 
 const SubresellerDashboard = () => {
-  //for the credit transfer
+  const { t } = useTranslation(); // ✅ INIT
+
   const [transferModal, setTransferModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  const [openModel, setOpenModel] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    fullName: "",
+  });
+
+  const [error, setError] = useState("");
+  const [users, setUsers] = useState([]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 8;
+
+  const [dashboardData, setDashboardData] = useState({
+    credits: 0,
+    pendingRequest: 0,
+  });
+
+  const maroonMain = "#800000";
 
   const handleOpenTransfer = (user) => {
     setSelectedUser(user);
     setTransferModal(true);
   };
 
-  const [openModel, setOpenModel] = useState(false);
-  console.log("open Model : ", openModel);
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    fullName: "",
-  });
-  const [error, setError] = useState("");
-  const [users, setUsers] = useState([]);
-  const [dashboardData, setDashboardData] = useState({
-    totalUser: "",
-    pendingRequest: "",
-    activeuser: "",
-    Rejected: "",
-    credits: "",
-  });
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -56,328 +49,233 @@ const SubresellerDashboard = () => {
     const res = await createReseller(formData);
 
     if (res.success) {
-      console.log("✅ Reseller Created:", res.data);
       setOpenModel(false);
-      setFormData({
-        username: "",
-        password: "",
-        fullName: "",
-      });
-      fetchdata()
+      setFormData({ username: "", password: "", fullName: "" });
+      fetchdata();
     } else {
-      console.error("❌ Error:", res.message);
       setError(res.message);
     }
   };
 
   const fetchdata = async () => {
-    const res = await getAllResellerInfo();
-    console.log(res.data);
-    const usersData = res?.data?.content || [];
+    try {
+      const res = await getAllResellerInfo();
+      const usersData = res?.data?.content ?? [];
 
-    const dashRes = await DashbaordOverview();
-    setUsers(usersData);
-    console.log("userData", usersData);
-    console.log("dashRes", dashRes);
-    setDashboardData((prev) => ({
-      ...prev,
-      totalUser: usersData?.length || 0,
-      activeuser: usersData.filter((user) => user?.active === true).length,
-      credits: dashRes?.data?.credits || 0,
-      pendingRequest: dashRes?.data?.pendingRequests || 0,
-    }));
+      const dashRes = await DashbaordOverview();
+
+      setUsers(Array.isArray(usersData) ? usersData : []);
+
+      setDashboardData({
+        credits: dashRes?.data?.credits ?? 0,
+        pendingRequest: dashRes?.data?.pendingRequests ?? 0,
+      });
+
+      setCurrentPage(1);
+    } catch (err) {
+      console.error(err);
+      setUsers([]);
+    }
   };
 
   useEffect(() => {
-
     fetchdata();
   }, []);
 
+  const totalPages = Math.ceil((users?.length || 0) / usersPerPage);
+  const safePage = Math.min(currentPage, totalPages || 1);
 
+  const indexOfLast = safePage * usersPerPage;
+  const indexOfFirst = indexOfLast - usersPerPage;
+  const currentUsers = (users || []).slice(indexOfFirst, indexOfLast);
 
-  const maroonMain = "#800000";
+  useEffect(() => {
+    if (currentPage !== safePage) {
+      setCurrentPage(safePage);
+    }
+  }, [users, totalPages]);
 
-  // Mock Data for Users
-  //   const [users, setUsers] = useState([
-  //     {
-  //       id: "USR-001",
-  //       name: "Amit Sharma",
-  //       email: "amit@example.com",
-  //       plan: "Yearly Premium",
-  //       status: "Active",
-  //       requestStatus: "Approved",
-  //     },
-  //     {
-  //       id: "USR-002",
-  //       name: "Suresh Kumar",
-  //       email: "suresh@example.com",
-  //       plan: "Monthly Basic",
-  //       status: "Inactive",
-  //       requestStatus: "Pending",
-  //     },
-  //     {
-  //       id: "USR-003",
-  //       name: "Priya Singh",
-  //       email: "priya@example.com",
-  //       plan: "Quarterly Pro",
-  //       status: "Inactive",
-  //       requestStatus: "Not Submitted",
-  //     },
-  //     {
-  //       id: "USR-004",
-  //       name: "Rahul Verma",
-  //       email: "rahul@example.com",
-  //       plan: "Yearly Premium",
-  //       status: "Active",
-  //       requestStatus: "Approved",
-  //     },
-  //     {
-  //       id: "USR-005",
-  //       name: "Anjali Gupta",
-  //       email: "anjali@example.com",
-  //       plan: "Monthly Basic",
-  //       status: "Inactive",
-  //       requestStatus: "Rejected",
-  //     },
-  //   ]);
-
-  // Status Badge Helper
-  const getStatusBadge = (active) => {
-    return active ? (
-      <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-        Active
-      </span>
-    ) : (
-      <span className="px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-        Inactive
-      </span>
-    );
-  };
+  const getStatusBadge = (active) => (
+    <span
+      className={`px-3 py-1 text-xs fw-semibold rounded-pill ${
+        active
+          ? "bg-success-subtle text-success"
+          : "bg-danger-subtle text-danger"
+      }`}
+    >
+      {active ? t("active") : t("inactive")} {/* ✅ */}
+    </span>
+  );
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="container-fluid w-full p-4 bg-light min-vh-100"
-    >
-      {/* Header Section */}
+    <div className="container-fluid p-3 p-md-4 bg-light min-vh-100">
+
+      {/* HEADER */}
       <div className="row mb-4 align-items-center">
         <div className="col-md-6">
           <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            Sub-reseller Management
+            {t("subreseller_management")}
           </h3>
           <p className="text-muted">
-            Manage your sub-reseller and activation requests
+            {t("manage_subreseller")}
           </p>
         </div>
-        <div className="col-md-6 text-md-end">
-          {/* POINT 1: CREATE END USERS BUTTON */}
+
+        <div className="col-md-6 text-md-end mt-2 mt-md-0">
           <button
-            className="btn shadow-sm px-4 py-2 text-white"
+            className="btn shadow-sm px-4 py-2 text-white d-inline-flex align-items-center gap-2"
             style={{ backgroundColor: maroonMain, borderRadius: "10px" }}
-            data-bs-toggle="modal"
-            data-bs-target="#createUserModal"
             onClick={() => setOpenModel(true)}
           >
-            <UserPlus size={20} className="me-2" />
-            Create New Sub-Reseller
+            <UserPlus size={18} />
+            <span>{t("create_subreseller")}</span>
           </button>
         </div>
       </div>
 
-      {/* Main Content Card */}
-      <div className=" border-0 shadow-sm  rounded-4  w-full">
+      {/* TABLE */}
+      <div className="shadow-sm rounded-4 bg-white">
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0 text-center">
 
-        <div className="card-body p-0">
-          <div className="table-responsive">
-            {/* POINT 2: VIEW CREATED USERS TABLE */}
-            <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0 text-center">
-                <thead className="table-light">
-                  <tr>
-                    <th className="text-start ps-4">User Details</th>
-                    <th>Email</th>
-                    <th>Activation Status</th>
-                    <th>Created At</th>
-                    <th>Last Update</th>
-                    <th>Coin</th>
-                    <th>Transfer Credit</th>
+            <thead className="table-light">
+              <tr>
+                <th className="text-start ps-4">{t("user_details")}</th>
+                <th>{t("email")}</th>
+                <th>{t("status")}</th>
+                <th>{t("created")}</th>
+                <th>{t("updated")}</th>
+                <th>{t("coin")}</th>
+                <th>{t("action")}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {currentUsers.length > 0 ? (
+                currentUsers.map((user) => (
+                  <tr key={user.id || user.username}>
+                    <td className="text-start ps-4">
+                      <div className="fw-bold">{user.fullName}</div>
+                      <div className="small text-muted">
+                        {t("creator_id")}:{" "}
+                        <span className="text-primary">
+                          {user.creatorId}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="fw-semibold">
+                      {user.email || t("no_email")}
+                    </td>
+
+                    <td>{getStatusBadge(user.active)}</td>
+
+                    <td>{formatDate(user.createdAt)}</td>
+                    <td>{formatDate(user.updatedAt)}</td>
+
+                    <td className="fw-bold text-warning">
+                      {user.credits ?? 0}
+                    </td>
+
+                    <td>
+                      <button
+                        className="btn btn-sm text-white"
+                        style={{
+                          backgroundColor: maroonMain,
+                          borderRadius: "8px",
+                        }}
+                        onClick={() => handleOpenTransfer(user)}
+                      >
+                        {t("transfer")}
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-
-                <tbody>
-                  {users?.map((user) => (
-                    <tr key={user.id}>
-                      {/* USER DETAILS */}
-                      <td className="text-start ps-4">
-                        <div className="fw-bold">{user.fullName}</div>
-                        <div className="small text-muted">
-                          creatorId:{" "}
-                          <span className="text-blue-400">
-                            {user.creatorId}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* EMAIL */}
-                      <td className="text-secondary fw-semibold">
-                        {user?.email || "No Email Available"}
-                      </td>
-
-                      {/* STATUS */}
-                      <td>{getStatusBadge(user.active)}</td>
-
-                      {/* CREATED */}
-                      <td>{formatDate(user?.createdAt)}</td>
-
-                      {/* UPDATED */}
-                      <td>{formatDate(user?.updatedAt)}</td>
-
-                      {/* COIN */}
-                      <td className="fw-bold text-yellow-400">
-                        {user?.credits ?? 0}
-                      </td>
-
-                      {/* transfer coin */}
-                      <td>
-                        <button
-                          className="btn btn-sm text-white"
-                          style={{ backgroundColor: "#800000", borderRadius: "8px", marginTop: "-4px" }}
-                          onClick={() => handleOpenTransfer(user)}
-                        >
-                          Transfer
-                        </button>
-                      </td>
-
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="py-4">
+                    {t("no_data")}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
 
-      {/* CREATE USER MODAL (Point 1 implementation) */}
-      <div className="modal fade" id="createUserModal" tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content rounded-4 border-0 shadow">
-            <div className="modal-header border-0 p-4">
-              <h5 className="modal-title fw-bold" style={{ color: maroonMain }}>
-                Add New End-User
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div className="modal-body p-4 pt-0">
-              <form>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold">Full Name</label>
-                  <input
-                    type="text"
-                    className="form-control rounded-3"
-                    placeholder="Enter user's name"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control rounded-3"
-                    placeholder="user@example.com"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold">
-                    Select Plan Type
-                  </label>
-                  <select className="form-select rounded-3">
-                    <option>Monthly Basic</option>
-                    <option>Quarterly Pro</option>
-                    <option>Yearly Premium</option>
-                  </select>
-                </div>
-                <button
-                  type="submit"
-                  className="btn w-100 text-white py-2 fw-bold mt-2"
-                  style={{ backgroundColor: maroonMain, borderRadius: "10px" }}
-                >
-                  Save & Create User
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-      {openModel && (
-        <>
-          <div className="fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-sm z-50">
-            <motion.form
-              onSubmit={handleSubmit}
-              initial={{ opacity: 0, scale: 0.8, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white/90 backdrop-blur-md px-4 py-4 rounded-2xl shadow-2xl w-[500px]"
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="d-flex justify-content-center align-items-center gap-2 p-3 flex-wrap">
+            <button
+              className="btn btn-sm btn-outline-dark"
+              disabled={safePage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
             >
-              <motion.h2 className="text-xl font-bold mb-4  flex justify-between">
-                <span>Create Sub-Reseller</span>
-                <span
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={() => setOpenModel(false)}
-                >
-                  <MdClose />
-                </span>
-              </motion.h2>
-              <div>{error && <div style={{ color: "red" }}>{error}</div>}</div>
+              {t("prev")}
+            </button>
 
-              {/* Username */}
-              <motion.input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Username"
-                className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
-              />
+            <span className="px-2">
+              {t("page")} {safePage} {t("of")} {totalPages}
+            </span>
 
-              {/* Password */}
-              <motion.input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Password"
-                className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
-              />
-
-              {/* Full Name */}
-              <motion.input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Full Name"
-                className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
-              />
-
-              {/* Submit Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="submit"
-                className="w-full bg-blue-500 text-white p-2 rounded-lg"
-              >
-                Submit
-              </motion.button>
-            </motion.form>
+            <button
+              className="btn btn-sm btn-outline-dark"
+              disabled={safePage === totalPages}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+            >
+              {t("next")}
+            </button>
           </div>
-        </>
+        )}
+      </div>
+
+      {/* MODAL */}
+      {openModel && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black/80 z-50">
+          <motion.form
+            onSubmit={handleSubmit}
+            className="bg-white p-4 rounded-4 shadow w-100"
+            style={{ maxWidth: "400px" }}
+          >
+            <h5 className="fw-bold d-flex justify-content-between">
+              {t("create_subreseller")}
+              <MdClose onClick={() => setOpenModel(false)} />
+            </h5>
+
+            {error && <div className="text-danger">{error}</div>}
+
+            <input
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              placeholder={t("username")}
+              className="form-control my-2"
+            />
+
+            <input
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder={t("password")}
+              className="form-control my-2"
+            />
+
+            <input
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder={t("full_name")}
+              className="form-control my-2"
+            />
+
+            <button className="btn btn-primary w-100 mt-2">
+              {t("submit")}
+            </button>
+          </motion.form>
+        </div>
       )}
+
+      {/* TRANSFER */}
       <TransferModal
         open={transferModal}
         onClose={() => setTransferModal(false)}
@@ -385,7 +283,7 @@ const SubresellerDashboard = () => {
         availableCredits={dashboardData?.credits}
         refreshData={fetchdata}
       />
-    </motion.div>
+    </div>
   );
 };
 
