@@ -56,24 +56,44 @@ function UserManagement() {
   }, [devices, currentPage]);
 
   const handleDisable = async (deviceId) => {
-    await DisableUserAccount(deviceId);
+  const targetUser = devices.find((d) => d.deviceId === deviceId);
 
-    setDevices((prev) => {
-      const updated = prev.map((item) =>
-        item.deviceId === deviceId
-          ? {
-              ...item,
-              deviceStatus:
-                item.deviceStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
-            }
-          : item
-      );
+  const isCurrentlyActive = targetUser?.deviceStatus === "ACTIVE";
 
-      return updated.sort(
-        (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
-      );
-    });
-  };
+  const confirmAction = window.confirm(
+    `Are you sure you want to ${
+      isCurrentlyActive ? "disable" : "activate"
+    } this user?`
+  );
+
+  if (!confirmAction) return;
+
+  await DisableUserAccount(deviceId);
+
+  setDevices((prev) => {
+    const updated = prev.map((item) =>
+      item.deviceId === deviceId
+        ? {
+            ...item,
+            deviceStatus:
+              item.deviceStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+          }
+        : item
+    );
+
+    // keep your existing logic
+    const activeCount = updated.filter(
+      (u) => u.deviceStatus === "ACTIVE"
+    ).length;
+
+    setActiveUser(activeCount);
+
+    return updated.sort(
+      (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
+    );
+  });
+};
+
 
   const handleAddUser = async (e) => {
     e.preventDefault();
