@@ -376,22 +376,6 @@ input:-webkit-autofill:focus {
     padding-right: 45px;
 }
 
-/* ✅ responsive fix */
-@media (max-width: 992px) {
-    .main-page-wrapper {
-        flex-direction: column;
-        overflow: hidden;
-    }
-
-    .branding-panel {
-        display: none; /* optional for mobile clean UI */
-    }
-
-    .register-container {
-        padding: 20px;
-        justify-content: center;
-    }
-}
 
 .form-content{
     display: flex;
