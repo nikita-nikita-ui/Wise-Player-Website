@@ -5,6 +5,11 @@ import { Plus } from "lucide-react";
 import { activationRequest } from "../auth/ativationRequest";
 import { submitRequest, ActivationplanRequest } from "../auth/activationRequest";
 import { formatDate } from "../auth/utilfunction";
+import { useAuth } from "../context/AuthContext";
+import {
+  subResellerActivationRequest,
+  submitSubResellerRequest,
+} from "../auth/subReseller/activationRequest"
 
 function RequestManagement() {
   const [requests, setRequests] = useState([]);
@@ -17,35 +22,42 @@ function RequestManagement() {
   const [filter, setFilter] = useState("All");
   const [apiError, setApiError] = useState("");
 
-  // ✅ Fetch Requests
+  const { userRole } = useAuth();
+
   const fetchRequests = async () => {
-    try {
-      const response = await activationRequest();
-      const data = response?.data || [];
+    let response;
 
-      setRequests(
-        data?.content?.map((item) => ({
-          id: item.id,
-          status: item?.status,
-          createdAt: formatDate(item.createdAt),
-          resellerId: item?.resellerId,
-          deviceId: item?.deviceId,
-          planName: item?.planName,
-          creditsUsed: item?.creditsUsed,
-        })),
-      );
-    } catch (err) {
-      console.error(err);
+    if (userRole === "SUB_RESELLER") {
+      response = await subResellerActivationRequest();
+    } else {
+      response = await activationRequest();
     }
+
+    if (!response?.success) return;
+
+    const data = response?.data || [];
+
+    setRequests(
+      data?.content?.map((item) => ({
+        id: item.id,
+        status: item?.status,
+        createdAt: formatDate(item.createdAt),
+        resellerId: item?.resellerId,
+        deviceId: item?.deviceId,
+        planName: item?.planName,
+        creditsUsed: item?.creditsUsed,
+      }))
+    );
   };
-  const fetchPlan =async ()=>{
+
+  const fetchPlan = async () => {
     const response = await ActivationplanRequest();
-     const names = response?.map(item => item.name);
+    const names = response?.map(item => item.name);
 
-  console.log(names); // ["ANNUAL"]
+    console.log(names); // ["ANNUAL"]
 
-  setTiers(names);
-    
+    setTiers(names);
+
 
   }
 
@@ -59,28 +71,34 @@ function RequestManagement() {
     navigator.clipboard.writeText(text);
   };
 
-  // ✅ Submit
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setApiError("");
+  e.preventDefault();
+  setApiError("");
 
-    try {
-      const response = await submitRequest(newRequest);
-      console.log(response);
-
-      if (response.success == false) {
-        setApiError(response?.message || "Something went wrong");
-        return;
-      }
-
-      // ✅ success
-      setShowModal(false);
-      setNewRequest({ deviceId: "", planName: "" });
-      fetchRequests();
-    } catch (error) {
-      setApiError(error?.response?.data?.message || "Something went wrong");
-    }
+  const payload = {
+    deviceId: newRequest.deviceId,
+    planName: newRequest.planName,
+    amount: 5, // or dynamic if needed
+    currency: "CREDITS",
   };
+
+  let response;
+
+  if (userRole === "SUB_RESELLER") {
+    response = await submitSubResellerRequest(payload);
+  } else {
+    response = await submitRequest(newRequest);
+  }
+
+  if (!response?.success) {
+    setApiError(response?.message || "Something went wrong");
+    return;
+  }
+
+  setShowModal(false);
+  setNewRequest({ deviceId: "", planName: "" });
+  fetchRequests();
+};
 
   // ✅ Filter
   const filteredRequests =
@@ -284,7 +302,7 @@ function RequestManagement() {
                 >
                   <option value="">Select Plan</option>
                   {tiers.map((t, i) => (
-                    <option key={i} value={t.planName}>
+                    <option key={i} value={t}>
                       {t}
                     </option>
                   ))}
