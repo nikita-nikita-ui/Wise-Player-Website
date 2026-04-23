@@ -375,11 +375,3 @@ input:-webkit-autofill:focus {
 .password-wrapper .modern-input {
     padding-right: 45px;
 }
-
-
-.form-content{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
