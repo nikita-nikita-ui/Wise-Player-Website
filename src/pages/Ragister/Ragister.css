@@ -1,6 +1,13 @@
 /* body {
   overflow: hidden;
 } */
+
+/* ✅ FIX: remove scroll + full screen fit */
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
 .register-container {
     flex: 1.2;
     display: flex;
@@ -376,4 +383,28 @@ input:-webkit-autofill:focus {
 /* Ensure input doesn't overlap text with the icon */
 .password-wrapper .modern-input {
     padding-right: 45px;
+}
+
+/* ✅ responsive fix */
+@media (max-width: 992px) {
+    .main-page-wrapper {
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .branding-panel {
+        display: none; /* optional for mobile clean UI */
+    }
+
+    .register-container {
+        padding: 20px;
+        justify-content: center;
+    }
+}
+
+.form-content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
