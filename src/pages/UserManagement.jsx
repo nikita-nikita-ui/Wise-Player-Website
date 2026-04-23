@@ -7,6 +7,12 @@ import {
   createUser,
 } from "../auth/userManagement";
 import { formatDate } from "../auth/utilfunction";
+import { useAuth } from "../context/AuthContext";
+import {
+  createSubResellerUser,
+  subResellerUserInfo,
+  disableSubResellerUser,
+} from "../auth/subReseller/userManagement";
 
 function UserManagement() {
   const maroonMain = "#800000";
@@ -20,13 +26,22 @@ function UserManagement() {
   const [activeUser, setActiveUser] = useState(null);
   const [confirmModal, setConfirmModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState(null);
+  const { userRole } = useAuth();
+  const [copiedId, setCopiedId] = useState(null);
 
   // ✅ pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
+
   const fetchDashboard = async () => {
-    const res = await subscibedUserinfo();
+    let res;
+
+    if (userRole === "SUB_RESELLER") {
+      res = await subResellerUserInfo();
+    } else {
+      res = await subscibedUserinfo();
+    }
 
     if (res.success) {
       const data = res.data?.content || [];
@@ -36,7 +51,9 @@ function UserManagement() {
       );
 
       setDevices(sortedData);
+
       setTotalUser(data.length);
+
       setActiveUser(
         data.filter((u) => u.deviceStatus === "ACTIVE").length
       );
@@ -62,60 +79,76 @@ function UserManagement() {
 
     const deviceId = selectedDevice.deviceId;
 
-    await DisableUserAccount(deviceId);
+    let response;
 
-    setDevices((prev) => {
-      const updated = prev.map((item) =>
-        item.deviceId === deviceId
-          ? {
-            ...item,
-            deviceStatus:
-              item.deviceStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
-          }
-          : item
-      );
+    if (userRole === "SUB_RESELLER") {
+      response = await disableSubResellerUser(deviceId);
+    } else {
+      response = await DisableUserAccount(deviceId);
+    }
 
-      const activeCount = updated.filter(
-        (u) => u.deviceStatus === "ACTIVE"
-      ).length;
+    if (response?.success) {
+      setDevices((prev) => {
+        const updated = prev.map((item) =>
+          item.deviceId === deviceId
+            ? {
+              ...item,
+              deviceStatus:
+                item.deviceStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+            }
+            : item
+        );
 
-      setActiveUser(activeCount);
+        setActiveUser(
+          updated.filter((u) => u.deviceStatus === "ACTIVE").length
+        );
 
-      return updated.sort(
-        (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
-      );
-    });
+        return updated;
+      });
+    }
 
     setConfirmModal(false);
     setSelectedDevice(null);
   };
 
-
-
   const handleAddUser = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const response = await createUser(newUser.deviceId);
+    const payload = {
+      deviceId: newUser.deviceId,
+      deviceModel: "Generic Smart Device",
+      osVersion: "1.0.0",
+      platform: "UNKNOWN",
+    };
 
-      if (response?.success) {
-        setShowModal(false);
-        fetchDashboard();
-        setNewUser({ deviceId: "" });
-        setError("");
-      } else {
-        setError(response?.message);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+    let response;
+
+    if (userRole === "SUB_RESELLER") {
+      response = await createSubResellerUser(payload);
+    } else {
+      response = await createUser(newUser.deviceId);
     }
+
+    if (response?.success) {
+      setShowModal(false);
+      fetchDashboard();
+      setNewUser({ deviceId: "" });
+      setError("");
+    } else {
+      setError(response?.message);
+    }
+
+    setLoading(false);
   };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
+    setCopiedId(text);
+
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 1500); // disappears after 1.5 sec
   };
 
   // ✅ pagination logic
@@ -186,12 +219,32 @@ function UserManagement() {
                       <td className="px-3 py-3 text-gray-600">
                         <div className="d-flex justify-content-center align-items-center gap-2">
                           <span>{item.deviceId.slice(0, 8)}...</span>
-                          <button
-                            onClick={() => copyToClipboard(item.deviceId)}
-                            className="text-blue-500 text-xs border px-2 py-1 rounded"
-                          >
-                            Copy
-                          </button>
+                          <div style={{ position: "relative" }}>
+                            <button
+                              onClick={() => copyToClipboard(item.deviceId)}
+                              className="text-blue-500 text-xs border px-2 py-1 rounded"
+                            >
+                              Copy
+                            </button>
+
+                            {copiedId === item.deviceId && (
+                              <span
+                                style={{
+                                  position: "absolute",
+                                  top: "-25px",
+                                  left: "50%",
+                                  transform: "translateX(-50%)",
+                                  background: "#000",
+                                  color: "#fff",
+                                  fontSize: "10px",
+                                  padding: "3px 6px",
+                                  borderRadius: "4px",
+                                }}
+                              >
+                                Copied!
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
 
