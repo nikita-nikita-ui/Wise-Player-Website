@@ -51,7 +51,7 @@ const Register = () => {
     const formData = { fullName, username, password };
     const result = await registerReseller(formData);
     if (result.success) {
-      navigate('/registersuccess');
+      navigate('/register-success');
     } else {
       setError(result.message);
     }

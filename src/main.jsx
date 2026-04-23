@@ -34,11 +34,11 @@ i18n.on("languageChanged", (lng) => {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <DashboardProvider>
-      <AuthProvider>
+    <AuthProvider>            {/* ✅ MUST be first */}
+      <DashboardProvider>     {/* ✅ depends on Auth */}
         <App />
-      </AuthProvider>
-    </DashboardProvider>
+      </DashboardProvider>
+    </AuthProvider>
   </React.StrictMode>
 )
 

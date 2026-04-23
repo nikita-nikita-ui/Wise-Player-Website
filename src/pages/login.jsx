@@ -13,7 +13,7 @@ const LoginPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { refetchDashboard } = useDashboard();
-    const { setUser } = useAuth();
+    const { setUserRole } = useAuth();
 
     const [view, setView] = useState('login');
     const [loading, setLoading] = useState(false);
@@ -38,9 +38,15 @@ const LoginPage = () => {
 
         if (result.success) {
             showToast('Success! Redirecting to dashboard...', 'success');
+            // ✅ store full user (VERY IMPORTANT)
+            localStorage.setItem("user", JSON.stringify(result.data));
+            // ✅ set role correctly
+            setUserRole(result?.data?.role);
+            // ✅ optional (your existing)
             localStorage.setItem('userName', username);
-            setUser(result?.data?.role);
-            refetchDashboard();
+            // ✅ wait for dashboard fetch
+            await refetchDashboard();
+            // ✅ then navigate
             navigate('/dashboard');
         } else {
             showToast(result.message || 'Invalid credentials. Please try again.', 'error');

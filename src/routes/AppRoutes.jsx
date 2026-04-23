@@ -15,6 +15,7 @@ import SubReseller from "../pages/Subreseller";
 import PurchaseCredit from "../pages/PurchaseCredit";
 import TransitionHistory from "../pages/TransactionHistory";
 import PaymentStatus from "../pages/PaymentStatus";
+import RegisterSuccess from "../pages/ragistersuccess";
 
 const AppRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/register-success" element={<RegisterSuccess />} />
 
         {/* ✅ ADMIN ONLY */}
         <Route path="/dashboard" element={<Dashboard />} />
