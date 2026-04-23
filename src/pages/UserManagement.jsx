@@ -18,6 +18,8 @@ function UserManagement() {
   const [loading, setLoading] = useState(false);
   const [totalUser, setTotalUser] = useState("");
   const [activeUser, setActiveUser] = useState(null);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
 
   // ✅ pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,44 +57,39 @@ function UserManagement() {
     }
   }, [devices, currentPage]);
 
-  const handleDisable = async (deviceId) => {
-  const targetUser = devices.find((d) => d.deviceId === deviceId);
+  const handleDisable = async () => {
+    if (!selectedDevice) return;
 
-  const isCurrentlyActive = targetUser?.deviceStatus === "ACTIVE";
+    const deviceId = selectedDevice.deviceId;
 
-  const confirmAction = window.confirm(
-    `Are you sure you want to ${
-      isCurrentlyActive ? "disable" : "activate"
-    } this user?`
-  );
+    await DisableUserAccount(deviceId);
 
-  if (!confirmAction) return;
-
-  await DisableUserAccount(deviceId);
-
-  setDevices((prev) => {
-    const updated = prev.map((item) =>
-      item.deviceId === deviceId
-        ? {
+    setDevices((prev) => {
+      const updated = prev.map((item) =>
+        item.deviceId === deviceId
+          ? {
             ...item,
             deviceStatus:
               item.deviceStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
           }
-        : item
-    );
+          : item
+      );
 
-    // keep your existing logic
-    const activeCount = updated.filter(
-      (u) => u.deviceStatus === "ACTIVE"
-    ).length;
+      const activeCount = updated.filter(
+        (u) => u.deviceStatus === "ACTIVE"
+      ).length;
 
-    setActiveUser(activeCount);
+      setActiveUser(activeCount);
 
-    return updated.sort(
-      (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
-    );
-  });
-};
+      return updated.sort(
+        (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
+      );
+    });
+
+    setConfirmModal(false);
+    setSelectedDevice(null);
+  };
+
 
 
   const handleAddUser = async (e) => {
@@ -135,7 +132,7 @@ function UserManagement() {
   return (
     <div style={{ minHeight: "100vh", width: "100%" }}>
       <div style={mainContentStyle}>
-        
+
         {/* HEADER */}
         <header style={headerStyle}>
           <div>
@@ -185,7 +182,7 @@ function UserManagement() {
                 {currentDevices.length > 0 ? (
                   currentDevices.map((item) => (
                     <tr key={item.deviceId} className="border-t text-center">
-                      
+
                       <td className="px-3 py-3 text-gray-600">
                         <div className="d-flex justify-content-center align-items-center gap-2">
                           <span>{item.deviceId.slice(0, 8)}...</span>
@@ -200,11 +197,10 @@ function UserManagement() {
 
                       <td className="px-3 py-3">
                         <span
-                          className={`px-2 py-1 text-xs rounded-full fw-semibold ${
-                            item.deviceStatus === "ACTIVE"
-                              ? "bg-success-subtle text-success"
-                              : "bg-danger-subtle text-danger"
-                          }`}
+                          className={`px-2 py-1 text-xs rounded-full fw-semibold ${item.deviceStatus === "ACTIVE"
+                            ? "bg-success-subtle text-success"
+                            : "bg-danger-subtle text-danger"
+                            }`}
                         >
                           {item.deviceStatus}
                         </span>
@@ -222,7 +218,10 @@ function UserManagement() {
 
                       <td className="px-2 py-3">
                         <button
-                          onClick={() => handleDisable(item.deviceId)}
+                          onClick={() => {
+                            setSelectedDevice(item);
+                            setConfirmModal(true);
+                          }}
                           style={
                             item.deviceStatus === "INACTIVE"
                               ? disableBtn
@@ -249,7 +248,7 @@ function UserManagement() {
           {/* ✅ UPDATED PAGINATION */}
           {totalPages > 1 && (
             <div className="d-flex justify-content-center align-items-center gap-3 p-3 flex-wrap">
-              
+
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
@@ -307,6 +306,59 @@ function UserManagement() {
                   {loading ? "Processing..." : "Create"}
                 </button>
               </form>
+            </motion.div>
+          </div>
+        )}
+        {confirmModal && (
+          <div style={modalOverlay}>
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              style={modalContainer}
+            >
+              <div style={{ textAlign: "center" }}>
+                <h5 style={{ marginBottom: "10px" }}>
+                  Confirm Action
+                </h5>
+
+                <p style={{ marginBottom: "20px" }}>
+                  Are you sure you want to{" "}
+                  <strong>
+                    {selectedDevice?.deviceStatus === "ACTIVE"
+                      ? "disable"
+                      : "activate"}
+                  </strong>{" "}
+                  this user?
+                </p>
+
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      border: "1px solid #ccc",
+                      background: "#f5f5f5",
+                    }}
+                    onClick={() => setConfirmModal(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      background: "#800000",
+                      color: "#fff",
+                      border: "none",
+                    }}
+                    onClick={handleDisable}
+                  >
+                    Yes, Confirm
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
