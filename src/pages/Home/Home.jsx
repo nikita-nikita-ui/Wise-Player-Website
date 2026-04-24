@@ -68,21 +68,21 @@ const WisePlayerHome = () => {
     const [plans, setPlans] = useState([]);
 
     useEffect(() => {
-
         const loadPlans = async () => {
             try {
                 const data = await fetchPublicPlans();
-                setPlans(data);
+                setPlans(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error("ERROR:", err);
+                setPlans([]);
             }
         };
 
         loadPlans();
     }, []);
 
-    const annualPlan = plans.find(p => p.name === 'ANNUAL');
-    const lifetimePlan = plans.find(p => p.name === 'LIFETIME');
+    const annualPlan = Array.isArray(plans) ? plans.find(p => p.name === 'ANNUAL') : null;
+    const lifetimePlan = Array.isArray(plans) ? plans.find(p => p.name === 'LIFETIME') : null;
     const planRef = useRef('ANNUAL');
     const navigate = useNavigate();
     const handleSubmit = async () => {
@@ -177,37 +177,37 @@ const WisePlayerHome = () => {
                 </Container>
             </section>
 
-            <section class="disclaimer-area py-4">
-                <div class="container">
-                    <div class="row align-items-center">
-                        <div class="col-12 mb-3 animate-up">
+            <section className="disclaimer-area py-4">
+                <div className="container">
+                    <div className="row align-items-center">
+                        <div className="col-12 mb-3 animate-up">
                             <h2 className="disclaimer-heading">{t('disclaimerHeading')}</h2> {/* **BADLAV 1** */}
                         </div>
 
-                        <div class="col-lg-5 mb-4 animate-left">
-                            <div class="info-box">
-                                <p class="text-muted">
+                        <div className="col-lg-5 mb-4 animate-left">
+                            <div className="info-box">
+                                <p className="text-muted">
                                     {t('disclaimerText1')} {/* **BADLAV 2** */}
                                 </p>
                             </div>
                         </div>
 
-                        <div class="col-lg-7 animate-right">
-                            <ul class="clean-list">
-                                <li class="list-point">
-                                    <span class="arrow">➤</span>
+                        <div className="col-lg-7 animate-right">
+                            <ul className="clean-list">
+                                <li className="list-point">
+                                    <span className="arrow">➤</span>
                                     {t('disclaimerPoint1')} {/* **BADLAV 3** */}
                                 </li>
-                                <li class="list-point">
-                                    <span class="arrow">➤</span>
+                                <li className="list-point">
+                                    <span className="arrow">➤</span>
                                     {t('disclaimerPoint2')} {/* **BADLAV 4** */}
                                 </li>
-                                <li class="list-point">
-                                    <span class="arrow">➤</span>
+                                <li className="list-point">
+                                    <span className="arrow">➤</span>
                                     {t('disclaimerPoint3')} {/* **BADLAV 5** */}
                                 </li>
-                                <li class="list-point">
-                                    <span class="arrow">➤</span>
+                                <li className="list-point">
+                                    <span className="arrow">➤</span>
                                     {t('disclaimerPoint4')} {/* **BADLAV 6** */}
                                 </li>
                             </ul>
