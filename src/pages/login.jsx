@@ -207,8 +207,8 @@ const LoginPage = () => {
                 </div>
 
                 {/* FOOTER */}
-                <div className="footer-sec d-flex align-items-center justify-content-center gap-2 pb-3">
-                    <Shield size={14} className="text-success" />
+                <div className="footer-sec d-flex align-items-center justify-content-center gap-1 pb-3">
+                    <Shield size={16} className="text-success" />
                     <span className="small fw-semibold footer-text">
                         Authorized Access Only
                     </span>
