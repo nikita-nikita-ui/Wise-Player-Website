@@ -149,10 +149,11 @@ export const checkoutPayment = async ({ deviceId, planName }) => {
 export const fetchPublicPlans = async () => {
   try {
     const response = await api.get('/api/payment/public/plans');
-    return response.data; // API ka data return karega
+
+    return response.data?.data || []; // 👈 IMPORTANT FIX
   } catch (error) {
     console.error("Error fetching plans:", error);
-    throw error;
+    return [];
   }
 };
 

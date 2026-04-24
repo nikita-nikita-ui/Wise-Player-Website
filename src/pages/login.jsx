@@ -1,64 +1,49 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, InputGroup, Alert, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, InputGroup, Spinner } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, User, Lock, ArrowRight, ShieldCheck, ArrowLeft, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Flame, User, Lock, ArrowRight, Shield, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { loginReseller } from '../auth/apiservice';
-import { useDashboard } from '../context/dashboardContext'
+import { useDashboard } from '../context/dashboardContext';
 import { useTranslation } from "react-i18next";
 import { useAuth } from '../context/AuthContext';
+
 const LoginPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { refetchDashboard } = useDashboard();
+    const { setUserRole } = useAuth();
+
     const [view, setView] = useState('login');
     const [loading, setLoading] = useState(false);
     const [toast, setToast] = useState(null);
-    const { refetchDashboard } = useDashboard();
-    const showToast = (msg, type = "info") => {
-        setToast({ msg, type });
-        setTimeout(() => setToast(null), 3000);
-    };
-    const {setUser } = useAuth()
-    const [message, setMessage] = useState({ type: '', text: '' });
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
+    const showToast = (msg, type = "info") => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3000);
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        // const usernameRegex = /^[a-zA-Z0-9._]+$/;
-        // if (!usernameRegex.test(username)) {
-        //     setLoading(false);
-        //     setMessage({
-        //         type: 'danger',
-        //         text: 'Username can only contain letters, numbers, underscores, and dots.'
-        //     });
-        //     return;
-        // }
-
-        // 2. Real API Call (Mock logic को हटाकर)
         const result = await loginReseller({ username, password });
-
-        setLoading(false); // API response के बाद loading बंद
+        setLoading(false);
 
         if (result.success) {
-            showToast('Success! Redirecting to dashboard...', 'success');
+            showToast('Success! Redirecting...', 'success');
+            localStorage.setItem("user", JSON.stringify(result.data));
+            setUserRole(result?.data?.role);
             localStorage.setItem('userName', username);
-           
-
-                navigate('/dashboard');
-                refetchDashboard();
-                 setUser(result?.data?.role)
-      
-           
-
-        console.log('result : ', result)
+            await refetchDashboard();
+            navigate('/dashboard');
         } else {
-            showToast(result.message || 'Invalid credentials. Please try again.', 'error');
+            showToast(result.message || 'Invalid credentials', 'error');
         }
     };
 
@@ -67,204 +52,253 @@ const LoginPage = () => {
         setLoading(true);
         setTimeout(() => {
             setLoading(false);
-            showToast('Reset link has been sent to your registered account.', 'success');
+            showToast('Reset link sent!', 'success');
         }, 1500);
     };
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            display: 'flex',
-            alignItems: 'center',
-            fontFamily: "'Inter', sans-serif",
-            color: '#000',
-            overflow: 'hidden',
-            background: 'linear-gradient(135deg, #ffffff 0%, #fff5f5 50%, #f0f7ff 100%)',
-        }}>
+        <div className="auth-wrapper">
 
-            {/* Background Decorative Elements (Retained) */}
-            <div className="position-absolute w-100 h-100" style={{ zIndex: 0, pointerEvents: 'none' }}>
-                <div style={{
-                    position: 'absolute', top: '-10%', right: '-5%', width: '500px', height: '500px',
-                    background: 'radial-gradient(circle, rgba(220,53,69,0.03) 0%, rgba(255,255,255,0) 70%)',
-                }}></div>
-                <div style={{
-                    position: 'absolute', bottom: '-5%', left: '-5%', width: '400px', height: '400px',
-                    background: 'radial-gradient(circle, rgba(0,0,0,0.02) 0%, rgba(255,255,255,0) 70%)',
-                }}></div>
-            </div>
+            <Container className="h-100 d-flex flex-column justify-content-between">
 
-            <Container style={{ zIndex: 1 }}>
-                <Row className="justify-content-center">
-                    <Col md={7} lg={5}>
-                        <motion.div
-                            initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="text-center mb-5"
-                        >
+                <div className="flex-grow-1 d-flex align-items-center">
+                    <Row className="justify-content-center w-100">
+                        <Col xs={11} sm={8} md={6} lg={4}>
+
+                            {/* LOGO */}
                             <motion.div
-                                whileHover={{ scale: 1.05 }} className="d-inline-block p-3 mb-3"
-                                style={{ background: '#000', borderRadius: '22px', boxShadow: '0 15px 35px rgba(0,0,0,0.15)' }}
+                                initial={{ y: -20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="text-center mb-4"
                             >
-                                <Flame size={35} color="#dc3545" fill="#dc3545" />
+                                <div className="logo-box">
+                                    <Flame size={28} color="#ff5a5f" />
+                                </div>
+
+                                <h2 className="fw-bold mt-3">
+                                    WISE <span className="brand">PLAYER</span>
+                                </h2>
+
+                                <div className="badge bg-dark mt-2 small">
+                                    {t('reseller_portal')}
+                                </div>
                             </motion.div>
-                            <h1 className="fw-black m-0 mt-2" style={{ letterSpacing: '-2px', fontWeight: 900, fontSize: '2.2rem' }}>
-                                WISE <span style={{ color: '#dc3545' }}>PLAYER</span>
-                            </h1>
-                            <div className="badge bg-dark px-3 py-2 mt-2" style={{ fontSize: '10px', borderRadius: '100px', letterSpacing: '1px' }}>
-                                {t('reseller_portal')}
-                            </div>
-                        </motion.div>
 
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.4 }}
-                            whileHover={{ boxShadow: '0 40px 80px rgba(0,0,0,0.15)', borderColor: '#000' }}
-                            style={{
-                                background: '#fff', padding: '45px 40px', borderRadius: '32px',
-                                boxShadow: '0 30px 60px rgba(220,53,69,0.15)', border: '1px solid #f0f0f0',
-                                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                            }}
-                        >
-                            <AnimatePresence mode="wait">
-                                {view === 'login' ? (
-                                    <motion.div key="login" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                                        <div className="mb-4">
-                                            <h3 className="fw-bold mb-1">{t('sign_in_title')}</h3>
-                                            <p className="text-muted small">{t('sign_in_subtitle')}</p>
-                                        </div>
+                            {/* CARD */}
+                            <motion.div className="auth-card">
 
-                                        {/* {message.text && (
-                                            <Alert variant={message.type} className="py-2 small border-0 mb-4" style={{ borderRadius: '12px' }}>
-                                                {message.text}
-                                            </Alert>
-                                        )} */}
+                                <AnimatePresence mode="wait">
 
-                                        <Form onSubmit={handleLogin}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label className="small fw-bold text-dark ms-1">Username</Form.Label>
-                                                <InputGroup className="custom-input">
-                                                    <InputGroup.Text className="bg-transparent border-end-0">
-                                                        <User size={18} className="text-muted" />
-                                                    </InputGroup.Text>
-                                                    <Form.Control
-                                                        type="text"
-                                                        placeholder="Username"
-                                                        required
-                                                        className="border-start-0 ps-0 shadow-none"
-                                                        value={username}
-                                                        onChange={(e) => setUsername(e.target.value)}
-                                                    />
-                                                </InputGroup>
-                                            </Form.Group>
+                                    {view === 'login' ? (
+                                        <motion.div key="login">
 
-                                            <Form.Group className="mb-3">
-                                                <Form.Label className="small fw-bold text-dark ms-1">{t('password')}</Form.Label>
-                                                <InputGroup className="custom-input">
-                                                    <InputGroup.Text className="bg-transparent border-end-0">
-                                                        <Lock size={18} className="text-muted" />
-                                                    </InputGroup.Text>
-                                                    <Form.Control
-                                                        type={showPassword ? "text" : "password"} // Type change hoga
-                                                        placeholder="••••••••"
-                                                        required
-                                                        className="border-start-0 border-end-0 ps-0 shadow-none"
-                                                        value={password}
-                                                        onChange={(e) => setPassword(e.target.value)}
-                                                    />
-                                                    {/* Toggle Button Icon */}
-                                                    <InputGroup.Text
-                                                        className="bg-transparent border-start-0"
-                                                        style={{ cursor: 'pointer' }}
-                                                        onClick={() => setShowPassword(!showPassword)}
+                                            <h5 className="fw-bold mb-1">{t('sign_in_title')}</h5>
+
+                                            {/* ✅ FIX 1: ADDED SPACE BELOW SUBTITLE */}
+                                            <p className="text-muted small mb-4">
+                                                {t('sign_in_subtitle')}
+                                            </p>
+
+                                            <Form onSubmit={handleLogin}>
+
+                                                <Form.Group className="mb-3">
+                                                    <InputGroup>
+                                                        <InputGroup.Text><User size={15} /></InputGroup.Text>
+                                                        <Form.Control
+                                                            value={username}
+                                                            onChange={(e) => setUsername(e.target.value)}
+                                                            required
+                                                        />
+                                                    </InputGroup>
+                                                </Form.Group>
+
+                                                <Form.Group className="mb-3">
+                                                    <InputGroup>
+                                                        <InputGroup.Text><Lock size={15} /></InputGroup.Text>
+                                                        <Form.Control
+                                                            type={showPassword ? "text" : "password"}
+                                                            value={password}
+                                                            onChange={(e) => setPassword(e.target.value)}
+                                                            required
+                                                        />
+
+                                                        {/* ✅ FIX 2: CLEAN EYE ICON ALIGNMENT */}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowPassword(!showPassword)}
+                                                            className="eye-btn"
+                                                        >
+                                                            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                        </button>
+
+                                                    </InputGroup>
+                                                </Form.Group>
+
+                                                <div className="text-end mb-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setView('forgot')}
+                                                        className="auth-link border-0 bg-transparent"
                                                     >
-                                                        {showPassword ? <Eye size={18} className="text-muted" /> : <EyeOff size={18} className="text-muted" />}
-                                                    </InputGroup.Text>
-                                                </InputGroup>
-                                            </Form.Group>
+                                                        {t('forgot_password')}
+                                                    </button>
+                                                </div>
 
-                                            <div className="text-end mb-4">
-                                                <button type="button" onClick={() => { setView('forgot'); }} className="btn btn-link p-0 small text-decoration-none text-dark hover-red">
-                                                    {t('forgot_password')}
-                                                </button>
-                                            </div>
-
-                                            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
-                                                <Button type="submit" disabled={loading} className="w-100 py-3 border-0 d-flex align-items-center justify-content-center shadow-lg premium-btn">
-                                                    {loading ? <Spinner animation="border" size="sm" /> : (
-                                                        <><span className="me-2">{t('btn_sign_in')}</span><ArrowRight size={18} /></>
+                                                <Button type="submit" disabled={loading} className="w-100 premium-btn">
+                                                    {loading ? (
+                                                        <Spinner size="sm" />
+                                                    ) : (
+                                                        <span className="d-flex align-items-center justify-content-center gap-2">
+                                                            Sign In <ArrowRight size={16} />
+                                                        </span>
                                                     )}
                                                 </Button>
-                                            </motion.div>
-                                        </Form>
-                                    </motion.div>
-                                ) : (
-                                    <motion.div key="forgot" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                                        <button onClick={() => { setView('login'); }} className="btn btn-link p-0 mb-4 text-dark text-decoration-none small d-flex align-items-center fw-bold">
-                                            <ArrowLeft size={16} className="me-2" /> {t('back_to_signin')}
-                                        </button>
-                                        <div className="mb-4">
-                                            <div className="p-3 bg-light d-inline-block rounded-circle mb-3"><KeyRound size={24} className="text-dark" /></div>
-                                            <h3 className="fw-bold mb-1">Recover Password</h3>
-                                            <p className="text-muted small">{t('recover_title')} aur {t('recover_subtitle')}</p>
-                                        </div>
-                                        <Form onSubmit={handleForgot}>
-                                            <Form.Group className="mb-4">
-                                                <Form.Label className="...">{t('username')}</Form.Label>                                                 <InputGroup className="custom-input">
-                                                    <InputGroup.Text className="bg-transparent border-end-0"><User size={18} className="text-muted" /></InputGroup.Text>
-                                                    <Form.Control
-                                                        type="text"
-                                                        placeholder={t('username')}
-                                                        required
-                                                        value={username}
-                                                        onChange={(e) => setUsername(e.target.value)}
-                                                    />                                                </InputGroup>
-                                            </Form.Group>
-                                            <Button type="submit" disabled={loading} className="w-100 py-3 bg-dark border-0 fw-bold" style={{ borderRadius: '14px' }}>
-                                                {loading ? <Spinner animation="border" size="sm" /> : t('btn_send_recovery')}
-                                            </Button>
-                                        </Form>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
+                                            </Form>
 
-                        <motion.div style={{ color: '#ffffff' }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center mt-5">
-                            <div className="d-flex align-items-center justify-content-center text-muted gap-2" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
-                                <ShieldCheck size={14} className="text-success" />
-                                <span style={{ color: '#fff' }} className="text-uppercase fw-bold">{t('authorized_only')}</span>
-                            </div>
-                            {/* <p className="mt-4 text-muted" style={{ color: '#fff' ,fontSize: '10px', opacity: 0.6 }}>
-                                &copy; {new Date().getFullYear()} WISE PLAYER GLOBAL LTD. <br />
-                               
-                            </p> */}
-                        </motion.div>
+                                            <div className="text-center mt-3 small">
+                                                Don’t have an account?{" "}
+                                                <span className="auth-link" onClick={() => navigate('/register')}>
+                                                    Register
+                                                </span>
+                                            </div>
 
-                    </Col>
-                </Row>
+                                        </motion.div>
+                                    ) : (
+
+                                        <motion.div key="forgot">
+
+                                            <button
+                                                onClick={() => setView('login')}
+                                                className="auth-link d-flex align-items-center mb-3"
+                                            >
+                                                <ArrowLeft size={14} className="me-1" />
+                                                {t('back_to_signin')}
+                                            </button>
+
+                                            <h5>Recover Password</h5>
+                                            <p className="text-muted small">{t('recover_subtitle')}</p>
+
+                                            <Form onSubmit={handleForgot}>
+                                                <Form.Group className="mb-3">
+                                                    <InputGroup>
+                                                        <InputGroup.Text><User size={15} /></InputGroup.Text>
+                                                        <Form.Control
+                                                            value={username}
+                                                            onChange={(e) => setUsername(e.target.value)}
+                                                            required
+                                                        />
+                                                    </InputGroup>
+                                                </Form.Group>
+
+                                                <Button type="submit" disabled={loading} className="w-100 premium-btn">
+                                                    {loading ? <Spinner size="sm" /> : t('btn_send_recovery')}
+                                                </Button>
+                                            </Form>
+
+                                        </motion.div>
+                                    )}
+
+                                </AnimatePresence>
+
+                            </motion.div>
+
+                        </Col>
+                    </Row>
+                </div>
+
+                {/* FOOTER */}
+                <div className="footer-sec d-flex align-items-center justify-content-center gap-1 pb-3">
+                    <Shield size={16} className="text-success" />
+                    <span className="small fw-semibold footer-text">
+                        Authorized Access Only
+                    </span>
+                </div>
+
             </Container>
 
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-                .custom-input .input-group-text,
-                .custom-input .form-control { border-radius: 0 !important; font-size: 15px; }
-.custom-input .input-group-text:last-child { border-radius: 0 14px 14px 0 !important; }.custom-input .input-group-text { border-radius: 14px 0 0 14px !important; }
-                .custom-input .form-control:focus { border-color: #000 !important; background-color: #fff !important; }
-                .premium-btn { background: #000 !important; border-radius: 14px !important; font-weight: 800 !important; font-size: 14px !important; letter-spacing: 1px !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; }
-                .premium-btn:hover { background: #c5a0a0 !important; transform: translateY(-3px) scale(1.01); box-shadow: 0 15px 30px rgba(167, 97, 207, 0.2), 0 0 10px rgba(100, 200, 214, 0.3) !important; color: #fff !important; }
-                .hover-red:hover { color: #dc3545 !important; }
-                .bg-dark { background-color: #000 !important; }
-            `}</style>
             {toast && (
-                <div style={{
-                    position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
-                    background: toast.type === 'error' ? '#dc3545' : '#198754',
-                    color: '#fff', padding: '12px 28px', borderRadius: '12px',
-                    fontWeight: '700', fontSize: '0.9rem', zIndex: 99999,
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)', whiteSpace: 'nowrap'
-                }}>
+                <div className={`toast-custom ${toast.type}`}>
                     {toast.msg}
                 </div>
             )}
+
+            {/* FIXED STYLES ONLY */}
+            <style>{`
+                .auth-wrapper {
+                    height: 100vh;
+                    background: linear-gradient(135deg, #f8fafc, #fff1f2, #eef6ff);
+                }
+
+                .logo-box {
+                    display: inline-block;
+                    padding: 12px;
+                    border-radius: 14px;
+                    background: #111;
+                }
+
+                .brand { color: #ff5a5f; }
+
+                .auth-card {
+                    background: #fff;
+                    padding: 24px;
+                    border-radius: 18px;
+                    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+                }
+
+                .premium-btn {
+                    background: #000;
+                    border: none;
+                    padding: 11px;
+                    font-weight: 600;
+                    border-radius: 10px;
+                }
+
+                /* ✅ FIXED EYE ICON */
+                .eye-btn {
+                    border: none;
+                    background: #f3f4f6;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0 12px;
+                    cursor: pointer;
+                    border-left: 1px solid #e5e7eb;
+                }
+
+                .eye-btn:hover {
+                    background: #e5e7eb;
+                }
+
+                .auth-link {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #555;
+                    cursor: pointer;
+                }
+
+                .auth-link:hover {
+                    color: #000;
+                    text-decoration: underline;
+                }
+
+                .footer-sec {
+                    padding-bottom: 12px;
+                }
+
+                .toast-custom {
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    padding: 10px 18px;
+                    border-radius: 10px;
+                    color: #fff;
+                }
+
+                .toast-custom.success { background: #16a34a; }
+                .toast-custom.error { background: #dc2626; }
+            `}</style>
+
         </div>
     );
 };

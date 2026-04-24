@@ -78,11 +78,13 @@ const WisePlayerHome = () => {
             }
         };
 
-        loadPlans();
+         loadPlans();
     }, []);
 
-    const annualPlan = plans.find(p => p.name === 'ANNUAL');
-    const lifetimePlan = plans.find(p => p.name === 'LIFETIME');
+    const safePlans = Array.isArray(plans) ? plans : [];
+
+const annualPlan = safePlans.find(p => p.name === 'ANNUAL');
+const lifetimePlan = safePlans.find(p => p.name === 'LIFETIME');
     const planRef = useRef('ANNUAL');
     const navigate = useNavigate();
     const handleSubmit = async () => {

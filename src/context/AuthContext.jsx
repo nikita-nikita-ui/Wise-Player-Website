@@ -1,23 +1,32 @@
-// context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [userRole, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser?.role);
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      if (storedUser?.role) {
+        setUserRole(storedUser.role);
+      }
+    } catch (err) {
+      console.error("Invalid user in localStorage");
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ userRole, setUser }}>
+    <AuthContext.Provider value={{ userRole, setUserRole }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+  return context;
+};
