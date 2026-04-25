@@ -72,6 +72,7 @@ const WisePlayerHome = () => {
         const loadPlans = async () => {
             try {
                 const data = await fetchPublicPlans();
+                console.log(data);
                 setPlans(data);
             } catch (err) {
                 console.error("ERROR:", err);

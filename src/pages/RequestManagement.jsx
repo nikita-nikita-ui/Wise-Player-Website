@@ -62,7 +62,7 @@ function RequestManagement() {
     fetchRequests();
     fetchPlans();
     setCurrentPage(1);
-  }, [userRole], [filter]);
+  }, [userRole,filter]);
 
   // COPY
   const copyToClipboard = (text, id, field) => {
