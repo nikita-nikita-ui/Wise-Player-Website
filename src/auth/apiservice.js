@@ -120,24 +120,51 @@ export const saveM3uPlaylist = async (macAddress, playlistData) => {
   }
 };
 
-export const checkoutPayment = async ({ deviceId, planName }) => {
+// export const checkoutPayment = async ({ deviceId, planName }) => {
+//   try {
+//     const token = localStorage.getItem("token");
+
+//     const response = await api.post(
+//       '/api/payment/public/checkout',
+//       { deviceId: deviceId, planName: planName },
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`
+//         }
+//       }
+//     );
+
+//     return {
+//       success: true,
+//       data: response.data
+//     };
+//   } catch (error) {
+//     return {
+//       success: false,
+//       message: error.response?.data?.message || 'Payment checkout failed'
+//     };
+//   }
+// };
+
+
+export const checkoutPayment = async ({ deviceId, planName, successUrl, cancelUrl }) => { // <--- Ye parameters add karein
   try {
     const token = localStorage.getItem("token");
 
     const response = await api.post(
       '/api/payment/public/checkout',
-      { deviceId: deviceId, planName: planName },
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        deviceId: deviceId,
+        planName: planName,
+        successUrl: successUrl,
+        cancelUrl: cancelUrl
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` }
       }
     );
 
-    return {
-      success: true,
-      data: response.data
-    };
+    return { success: true, data: response.data };
   } catch (error) {
     return {
       success: false,
@@ -145,15 +172,13 @@ export const checkoutPayment = async ({ deviceId, planName }) => {
     };
   }
 };
-
 export const fetchPublicPlans = async () => {
   try {
     const response = await api.get('/api/payment/public/plans');
-
-    return response.data?.data || []; // 👈 IMPORTANT FIX
+    return response.data; // API ka data return karega
   } catch (error) {
     console.error("Error fetching plans:", error);
-    return [];
+    throw error;
   }
 };
 
@@ -180,5 +205,18 @@ export const submitSupportTicket = async (ticketData) => {
       success: false,
       message: error.response?.data?.message || 'Failed to submit ticket'
     };
+  }
+};
+
+
+export const downloadInvoicePdf = async (deviceId, invoiceNo) => {
+  try {
+    const response = await api.get(`/api/payment/public/invoice/${invoiceNo}/pdf`, {
+      params: { deviceId, invoiceNo },
+      responseType: 'blob',
+    });
+    return { success: true, data: response.data };
+  } catch (error) {
+    return { success: false, message: 'Download failed' };
   }
 };
