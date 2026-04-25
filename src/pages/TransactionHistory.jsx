@@ -1,20 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { TransitionHistoryData } from "../auth/transitionHistory";
+import { useAuth } from "../context/AuthContext";
+import { subResellerTransactionHistory } from "../auth/subReseller/transitionHistory";
 
 function TransitionHistory() {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const fetchData = async (pageNo = 0) => {
-    try {
-      const res = await TransitionHistoryData(pageNo);
-      setData(res.data.content || []);
-      setTotalPages(res.data.totalPages || 0);
-    } catch (err) {
-      console.error(err);
+const { userRole } = useAuth();
+
+const fetchData = async (pageNo = 0) => {
+  try {
+    let res;
+
+    if (userRole === "SUB_RESELLER") {
+      res = await subResellerTransactionHistory(pageNo);
+    } else {
+      res = await TransitionHistoryData(pageNo);
     }
-  };
+
+    if (!res?.success) return;
+
+    setData(res.data.content || []);
+    setTotalPages(res.data.totalPages || 0);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   useEffect(() => {
     fetchData(page);
