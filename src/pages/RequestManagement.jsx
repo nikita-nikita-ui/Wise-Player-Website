@@ -4,6 +4,7 @@ import { IoCopyOutline } from "react-icons/io5";
 import { Plus } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { formatDate } from "../auth/utilfunction";
+import { useDashboard } from "../context/dashboardContext";
 
 import {
   getActivationRequests,
@@ -21,7 +22,7 @@ function RequestManagement() {
   const [showModal, setShowModal] = useState(false);
   const [apiError, setApiError] = useState("");
 
-
+  const { refetchDashboard } = useDashboard();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -76,29 +77,32 @@ function RequestManagement() {
   };
 
   // SUBMIT
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setApiError("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setApiError("");
 
-    const payload = {
-      deviceId: newRequest.deviceId,
-      planName: newRequest.planName,
-      amount: 5,
-      currency: "CREDITS",
-    };
-
-    const res = await createActivationRequest(userRole, payload);
-
-    if (!res.success) {
-      setApiError(res.message);
-      return;
-    }
-
-    setShowModal(false);
-    setNewRequest({ deviceId: "", planName: "" });
-    fetchRequests();
+  const payload = {
+    deviceId: newRequest.deviceId,
+    planName: newRequest.planName,
+    amount: 5,
+    currency: "CREDITS",
   };
 
+  const res = await createActivationRequest(userRole, payload);
+
+  if (!res.success) {
+    setApiError(res.message);
+    return;
+  }
+
+  setShowModal(false);
+  setNewRequest({ deviceId: "", planName: "" });
+
+  await fetchRequests();
+
+  // 🔥 THIS IS THE FIX
+  await refetchDashboard();
+};
   // FILTER
   const filteredRequests =
     filter === "All"

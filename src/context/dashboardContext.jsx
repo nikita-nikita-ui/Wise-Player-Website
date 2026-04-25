@@ -30,7 +30,8 @@ export const DashboardProvider = ({ children }) => {
       }
 
       if (res?.success) {
-        setDashboard({
+        setDashboard((prev) => ({
+          ...prev,
           stats: {
             activeSub: res.data.activeSubscriptions,
             credits: res.data.credits,
@@ -38,8 +39,8 @@ export const DashboardProvider = ({ children }) => {
             totalUsers: res.data.totalUsers,
             creditCoin: res.data.credits,
           },
-          devices: res.data.recentUsers || [],
-        });
+          devices: [...(res.data.recentUsers || [])],
+        }));
       } else {
         console.error(res?.message);
       }
