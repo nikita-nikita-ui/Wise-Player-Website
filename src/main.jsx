@@ -13,6 +13,7 @@ import translationEN from './locales/en.json';
 import translationFR from './locales/fr.json';
 
 import { AuthProvider } from '../src/context/AuthContext.jsx'
+import {RefreshProvider} from '../src/context/RefreshContext.jsx'
 
 i18n
   .use(initReactI18next)
@@ -35,9 +36,11 @@ i18n.on("languageChanged", (lng) => {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>            {/* ✅ MUST be first */}
+      <RefreshProvider>
       <DashboardProvider>     {/* ✅ depends on Auth */}
         <App />
       </DashboardProvider>
+      </RefreshProvider>
     </AuthProvider>
   </React.StrictMode>
 )

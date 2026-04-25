@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TransitionHistoryData } from "../auth/transitionHistory";
 import { useAuth } from "../context/AuthContext";
 import { subResellerTransactionHistory } from "../auth/subReseller/transitionHistory";
+import { useRefresh } from "../context/RefreshContext";
 
 function TransitionHistory() {
   const [data, setData] = useState([]);
@@ -9,6 +10,7 @@ function TransitionHistory() {
   const [totalPages, setTotalPages] = useState(0);
 
 const { userRole } = useAuth();
+const { refreshTransactions } = useRefresh();
 
 const fetchData = async (pageNo = 0) => {
   try {
@@ -30,8 +32,8 @@ const fetchData = async (pageNo = 0) => {
 };
 
   useEffect(() => {
-    fetchData(page);
-  }, [page]);
+  fetchData(page);
+}, [page, refreshTransactions]);
 
   // ✅ REAL FIX (no fake 1)
   const itemsPerPage = 10;

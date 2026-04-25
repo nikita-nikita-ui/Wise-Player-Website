@@ -1,24 +1,37 @@
 import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { purchaseCredit } from "../auth/creditManagement";
+import { useAuth } from "../context/AuthContext";
+import { purchaseSubResellerCredit } from "../auth/subReseller/creditManagement";
+import { useNavigate } from "react-router-dom";
+import { useRefresh } from "../context/RefreshContext";
+
 
 const Coincalculator = () => {
+  const { triggerTransactionRefresh } = useRefresh();
+  const navigate = useNavigate();
   const [coins, setCoins] = useState("");
   const [price, setPrice] = useState(0);
   const params = new URLSearchParams(location.search);
-
   const token = params.get("token");
   const payerId = params.get("PayerID");
-  useEffect(() => {
-    if (token & payerId) {
-      console.log("Token:", token);
-      console.log("PayerID:", payerId);
 
+  useEffect(() => {
+    if (token && payerId) {
+      console.log("Payment Success Triggered");
+
+      // 🔥 1. trigger refresh
+      triggerTransactionRefresh();
+
+      // 🔥 2. OPTIONAL but recommended: clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // 🔥 3. redirect
       setTimeout(() => {
         navigate("/dashboard");
-      }, 2000);
+      }, 1500);
     }
-  }, []);
+  }, [token, payerId, triggerTransactionRefresh, navigate])
 
   console.log("Token:", token);
   console.log("PayerID:", payerId);
@@ -34,7 +47,7 @@ const Coincalculator = () => {
   ];
 
   const calculatePrice = (value) => {
-    const coinValue = Number(value);
+    const coinValue = Number(value)|| 0;
     setCoins(value);
 
     const tier = tiers.find((t) => coinValue >= t.min && coinValue <= t.max);
@@ -46,19 +59,28 @@ const Coincalculator = () => {
     }
   };
 
-  const fetchdata = async (coins) => {
-    if (coins < 10) {
-      alert("Coins should be atleast 10");
-      return;
-    }
-    const res = await purchaseCredit(coins);
-    console.log("res :",res?.data);
-    if (res?.data?.checkoutUrl) {
-      // window.location.href = res.checkoutUrl;
-      // window.open(res?.data?.checkoutUrl, "_blank");
-      window.location.href = res?.data?.checkoutUrl;
-    }
-  };
+ const { userRole } = useAuth();
+
+const fetchdata = async (coins) => {
+  if (coins < 10) {
+    alert("Coins should be atleast 10");
+    return;
+  }
+
+  let res;
+
+  if (userRole === "SUB_RESELLER") {
+    res = await purchaseSubResellerCredit(coins);
+  } else {
+    res = await purchaseCredit(coins);
+  }
+
+  console.log("res :", res?.data);
+
+  if (res?.data?.checkoutUrl) {
+    window.location.href = res?.data?.checkoutUrl;
+  }
+};
 
   return (
     <div className=" p-6 flex flex-col items-center">
@@ -80,7 +102,7 @@ const Coincalculator = () => {
           </p>
 
           <button
-            onClick={() => fetchdata(coins)}
+            onClick={() => fetchdata(Number(coins))}
             disabled={Number(coins) < 10}
             className={`px-4 py-2 rounded-lg w-full md:w-auto transition-all duration-200
     ${
