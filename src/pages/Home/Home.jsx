@@ -111,9 +111,6 @@ const WisePlayerHome = () => {
         <div style={{ backgroundColor: '#f4f4f7', color: '#1a1a1a', overflowX: 'hidden', minHeight: '100vh' }}>
 
 
-            <PaymentRedirectHandler />
-
-
             {/* --- HERO SECTION --- */}
             <section className="hero-section">
                 <Container>
