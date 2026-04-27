@@ -1,408 +1,369 @@
 import React, { useEffect, useState } from "react";
-import {
-  UserPlus,
-  Eye,
-  Send,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Search,
-  Filter,
-} from "lucide-react";
+import { UserPlus, Pencil } from "lucide-react";
 import { motion } from "framer-motion";
 import { MdClose } from "react-icons/md";
-import { createReseller, getAllResellerInfo } from "../auth/reSeller";
+import {
+  createReseller,
+  getAllResellerInfo,
+  updateSubReseller,
+} from "../auth/reSeller";
 import { formatDate } from "../auth/utilfunction";
+import TransferModal from "../component/TransferModal";
+import { useTranslation } from "react-i18next";
+import { useDashboard } from "../context/dashboardContext";
 
 const SubresellerDashboard = () => {
+  const { t } = useTranslation();
+  const { dashboard, refetchDashboard } = useDashboard();
+
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+
   const [openModel, setOpenModel] = useState(false);
-  console.log("open Model : ", openModel);
+  const [transferModal, setTransferModal] = useState(false);
+
+  // EDIT STATE
+  const [editModal, setEditModal] = useState(false);
+  const [editUserId, setEditUserId] = useState(null);
+  const [editData, setEditData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+  });
+
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     fullName: "",
   });
-  const [error, setError] = useState("");
-  const [users, setUsers] = useState([]);
-  const [dashboardData, setDashboardData] = useState({
-    totalUser: "",
-    pendingRequest: "",
-    activeuser: "",
-    Rejected: "",
-  });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 8;
+
+  const maroonMain = "#800000";
+
+  // FETCH
+  const fetchdata = async () => {
+    try {
+      const res = await getAllResellerInfo();
+      const usersData = res?.data?.content ?? [];
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      setCurrentPage(1);
+    } catch (err) {
+      console.error(err);
+      setUsers([]);
+    }
   };
 
+  useEffect(() => {
+    fetchdata();
+  }, []);
+
+  // CREATE
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const res = await createReseller(formData);
 
     if (res.success) {
-      console.log("✅ Reseller Created:", res.data);
       setOpenModel(false);
-      setFormData({
-        username: "",
-        password: "",
-        fullName: "",
-      });
-      fetchdata()
+      setFormData({ username: "", password: "", fullName: "" });
+      await fetchdata();
+      await refetchDashboard();
     } else {
-      console.error("❌ Error:", res.message);
       setError(res.message);
     }
   };
 
-   const fetchdata = async () => {
-      const res = await getAllResellerInfo();
-      console.log(res.data);
-      const usersData = res?.data?.content || [];
-
-      setUsers(usersData);
-      setDashboardData((prev) => ({
-        ...prev,
-        totalUser: usersData?.length || 0,
-        activeuser: usersData.filter((user) => user?.active === true).length,
-      }));
-    };
-
-  useEffect(() => {
-   
-    fetchdata();
-  }, []);
-
-  const maroonMain = "#800000";
-
-  // Mock Data for Users
-  //   const [users, setUsers] = useState([
-  //     {
-  //       id: "USR-001",
-  //       name: "Amit Sharma",
-  //       email: "amit@example.com",
-  //       plan: "Yearly Premium",
-  //       status: "Active",
-  //       requestStatus: "Approved",
-  //     },
-  //     {
-  //       id: "USR-002",
-  //       name: "Suresh Kumar",
-  //       email: "suresh@example.com",
-  //       plan: "Monthly Basic",
-  //       status: "Inactive",
-  //       requestStatus: "Pending",
-  //     },
-  //     {
-  //       id: "USR-003",
-  //       name: "Priya Singh",
-  //       email: "priya@example.com",
-  //       plan: "Quarterly Pro",
-  //       status: "Inactive",
-  //       requestStatus: "Not Submitted",
-  //     },
-  //     {
-  //       id: "USR-004",
-  //       name: "Rahul Verma",
-  //       email: "rahul@example.com",
-  //       plan: "Yearly Premium",
-  //       status: "Active",
-  //       requestStatus: "Approved",
-  //     },
-  //     {
-  //       id: "USR-005",
-  //       name: "Anjali Gupta",
-  //       email: "anjali@example.com",
-  //       plan: "Monthly Basic",
-  //       status: "Inactive",
-  //       requestStatus: "Rejected",
-  //     },
-  //   ]);
-
-  // Status Badge Helper
-  const getStatusBadge = (active) => {
-    return active ? (
-      <span className="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-        Active
-      </span>
-    ) : (
-      <span className="px-3 py-1 text-xs font-semibold text-red-700 bg-red-100 rounded-full">
-        Inactive
-      </span>
-    );
+  // EDIT OPEN
+  const handleEditOpen = (user) => {
+    setEditUserId(user.id);
+    setEditData({
+      fullName: user.fullName || "",
+      email: user.email || "",
+      password: "",
+    });
+    setEditModal(true);
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="container-fluid w-full p-4 bg-light min-vh-100"
+  // UPDATE
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      fullName: editData.fullName,
+      email: editData.email,
+    };
+
+    if (editData.password) payload.password = editData.password;
+
+    const res = await updateSubReseller(editUserId, payload);
+
+    if (res.success) {
+      setEditModal(false);
+      await fetchdata();
+    } else {
+      setError(res.message);
+    }
+  };
+
+  // TRANSFER
+  const handleOpenTransfer = (user) => {
+    setSelectedUser({
+      fullName: user.fullName,
+      credits: dashboard?.stats?.creditCoin ?? 0,
+      id: user.id,
+      subResellerCredits: user.credits,
+    });
+    setTransferModal(true);
+  };
+
+  // PAGINATION
+  const totalPages = Math.ceil(users.length / usersPerPage);
+  const safePage = Math.min(currentPage, totalPages || 1);
+  const indexOfLast = safePage * usersPerPage;
+  const currentUsers = users.slice(indexOfLast - usersPerPage, indexOfLast);
+
+  const getStatusBadge = (active) => (
+    <span
+      className={`px-3 py-1 rounded-pill small fw-semibold ${
+        active
+          ? "bg-success-subtle text-success"
+          : "bg-danger-subtle text-danger"
+      }`}
     >
-      {/* Header Section */}
-      <div className="row mb-4 align-items-center">
-        <div className="col-md-6">
-          <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            Subreseller Panel
-          </h3>
-          <p className="text-muted">
-            Manage your end-users and activation requests
-          </p>
+      {active ? t("active") : t("inactive")}
+    </span>
+  );
+
+  return (
+    <div className="container-fluid p-3 bg-light min-vh-100">
+
+      {/* HEADER */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h4 className="fw-bold" style={{ color: maroonMain }}>
+            {t("subreseller_management")}
+          </h4>
+          <p className="text-muted m-0">{t("manage_subreseller")}</p>
         </div>
-        <div className="col-md-6 text-md-end">
-          {/* POINT 1: CREATE END USERS BUTTON */}
-          <button
-            className="btn shadow-sm px-4 py-2 text-white"
-            style={{ backgroundColor: maroonMain, borderRadius: "10px" }}
-            data-bs-toggle="modal"
-            data-bs-target="#createUserModal"
-            onClick={() => setOpenModel(true)}
-          >
-            <UserPlus size={20} className="me-2" />
-            Create New End-User
-          </button>
-        </div>
+
+        <button
+          className="btn text-white d-flex align-items-center gap-2"
+          style={{ background: maroonMain, borderRadius: "10px" }}
+          onClick={() => setOpenModel(true)}
+        >
+          <UserPlus size={18} />
+          {t("create_subreseller")}
+        </button>
       </div>
 
-      {/* Stats Cards (Quick Tracking) */}
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4">
-            <small className="text-muted fw-bold">TOTAL USERS</small>
-            <h3 className="fw-bold mt-1">{dashboardData?.totalUser}</h3>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-warning border-4">
-            <small className="text-muted fw-bold">PENDING REQUESTS</small>
-            <h3 className="fw-bold mt-1 text-warning">12</h3>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-success border-4">
-            <small className="text-muted fw-bold">ACTIVE USERS</small>
-            <h3 className="fw-bold mt-1 text-success">
-              {dashboardData?.activeuser}
-            </h3>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card border-0 shadow-sm p-3 rounded-4 border-start border-danger border-4">
-            <small className="text-muted fw-bold">REJECTED</small>
-            <h3 className="fw-bold mt-1 text-danger">6</h3>
-          </div>
-        </div>
+      {/* TABLE */}
+      <div className="bg-white shadow-sm rounded-4 p-2">
+        <table className="table table-hover text-center align-middle mb-0">
+
+          <thead className="table-light">
+            <tr>
+              <th className="text-start">{t("user_details")}</th>
+              <th>{t("status")}</th>
+              <th>{t("created")}</th>
+              <th>{t("coin")}</th>
+              <th>{t("action")}</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {currentUsers.map((user) => (
+              <tr key={user.id}>
+                <td className="text-start">
+                  <div className="fw-bold">{user.fullName}</div>
+                  <div className="small text-muted">
+                    Username:{" "}
+                    <span className="text-primary">{user.username}</span>
+                  </div>
+                  <div className="small text-muted">
+                    ID: <span className="text-primary">{user.id}</span>
+                  </div>
+                </td>
+
+                <td>{getStatusBadge(user.active)}</td>
+                <td>{formatDate(user.createdAt)}</td>
+
+                <td className="fw-bold text-dark">
+                  {user.credits ?? 0}
+                </td>
+
+                {/* ✅ FIXED ACTION COLUMN */}
+                <td>
+                  <div className="d-flex justify-content-center align-items-center gap-2">
+
+                    {/* TRANSFER */}
+                    <button
+                      className="btn btn-sm text-white d-inline-flex align-items-center gap-1"
+                      style={{
+                        backgroundColor: maroonMain,
+                        borderRadius: "8px",
+                      }}
+                      onClick={() => handleOpenTransfer(user)}
+                    >
+                      <span>💰</span>
+                      <span>{t("transfer")}</span>
+                    </button>
+                    
+                    {/* EDIT */}
+                    <button
+                      className="btn btn-sm btn-outline-dark d-inline-flex align-items-center gap-1"
+                      style={{ borderRadius: "8px" }}
+                      onClick={() => handleEditOpen(user)}
+                    >
+                      <Pencil size={14} />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Main Content Card */}
-      <div className=" border-0 shadow-sm  rounded-4  w-full">
-        <div className="card-header bg-white border-0 p-4">
-          {/* <div className="d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold m-0">User Directory & Status Tracking</h5>
-            <div className="d-flex gap-2">
-              <div
-                className="input-group input-group-sm"
-                style={{ width: "250px" }}
-              >
-                <span className="input-group-text bg-white border-end-0">
-                  <Search size={16} />
-                </span>
-                <input
-                  type="text"
-                  className="form-control border-start-0"
-                  placeholder="Search users..."
-                />
-              </div>
-              <button className="btn btn-outline-secondary btn-sm">
-                <Filter size={16} />
-              </button>
-            </div>
-          </div> */}
-        </div>
-
-        <div className="card-body p-0">
-          <div className="table-responsive">
-            {/* POINT 2: VIEW CREATED USERS TABLE */}
-            <div className="table-responsive">
-              <table className="table table-hover align-middle mb-0 text-center">
-                <thead className="table-light">
-                  <tr>
-                    <th className="text-start ps-4">User Details</th>
-                    <th>Email</th>
-                    <th>Activation Status</th>
-                    <th>Created At</th>
-                    <th>Last Update</th>
-                    <th>Coin</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {users?.map((user) => (
-                    <tr key={user.id}>
-                      {/* USER DETAILS */}
-                      <td className="text-start ps-4">
-                        <div className="fw-bold">{user.fullName}</div>
-                        <div className="small text-muted">
-                          parentId:{" "}
-                          <span className="text-red-400"> {user.parentId}</span>{" "}
-                          <br />
-                          creatorId:{" "}
-                          <span className="text-blue-400">
-                            {user.creatorId}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* EMAIL */}
-                      <td className="text-secondary fw-semibold">
-                        {user?.email || "No Email Available"}
-                      </td>
-
-                      {/* STATUS */}
-                      <td>{getStatusBadge(user.active)}</td>
-
-                      {/* CREATED */}
-                      <td>{formatDate(user?.createdAt)}</td>
-
-                      {/* UPDATED */}
-                      <td>{formatDate(user?.updatedAt)}</td>
-
-                      {/* COIN */}
-                      <td className="fw-bold text-yellow-400">
-                        {user?.credits ?? 0}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* CREATE USER MODAL (Point 1 implementation) */}
-      <div className="modal fade" id="createUserModal" tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content rounded-4 border-0 shadow">
-            <div className="modal-header border-0 p-4">
-              <h5 className="modal-title fw-bold" style={{ color: maroonMain }}>
-                Add New End-User
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-            </div>
-            <div className="modal-body p-4 pt-0">
-              <form>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold">Full Name</label>
-                  <input
-                    type="text"
-                    className="form-control rounded-3"
-                    placeholder="Enter user's name"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    className="form-control rounded-3"
-                    placeholder="user@example.com"
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold">
-                    Select Plan Type
-                  </label>
-                  <select className="form-select rounded-3">
-                    <option>Monthly Basic</option>
-                    <option>Quarterly Pro</option>
-                    <option>Yearly Premium</option>
-                  </select>
-                </div>
-                <button
-                  type="submit"
-                  className="btn w-100 text-white py-2 fw-bold mt-2"
-                  style={{ backgroundColor: maroonMain, borderRadius: "10px" }}
-                >
-                  Save & Create User
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* CREATE MODAL */}
       {openModel && (
-        <>
-          <div className="fixed inset-0 flex justify-center items-center bg-black/80 backdrop-blur-sm z-50">
-            <motion.form
-              onSubmit={handleSubmit}
-              initial={{ opacity: 0, scale: 0.8, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white/90 backdrop-blur-md px-4 py-4 rounded-2xl shadow-2xl w-[500px]"
-            >
-              <motion.h2 className="text-xl font-bold mb-4  flex justify-between">
-                <span>Create Sub-Reseller</span>
-                <span
-                  className="cursor-pointer hover:text-red-500"
-                  onClick={() => setOpenModel(false)}
-                >
-                  <MdClose />
-                </span>
-              </motion.h2>
-              <div>{error && <div style={{ color: "red" }}>{error}</div>}</div>
+        <div className="fixed inset-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 z-50">
+          <motion.form
+            onSubmit={handleSubmit}
+            className="bg-white p-4 rounded-4 shadow"
+            style={{ width: "400px" }}
+          >
+            <div className="d-flex justify-content-between mb-3">
+              <h5>{t("create_subreseller")}</h5>
+              <MdClose onClick={() => setOpenModel(false)} />
+            </div>
 
-              {/* Username */}
-              <motion.input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Username"
-                className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
-              />
+            {error && <div className="text-danger">{error}</div>}
 
-              {/* Password */}
-              <motion.input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Password"
-                className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
-              />
+            <input
+              className="form-control my-2"
+              placeholder={t("username")}
+              value={formData.username}
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
+            />
 
-              {/* Full Name */}
-              <motion.input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Full Name"
-                className="w-full p-2 mb-3 border rounded-lg outline-none focus:outline-none focus:ring-0 hover:border-transparent"
-              />
+            <input
+              className="form-control my-2"
+              type="password"
+              placeholder={t("password")}
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+            />
 
-              {/* Submit Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="submit"
-                className="w-full bg-blue-500 text-white p-2 rounded-lg"
-              >
-                Submit
-              </motion.button>
-            </motion.form>
-          </div>
-        </>
+            <input
+              className="form-control my-2"
+              placeholder={t("full_name")}
+              value={formData.fullName}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
+              }
+            />
+
+            <button className="btn btn-primary w-100 mt-2">
+              {t("submit")}
+            </button>
+          </motion.form>
+        </div>
       )}
-    </motion.div>
+
+      {/* EDIT MODAL */}
+      {editModal && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{ background: "rgba(0,0,0,0.7)", zIndex: 99999 }}>
+          <motion.form
+            onSubmit={handleUpdate}
+            className="bg-white p-4 rounded-4 shadow"
+            style={{ width: "400px" }}
+          >
+            <div className="d-flex justify-content-between mb-3">
+              <h5>Update</h5>
+              <MdClose onClick={() => setEditModal(false)} />
+            </div>
+
+            <input
+              className="form-control my-2"
+              value={editData.fullName}
+              onChange={(e) =>
+                setEditData({ ...editData, fullName: e.target.value })
+              }
+            />
+
+            <input
+              className="form-control my-2"
+              value={editData.email}
+              onChange={(e) =>
+                setEditData({ ...editData, email: e.target.value })
+              }
+            />
+
+            <input
+              className="form-control my-2"
+              type="password"
+              placeholder="Optional password"
+              value={editData.password}
+              onChange={(e) =>
+                setEditData({ ...editData, password: e.target.value })
+              }
+            />
+
+            <button className="btn btn-primary w-100 mt-2">
+              Update
+            </button>
+          </motion.form>
+        </div>
+      )}
+
+      {/* ✅ CONSISTENT PAGINATION (UserManagement style) */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center align-items-center gap-3 p-3 flex-wrap">
+
+          <button
+            disabled={safePage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Prev
+          </button>
+
+          <span style={{ fontWeight: "500" }}>
+            Page {safePage} of {totalPages}
+          </span>
+
+          <button
+            disabled={safePage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="btn btn-sm btn-outline-dark"
+          >
+            Next
+          </button>
+
+        </div>
+      )}
+
+      {/* TRANSFER */}
+      <TransferModal
+        open={transferModal}
+        onClose={() => setTransferModal(false)}
+        selectedUser={selectedUser}
+        availableCredits={selectedUser?.credits}
+        refreshData={async () => {
+          await fetchdata();
+          await refetchDashboard();
+        }}
+      />
+    </div>
   );
 };
 

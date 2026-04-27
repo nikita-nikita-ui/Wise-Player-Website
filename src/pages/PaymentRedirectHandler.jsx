@@ -1,68 +1,85 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { downloadInvoicePdf } from "../auth/apiservice";
 const PaymentRedirectHandler = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [countdown, setCountdown] = useState(5);
   const [show, setShow] = useState(false);
-useEffect(() => {
-  const params = new URLSearchParams(location.search);
-  const status = params.get("paymentStatus");
+  const [params, setParams] = useState(new URLSearchParams(location.search));
 
-  if (status === "success") {
-    setShow(true);
-    setCountdown(5);
+  useEffect(() => {
+    const currentParams = new URLSearchParams(location.search);
+    const status = currentParams.get("paymentStatus");
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev === 1) {
-          clearInterval(timer);
+    if (status === "success") {
+      setParams(currentParams);
+      setShow(true);
+    }
+    // Note: We don't hide it automatically if status is missing to allow URL cleaning 
+    // from other components like PurchaseCredit.jsx
+  }, [location]);
 
-          setShow(false); // ✅ CLOSE POPUP
-          navigate("/dashboard", { replace: true });
-
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  } else {
-    // ✅ If no success param → ensure popup hidden
-    setShow(false);
-  }
-}, [location]);
-
-  // If no payment success → render nothing
   if (!show) return null;
 
+  const invoiceNo = params.get("invoiceNo");
+  const deviceId = params.get("deviceId");
+  const isCreditPurchase = location.pathname.includes("purchase-credit");
+
   return (
-    <>
-   {
-    show && (
-        <>
-         <div style={styles.overlay}>
+    <div style={styles.overlay}>
       <div style={styles.card}>
         <div style={styles.icon}>✅</div>
-        <h2 style={styles.title}>Payment Successful</h2>
+        <h3 style={styles.title}>Success!</h3>
         <p style={styles.text}>
-          Redirecting to dashboard in <b>{countdown}</b> seconds...
+          {isCreditPurchase 
+            ? "Credits have been added to your account successfully." 
+            : "Payment Successful!"}
         </p>
+        
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          
+          {invoiceNo && (
+            <button
+              style={styles.button}
+              onClick={async () => {
+                const res = await downloadInvoicePdf(deviceId, invoiceNo);
+                if (res.success) {
+                  const url = window.URL.createObjectURL(new Blob([res.data]));
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.setAttribute("download", `invoice_${invoiceNo}.pdf`);
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                } else {
+                  alert("Download failed. Please try from dashboard.");
+                }
+              }}
+            >
+              Download Invoice
+            </button>
+          )}
 
-        <button
-          style={styles.button}
-          onClick={() => navigate("/dashboard", { replace: true })}
-        >
-          Go Now
-        </button>
+          <button
+            style={{ ...styles.button, background: "#374151" }}
+            onClick={() => {
+              setShow(false);
+              navigate("/dashboard");
+            }}
+          >
+            Go to Dashboard
+          </button>
+
+          <button
+            style={{ ...styles.button, background: "#999", padding: "8px" }}
+            onClick={() => setShow(false)}
+          >
+            Close
+          </button>
+
+        </div>
       </div>
     </div>
-        </>
-    )
-   }
-   </>
   );
 };
 
@@ -74,36 +91,47 @@ const styles = {
     left: 0,
     width: "100%",
     height: "100%",
-    background: "rgba(0,0,0,0.7)",
+    background: "rgba(0,0,0,0.8)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    zIndex: 9999,
+    zIndex: 10000,
+    backdropFilter: "blur(4px)",
   },
   card: {
     background: "#fff",
-    padding: "30px",
-    borderRadius: "12px",
+    padding: "40px",
+    borderRadius: "20px",
     textAlign: "center",
-    width: "320px",
+    width: "350px",
+    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
   },
   icon: {
-    fontSize: "40px",
-    marginBottom: "10px",
+    fontSize: "50px",
+    marginBottom: "15px",
   },
   title: {
+    fontSize: "24px",
+    fontWeight: "bold",
     marginBottom: "10px",
+    color: "#111827",
   },
   text: {
-    marginBottom: "20px",
+    fontSize: "16px",
+    color: "#4b5563",
+    marginBottom: "25px",
+    lineHeight: "1.5",
   },
   button: {
-    padding: "10px 20px",
-    background: "#4CAF50",
+    padding: "12px 20px",
+    background: "#059669",
     color: "#fff",
     border: "none",
-    borderRadius: "6px",
+    borderRadius: "10px",
     cursor: "pointer",
+    fontWeight: "600",
+    fontSize: "14px",
+    transition: "background 0.2s",
   },
 };
 

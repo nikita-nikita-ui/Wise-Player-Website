@@ -176,7 +176,6 @@ const Navbar = () => {
   .desktop-hide { display: block !important; }
 }
       `}</style>
-
             <header className="nav-glass" style={{
                 position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000,
                 height: isScrolled ? '75px' : '90px',
@@ -206,6 +205,7 @@ const Navbar = () => {
                                 {link.name}
                             </Link>
                         ))}
+                        
                     </nav>
 
                     {/* RIGHT ACTIONS */}
