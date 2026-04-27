@@ -219,9 +219,12 @@ const Sidebar = ({
                 onClick={() => setShowLogoutPopup(false)}
                 className="btn w-50"
                 style={{
-                  background: "#eef2f7",
+                  background: "#f1f5f9",
+                  color: "#475569",
                   borderRadius: "10px",
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  border: "1px solid #e2e8f0",
                 }}
               >
                 {t("cancel")}
@@ -236,7 +239,9 @@ const Sidebar = ({
                 style={{
                   background: "#dc3545",
                   borderRadius: "10px",
-                  fontWeight: "500",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  boxShadow: "0 4px 12px rgba(220, 53, 69, 0.2)",
                 }}
               >
                 {t("logout")}

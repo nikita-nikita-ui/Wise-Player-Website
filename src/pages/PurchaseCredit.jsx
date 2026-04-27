@@ -132,8 +132,8 @@ const Coincalculator = () => {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <a
-                    href="https://wa.me/212755015558"
+                    <a
+                    href="https://wa.me/212676076001"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-3 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-green-600/20 active:scale-95"
@@ -311,7 +311,7 @@ export default function PurchaseCredit() {
                       <div className="flex items-center justify-end gap-3">
                         {tier.range === "1000+" && (
                           <a
-                            href="https://wa.me/212755015558"
+                            href="https://wa.me/212676076001"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="bg-green-100 text-green-600 p-2 rounded-lg hover:bg-green-600 hover:text-white transition-all shadow-sm"

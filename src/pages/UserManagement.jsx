@@ -113,6 +113,14 @@ function UserManagement() {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
+    
+    // ✅ MAC address validation
+    const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$|^([0-9A-Fa-f]{12})$/;
+    if (!macRegex.test(newUser.deviceId)) {
+      setError("Please enter a valid MAC address (e.g., AA:BB:CC:DD:EE:FF or AABBCCDDEEFF)");
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
@@ -352,7 +360,7 @@ function UserManagement() {
                   onChange={(e) =>
                     setNewUser({ deviceId: e.target.value })
                   }
-                  placeholder="Enter Device ID"
+                  placeholder="MAC Address (AA:BB:CC:DD:EE:FF)"
                 />
 
                 <button style={submitBtn} disabled={loading}>

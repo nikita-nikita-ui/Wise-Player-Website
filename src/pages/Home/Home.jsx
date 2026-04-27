@@ -91,6 +91,12 @@ const WisePlayerHome = () => {
             showToast("Enter MAC Address", "warning"); return;
         }
 
+        const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$|^([0-9A-Fa-f]{12})$/;
+        if (!macRegex.test(mac)) {
+            showToast("Invalid MAC Format (AA:BB:CC:DD:EE:FF)", "warning");
+            return;
+        }
+
         try {
             const res = await validateDevice(mac);
 
@@ -425,9 +431,9 @@ const WisePlayerHome = () => {
                                 <div className="pb-2 border-bottom border-light">
                                     <div className="d-flex justify-content-between align-items-center mb-1">
                                         <span className="text-muted fw-bold" style={{ fontSize: '0.65rem', letterSpacing: '1px' }}>{t('reseller')}</span> {/* **CHANGE HERE (from 'OFFICIAL RESELLER')** */}
-                                        <a href="https://wa.me/212755015558" target="_blank" rel="noreferrer"
+                                        <a href="https://wa.me/212676076001" target="_blank" rel="noreferrer"
                                             className="text-decoration-none text-dark fw-bold small d-flex align-items-center contact-link">
-                                            <Phone size={14} className="me-2 text-success" /> +212 755-015558
+                                            <Phone size={14} className="me-2 text-success" /> +212 676-076001
                                         </a>
                                     </div>
                                 </div>
