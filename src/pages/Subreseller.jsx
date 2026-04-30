@@ -126,9 +126,9 @@ const SubresellerDashboard = () => {
 
   const getStatusBadge = (active) => (
     <span
-      className={`px-3 py-1 rounded-pill small fw-semibold ${active
-          ? "bg-success-subtle text-success"
-          : "bg-danger-subtle text-danger"
+      className={`px-2 py-1 text-xs rounded-full font-semibold ${active
+          ? "bg-green-100 text-green-700"
+          : "bg-red-100 text-red-600"
         }`}
     >
       {active ? t("active") : t("inactive")}
@@ -136,43 +136,35 @@ const SubresellerDashboard = () => {
   );
 
   return (
-    <div className="container-fluid p-3 bg-light min-vh-100">
+    <div className="min-h-screen w-full bg-[#f4f4f7] p-4">
 
       {/* HEADER */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h4 className="fw-bold mb-1" style={{ color: maroonMain }}>
-      {t("subreseller_management")}
-    </h4>
-    <p className="text-muted m-0 small">
-      {t("manage_subreseller")}
-    </p>
-  </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 
-  <div className="d-flex align-items-center">
-    <button
-      className="btn text-white d-flex align-items-center justify-content-center gap-2"
-      style={{
-        background: maroonMain,
-        borderRadius: "8px",
-        height: "40px",
-        padding: "0 14px",
-        fontSize: "14px",
-        lineHeight: "1",
-      }}
-      onClick={() => setOpenModel(true)}
-    >
-      <UserPlus size={14} />
-      {t("create_subreseller")}
-    </button>
-  </div>
-</div>
+        <div>
+          <h3 className="font-bold" style={{ color: maroonMain }}>
+            {t("subreseller_management")}
+          </h3>
+          <p className="text-gray-500 text-sm">
+            {t("manage_subreseller")}
+          </p>
+        </div>
+
+        <button
+          onClick={() => setOpenModel(true)}
+          className="bg-[#800000] text-white px-4 py-2 rounded-[10px] flex items-center gap-2 hover:bg-[#660000] transition"
+        >
+          <UserPlus size={16} />
+          {t("create_subreseller")}
+        </button>
+
+      </div>
 
       {/* TABLE */}
-      <div className="bg-white shadow-sm rounded-4 p-2">
+      <div className="hidden md:block bg-white rounded-xl shadow border p-2 overflow-x-auto">
         <table className="table table-hover text-center align-middle mb-0">
 
-          <thead className="table-light">
+          <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
             <tr>
               <th className="text-start">{t("user_details")}</th>
               <th>{t("status")}</th>
@@ -184,64 +176,45 @@ const SubresellerDashboard = () => {
 
           <tbody>
             {currentUsers.map((user) => (
-              <tr key={user.id}>
-                <td className="text-start">
-                  <div className="fw-bold">{user.fullName}</div>
-                  <div className="small text-muted">
+              <tr className="border-t hover:bg-gray-50 transition" key={user.id}>
+                <td className="px-4 py-3 text-left">
+                  <div className="font-semibold">{user.fullName}</div>
+                  <div className="text-xs text-gray-500">
                     {t("username_label")}:{" "}
-                    <span className="text-primary">{user.username}</span>
+                    <span className="text-blue-600">{user.username}</span>
                   </div>
-                  <div className="small text-muted">      
-{t("id_label")}: <span className="text-primary">{user.id}</span>
+                  <div className="text-xs text-gray-500">
+                    {t("id_label")}: <span className="text-blue-600">{user.id}</span>
                   </div>
                 </td>
 
                 <td>{getStatusBadge(user.active)}</td>
                 <td>{formatDate(user.createdAt)}</td>
 
-                <td className="fw-bold text-dark">
+                <td className="font-semibold text-gray-800">
                   {user.credits ?? 0}
                 </td>
 
                 {/* ✅ FIXED ACTION COLUMN */}
                 <td>
-  <div className="d-flex justify-content-center align-items-center gap-2">
+                  <div className="flex justify-center gap-2">
 
-    {/* TRANSFER */}
-    <button
-      className="btn text-white d-flex align-items-center justify-content-center gap-1"
-      style={{
-        backgroundColor: maroonMain,
-        borderRadius: "6px",
-        height: "35px",
-        padding: "0 10px",
-        fontSize: "13px",
-        minWidth: "80px",
-      }}
-      onClick={() => handleOpenTransfer(user)}
-    >
-      <span style={{ fontSize: "12px" }}>💰</span>
-      {t("transfer")}
-    </button>
+                    <button
+                      onClick={() => handleOpenTransfer(user)}
+                      className="px-3 py-1.5 rounded-md bg-[#800000] text-white hover:bg-[#660000] text-xs"
+                    >
+                      💰 {t("transfer")}
+                    </button>
 
-    {/* EDIT */}
-    <button
-      className="btn btn-outline-dark d-flex align-items-center justify-content-center gap-1"
-      style={{
-        borderRadius: "6px",
-        height: "35px",
-        padding: "0 10px",
-        fontSize: "13px",
-        minWidth: "70px",
-      }}
-      onClick={() => handleEditOpen(user)}
-    >
-      <Pencil size={12} />
-      {t("edit")}
-    </button>
+                    <button
+                      onClick={() => handleEditOpen(user)}
+                      className="px-3 py-1.5 rounded-md border border-gray-300 hover:bg-gray-100 text-xs"
+                    >
+                      <Pencil size={12} />
+                    </button>
 
-  </div>
-</td>
+                  </div>
+                </td>
 
               </tr>
             ))}
@@ -249,15 +222,76 @@ const SubresellerDashboard = () => {
         </table>
       </div>
 
+      {/* mobile view */}
+
+      <div className="block md:hidden space-y-4 p-2">
+        {currentUsers.map((user) => (
+          <div key={user.id} className="p-4 bg-white rounded-xl shadow space-y-3">
+
+            {/* TOP ROW */}
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-sm break-words">
+                {user.fullName}
+              </span>
+
+              {getStatusBadge(user.active)}
+            </div>
+
+            {/* DETAILS */}
+            <div className="text-sm text-gray-600 space-y-1">
+
+              <p>
+                <span className="font-medium">ID:</span>{" "}
+                <span className="text-gray-800 break-all">{user.id}</span>
+              </p>
+
+              <p>
+                <span className="font-medium">{t("username_label")}:</span>{" "}
+                {user.username}
+              </p>
+
+              <p>
+                <span className="font-medium">{t("created")}:</span>{" "}
+                {formatDate(user.createdAt)}
+              </p>
+
+              <p>
+                <span className="font-medium">{t("coin")}:</span>{" "}
+                {user.credits ?? 0}
+              </p>
+
+            </div>
+
+            {/* ACTIONS */}
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => handleOpenTransfer(user)}
+                className="flex-1 py-2 rounded-md bg-[#800000] text-white text-sm"
+              >
+                {t("transfer")}
+              </button>
+
+              <button
+                onClick={() => handleEditOpen(user)}
+                className="flex-1 py-2 rounded-md border text-sm"
+              >
+                {t("edit")}
+              </button>
+            </div>
+
+          </div>
+        ))}
+      </div>
+
       {/* CREATE MODAL */}
       {openModel && (
-        <div className="fixed inset-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 z-50">
+<div className="fixed inset-0 flex justify-center items-center bg-black/70 z-50">
           <motion.form
             onSubmit={handleSubmit}
-            className="bg-white p-4 rounded-4 shadow"
+            className="bg-white p-4 rounded-xl shadow"
             style={{ width: "400px" }}
           >
-            <div className="d-flex justify-content-between mb-3">
+            <div className="flex justify-content-between mb-3">
               <h5>{t("create_subreseller")}</h5>
               <MdClose onClick={() => setOpenModel(false)} />
             </div>
@@ -301,14 +335,14 @@ const SubresellerDashboard = () => {
 
       {/* EDIT MODAL */}
       {editModal && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+        <div className="position-fixed top-0 start-0 w-100 h-100 flex justify-content-center align-items-center"
           style={{ background: "rgba(0,0,0,0.7)", zIndex: 99999 }}>
           <motion.form
             onSubmit={handleUpdate}
-            className="bg-white p-4 rounded-4 shadow"
+            className="bg-white p-4 rounded-xl shadow"
             style={{ width: "400px" }}
           >
-            <div className="d-flex justify-content-between mb-3">
+            <div className="flex justify-content-between mb-3">
               <h5>{t("update")}</h5>
               <MdClose onClick={() => setEditModal(false)} />
             </div>
@@ -348,26 +382,35 @@ const SubresellerDashboard = () => {
 
       {/* ✅ CONSISTENT PAGINATION (UserManagement style) */}
       {totalPages > 1 && (
-        <div className="d-flex justify-content-center align-items-center gap-3 p-3 flex-wrap">
+        <div className="flex justify-center items-center gap-3 p-4 flex-wrap">
 
           <button
             disabled={safePage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
-            className="btn btn-sm btn-outline-dark"
+            className={`px-4 py-1.5 rounded-md border transition 
+  ${safePage === 1
+                ? "opacity-40 cursor-not-allowed"
+                : "hover:bg-gray-200 hover:border-gray-400"
+              }
+`}
           >
-           {t("prev")}
+            Prev
           </button>
 
-          <span style={{ fontWeight: "500" }}>
-           {t("page_of", { current: safePage, total: totalPages })}
+          <span className="font-medium text-sm">
+            Page {safePage} of {totalPages}
           </span>
 
           <button
             disabled={safePage === totalPages}
             onClick={() => setCurrentPage((p) => p + 1)}
-            className="btn btn-sm btn-outline-dark"
+            className={`px-4 py-1.5 rounded-md border transition 
+        ${safePage === totalPages
+                ? "opacity-40 cursor-not-allowed"
+                : "hover:bg-gray-200 hover:border-gray-400"}
+      `}
           >
-           {t("next")}
+            Next
           </button>
 
         </div>
