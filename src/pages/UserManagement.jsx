@@ -82,8 +82,8 @@ function UserManagement() {
   }, [devices, currentPage]);
 
   useEffect(() => {
-  setCurrentPage(1);
-}, [search]);
+    setCurrentPage(1);
+  }, [search]);
 
   const handleDisable = async () => {
     if (!selectedDevice) return;
@@ -127,7 +127,7 @@ function UserManagement() {
 
     // ✅ MAC address validation
     const macRegex =
-/^([0-9A-Fa-f]{2}([:-]?)){5}[0-9A-Fa-f]{2}$|^([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}$/;
+      /^([0-9A-Fa-f]{2}([:-]?)){5}[0-9A-Fa-f]{2}$|^([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}$/;
     if (!macRegex.test(newUser.deviceId)) {
       toast.error("Please enter a valid MAC address (e.g., AA:BB:CC:DD:EE:FF or AABBCCDDEEFF)");
       return;
@@ -185,47 +185,52 @@ function UserManagement() {
       : [];
 
   const totalPages = Math.ceil(filteredDevices.length / itemsPerPage);
+  const truncateId = (id, start = 8, end = 5) => {
+    if (!id) return "";
+    if (id.length <= start + end) return id;
+    return `${id.slice(0, start)}...${id.slice(-end)}`;
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#f4f4f7]">
       <div className="w-full p-4">
 
         {/* HEADER */}
-     <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-  
-  {/* LEFT */}
-  <div>
-    <h3 className="font-bold m-0" style={{ color: maroonMain }}>
-      Device Management
-    </h3>
-    <p className="text-gray-500">Manage members and subscriptions</p>
-  </div>
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
 
-  {/* RIGHT */}
- <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-shrink-0">
-    
-    {/* SEARCH */}
-    <input
-      type="text"
-      placeholder="Search device..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="border px-3 py-2 rounded-md w-full sm:w-[250px] focus:ring-2 focus:ring-[#800000]"
-    />
+          {/* LEFT */}
+          <div>
+            <h3 className="font-bold m-0" style={{ color: maroonMain }}>
+              Device Management
+            </h3>
+            <p className="text-gray-500">Manage members and subscriptions</p>
+          </div>
 
-    {/* BUTTON */}
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => setShowModal(true)}
-      className="bg-[#800000] text-white px-4 py-2 rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#660000] transition"
-    >
-      <UserPlus size={18} />
-      <span>Create New Device</span>
-    </motion.button>
+          {/* RIGHT */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-shrink-0">
 
-  </div>
-</header>
+            {/* SEARCH */}
+            <input
+              type="text"
+              placeholder="Search device..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border px-3 py-2 rounded-md w-full sm:w-[250px] focus:ring-2 focus:ring-[#800000]"
+            />
+
+            {/* BUTTON */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowModal(true)}
+              className="bg-[#800000] text-white px-4 py-2 rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#660000] transition"
+            >
+              <UserPlus size={18} />
+              <span>Create New Device</span>
+            </motion.button>
+
+          </div>
+        </header>
 
         {/* STATS */}
         <div className="flex flex-wrap gap-4 mb-5">
@@ -269,11 +274,18 @@ function UserManagement() {
 
                         <td className="px-3 py-3 text-gray-600">
                           <div className="flex items-center justify-center gap-2 flex-wrap">
-                            <span>{item.deviceId.slice(0, 8)}...</span>
+
+                            <span
+                              className="text-blue-600 cursor-pointer"
+                              title={item.deviceId} // 👈 hover full ID (desktop)
+                            >
+                              {truncateId(item.deviceId)}
+                            </span>
+
                             <div className="relative">
                               <button
                                 onClick={() => copyToClipboard(item.deviceId)}
-                                className="text-xs border px-2 py-1 rounded text-blue-500 hover:bg-blue-50 transition"
+                                className="text-xs border px-2 py-1 rounded text-black-500 hover:bg-blue-50 transition"
                               >
                                 Copy
                               </button>
@@ -284,6 +296,7 @@ function UserManagement() {
                                 </span>
                               )}
                             </div>
+
                           </div>
                         </td>
 
@@ -353,9 +366,31 @@ function UserManagement() {
                 <div key={item.deviceId} className="p-4 bg-white rounded-xl shadow space-y-2">
 
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold text-sm">
-                      {item.deviceId.slice(0, 10)}...
-                    </span>
+                   <div className="flex items-center gap-2 flex-wrap">
+
+  <span
+    className="font-semibold text-sm text-blue-600"
+    title={item.deviceId} // works only desktop but safe
+  >
+    {truncateId(item.deviceId, 6, 4)}
+  </span>
+
+  <div className="relative">
+    <button
+      onClick={() => copyToClipboard(item.deviceId)}
+      className="text-[10px] border px-2 py-0.5 rounded text-black-500 hover:bg-blue-50 transition"
+    >
+      Copy
+    </button>
+
+    {copiedId === item.deviceId && (
+      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
+        Copied!
+      </span>
+    )}
+  </div>
+
+</div>
 
                     <span
                       className={`px-2 py-1 text-xs rounded-full font-semibold
