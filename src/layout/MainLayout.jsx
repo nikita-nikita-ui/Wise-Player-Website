@@ -4,6 +4,7 @@ import Sidebar from "../component/Sidebar";
 import Navbar from "../component/Navbar";
 import { useTranslation } from "react-i18next";
 import { useDashboard } from "../context/dashboardContext";
+import { Menu } from "lucide-react";
 
 const maroonMain = "#800000";
 
@@ -38,7 +39,7 @@ const MainLayout = ({ children }) => {
       {!hideNavbar && !isAdmin && <Navbar />}
 
       {isAdmin ? (
-        <div style={{ display: "flex", minHeight: "100vh" }}>
+        <div className="flex min-h-screen">
           <Sidebar
             collapsed={collapsed}
             setCollapsed={setCollapsed}
@@ -48,20 +49,13 @@ const MainLayout = ({ children }) => {
 
           {/* MAIN CONTENT */}
           <div
-            style={{
-              marginLeft: collapsed ? "90px" : "260px",
-              width: collapsed
-                ? "calc(100% - 90px)"
-                : "calc(100% - 260px)",
-              transition: "0.3s",
-              background: "#f8f9fa",
-              minHeight: "100vh",
-              overflow: "visible", // ✅ IMPORTANT FIX
-            }}
-          >
+  className={`flex-1 min-h-screen bg-[#f8f9fa] transition-all duration-300
+    ${collapsed ? "md:ml-[90px]" : "md:ml-[260px]"}
+  `}
+>
             {/* HEADER */}
-            <div
-              className="bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center"
+
+            <div className="bg-white shadow-sm px-4 py-3 flex justify-between items-center sticky top-0 z-50"
               style={{
                 position: "sticky",
                 top: 0,
@@ -70,13 +64,23 @@ const MainLayout = ({ children }) => {
               }}
             >
               {/* LEFT */}
-              <h6 className="fw-bold m-0" style={{ color: maroonMain }}>
-                {t("reseller_panel")}
-              </h6>
+              <div className="flex items-center gap-3">
+                {/* HAMBURGER (ONLY MOBILE) */}
+                <button
+                  onClick={() => setMobileOpen(true)}
+                  className="md:hidden p-2 rounded bg-gray-100"
+                >
+                  <Menu size={20} />
+                </button>
+
+                <h6 className="font-bold m-0" style={{ color: maroonMain }}>
+                  {t("reseller_panel")}
+                </h6>
+              </div>
 
               {/* RIGHT */}
-              <div className="d-flex align-items-center gap-3">
-                
+              <div className="flex items-center gap-3">
+
                 {/* 🌐 LANGUAGE */}
                 <div style={{ position: "relative", zIndex: 3000 }}>
                   <div

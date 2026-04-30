@@ -54,28 +54,20 @@ const Sidebar = ({
   return (
     <>
       {/* MOBILE BUTTON */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="btn btn-dark d-lg-none"
-        style={{ position: "fixed", top: 15, left: 15, zIndex: 1001 }}
-      >
-        <Menu size={18} />
-      </button>
+      
 
       {/* SIDEBAR */}
       <div
+        className={`fixed top-0 h-full z-[1000] transition-all duration-300 
+    ${mobileOpen ? "left-0" : "-left-full"} 
+    md:left-0`}
         style={{
           width: sidebarWidth,
-          height: "100vh",
-          position: "fixed",
-          top: 0,
-          left: mobileOpen || window.innerWidth >= 992 ? 0 : "-100%",
           backgroundColor: maroonMain,
-          transition: "0.3s",
-          zIndex: 1000,
           fontFamily: "Inter, sans-serif",
         }}
       >
+
         {/* HEADER */}
         <div className="d-flex align-items-center justify-content-between px-3 py-3 text-white">
           {!collapsed && (
@@ -85,20 +77,12 @@ const Sidebar = ({
             </h5>
           )}
 
-          <div
-            className={`d-flex align-items-center gap-2 ${
-              collapsed ? "justify-content-center w-100" : ""
-            }`}
-          >
+          <div className={`flex items-center gap-2 ${collapsed ? "justify-center w-full" : ""}`}>
             <Menu
               onClick={() => setCollapsed(!collapsed)}
               style={{ cursor: "pointer" }}
             />
-            <X
-              className="d-lg-none"
-              onClick={() => setMobileOpen(false)}
-              style={{ cursor: "pointer" }}
-            />
+
           </div>
         </div>
 

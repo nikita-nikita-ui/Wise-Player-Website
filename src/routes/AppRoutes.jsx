@@ -18,6 +18,7 @@ import PaymentStatus from "../pages/PaymentStatus";
 import RegisterSuccess from "../pages/ragistersuccess";
 import WisePlayerActivation from "../pages/Activation/Activation";
 import WisePlayerUploadList from "../pages/UploadList/UploadList";
+import WisePlayerUploadPlayList from "../pages/UploadPlayList";
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
         <Route path="/register-success" element={<RegisterSuccess />} />
         <Route path="/activation" element={<WisePlayerActivation />} />
         <Route path="/upload-list" element={<WisePlayerUploadList />} />
+        <Route path="/upload-playlist" element={<WisePlayerUploadPlayList />} />
 
         {/* ✅ ADMIN ONLY */}
         <Route path="/dashboard" element={<Dashboard />} />

@@ -258,5 +258,17 @@
   "inactive": "Inactive",
   "full_name": "Full Name",
   "submit": "Submit",
-  "are_you_sure_logout": "Are You Sure Logout"
+  "are_you_sure_logout": "Are You Sure Logout",
+  "page_of": "Page {{current}} of {{total}}",
+   "edit": "Edit",
+  "update": "Update",
+  "username_label": "Username",
+  "id_label": "ID",
+    "transfer_credits": "Transfer Credits",
+  "enter_amount": "Enter amount",
+  "user": "User",
+  "available_credits": "Available Credits",
+  "enter_valid_amount": "Enter a valid amount",
+  "not_enough_credits": "Not enough credits",
+  "transfer_failed": "Transfer failed"
 }

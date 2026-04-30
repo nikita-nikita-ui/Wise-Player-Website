@@ -126,11 +126,10 @@ const SubresellerDashboard = () => {
 
   const getStatusBadge = (active) => (
     <span
-      className={`px-3 py-1 rounded-pill small fw-semibold ${
-        active
+      className={`px-3 py-1 rounded-pill small fw-semibold ${active
           ? "bg-success-subtle text-success"
           : "bg-danger-subtle text-danger"
-      }`}
+        }`}
     >
       {active ? t("active") : t("inactive")}
     </span>
@@ -141,22 +140,33 @@ const SubresellerDashboard = () => {
 
       {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h4 className="fw-bold" style={{ color: maroonMain }}>
-            {t("subreseller_management")}
-          </h4>
-          <p className="text-muted m-0">{t("manage_subreseller")}</p>
-        </div>
+  <div>
+    <h4 className="fw-bold mb-1" style={{ color: maroonMain }}>
+      {t("subreseller_management")}
+    </h4>
+    <p className="text-muted m-0 small">
+      {t("manage_subreseller")}
+    </p>
+  </div>
 
-        <button
-          className="btn text-white d-flex align-items-center gap-2"
-          style={{ background: maroonMain, borderRadius: "10px" }}
-          onClick={() => setOpenModel(true)}
-        >
-          <UserPlus size={18} />
-          {t("create_subreseller")}
-        </button>
-      </div>
+  <div className="d-flex align-items-center">
+    <button
+      className="btn text-white d-flex align-items-center justify-content-center gap-2"
+      style={{
+        background: maroonMain,
+        borderRadius: "8px",
+        height: "40px",
+        padding: "0 14px",
+        fontSize: "14px",
+        lineHeight: "1",
+      }}
+      onClick={() => setOpenModel(true)}
+    >
+      <UserPlus size={14} />
+      {t("create_subreseller")}
+    </button>
+  </div>
+</div>
 
       {/* TABLE */}
       <div className="bg-white shadow-sm rounded-4 p-2">
@@ -178,11 +188,11 @@ const SubresellerDashboard = () => {
                 <td className="text-start">
                   <div className="fw-bold">{user.fullName}</div>
                   <div className="small text-muted">
-                    Username:{" "}
+                    {t("username_label")}:{" "}
                     <span className="text-primary">{user.username}</span>
                   </div>
-                  <div className="small text-muted">
-                    ID: <span className="text-primary">{user.id}</span>
+                  <div className="small text-muted">      
+{t("id_label")}: <span className="text-primary">{user.id}</span>
                   </div>
                 </td>
 
@@ -195,32 +205,43 @@ const SubresellerDashboard = () => {
 
                 {/* ✅ FIXED ACTION COLUMN */}
                 <td>
-                  <div className="d-flex justify-content-center align-items-center gap-2">
+  <div className="d-flex justify-content-center align-items-center gap-2">
 
-                    {/* TRANSFER */}
-                    <button
-                      className="btn btn-sm text-white d-inline-flex align-items-center gap-1"
-                      style={{
-                        backgroundColor: maroonMain,
-                        borderRadius: "8px",
-                      }}
-                      onClick={() => handleOpenTransfer(user)}
-                    >
-                      <span>💰</span>
-                      <span>{t("transfer")}</span>
-                    </button>
-                    
-                    {/* EDIT */}
-                    <button
-                      className="btn btn-sm btn-outline-dark d-inline-flex align-items-center gap-1"
-                      style={{ borderRadius: "8px" }}
-                      onClick={() => handleEditOpen(user)}
-                    >
-                      <Pencil size={14} />
-                      <span>Edit</span>
-                    </button>
-                  </div>
-                </td>
+    {/* TRANSFER */}
+    <button
+      className="btn text-white d-flex align-items-center justify-content-center gap-1"
+      style={{
+        backgroundColor: maroonMain,
+        borderRadius: "6px",
+        height: "35px",
+        padding: "0 10px",
+        fontSize: "13px",
+        minWidth: "80px",
+      }}
+      onClick={() => handleOpenTransfer(user)}
+    >
+      <span style={{ fontSize: "12px" }}>💰</span>
+      {t("transfer")}
+    </button>
+
+    {/* EDIT */}
+    <button
+      className="btn btn-outline-dark d-flex align-items-center justify-content-center gap-1"
+      style={{
+        borderRadius: "6px",
+        height: "35px",
+        padding: "0 10px",
+        fontSize: "13px",
+        minWidth: "70px",
+      }}
+      onClick={() => handleEditOpen(user)}
+    >
+      <Pencil size={12} />
+      {t("edit")}
+    </button>
+
+  </div>
+</td>
 
               </tr>
             ))}
@@ -288,7 +309,7 @@ const SubresellerDashboard = () => {
             style={{ width: "400px" }}
           >
             <div className="d-flex justify-content-between mb-3">
-              <h5>Update</h5>
+              <h5>{t("update")}</h5>
               <MdClose onClick={() => setEditModal(false)} />
             </div>
 
@@ -300,18 +321,18 @@ const SubresellerDashboard = () => {
               }
             />
 
-            <input
+            {/* <input
               className="form-control my-2"
               value={editData.email}
               onChange={(e) =>
                 setEditData({ ...editData, email: e.target.value })
               }
-            />
+            /> */}
 
             <input
               className="form-control my-2"
               type="password"
-              placeholder="Optional password"
+              placeholder={t("password")}
               value={editData.password}
               onChange={(e) =>
                 setEditData({ ...editData, password: e.target.value })
@@ -319,7 +340,7 @@ const SubresellerDashboard = () => {
             />
 
             <button className="btn btn-primary w-100 mt-2">
-              Update
+              {t("update")}
             </button>
           </motion.form>
         </div>
@@ -334,11 +355,11 @@ const SubresellerDashboard = () => {
             onClick={() => setCurrentPage((p) => p - 1)}
             className="btn btn-sm btn-outline-dark"
           >
-            Prev
+           {t("prev")}
           </button>
 
           <span style={{ fontWeight: "500" }}>
-            Page {safePage} of {totalPages}
+           {t("page_of", { current: safePage, total: totalPages })}
           </span>
 
           <button
@@ -346,7 +367,7 @@ const SubresellerDashboard = () => {
             onClick={() => setCurrentPage((p) => p + 1)}
             className="btn btn-sm btn-outline-dark"
           >
-            Next
+           {t("next")}
           </button>
 
         </div>

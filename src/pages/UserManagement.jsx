@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserPlus, Power, X } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   subscibedUserinfo,
   DisableUserAccount,
@@ -13,6 +14,7 @@ import {
   subResellerUserInfo,
   disableSubResellerUser,
 } from "../auth/subReseller/userManagement";
+
 
 function UserManagement() {
   const maroonMain = "#800000";
@@ -29,12 +31,17 @@ function UserManagement() {
   const { userRole } = useAuth();
   const [copiedId, setCopiedId] = useState(null);
 
+
+  const [search, setSearch] = useState("");
+  const [loadingData, setLoadingData] = useState(true);
   // ✅ pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
 
   const fetchDashboard = async () => {
+    setLoadingData(true);
+
     let res;
 
     if (userRole === "SUB_RESELLER") {
@@ -51,28 +58,32 @@ function UserManagement() {
       );
 
       setDevices(sortedData);
-
       setTotalUser(data.length);
-
       setActiveUser(
         data.filter((u) => u.deviceStatus === "ACTIVE").length
       );
-
-      setCurrentPage(1);
     }
+
+    setLoadingData(false);
   };
+
 
   useEffect(() => {
     fetchDashboard();
+
   }, []);
 
   // ✅ prevent invalid page
   useEffect(() => {
-    const totalPages = Math.ceil((devices?.length || 0) / itemsPerPage);
+    const totalPages = Math.ceil(filteredDevices.length / itemsPerPage);
     if (currentPage > totalPages) {
       setCurrentPage(totalPages || 1);
     }
   }, [devices, currentPage]);
+
+  useEffect(() => {
+  setCurrentPage(1);
+}, [search]);
 
   const handleDisable = async () => {
     if (!selectedDevice) return;
@@ -113,11 +124,12 @@ function UserManagement() {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    
+
     // ✅ MAC address validation
-    const macRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$|^([0-9A-Fa-f]{12})$/;
+    const macRegex =
+/^([0-9A-Fa-f]{2}([:-]?)){5}[0-9A-Fa-f]{2}$|^([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}$/;
     if (!macRegex.test(newUser.deviceId)) {
-      setError("Please enter a valid MAC address (e.g., AA:BB:CC:DD:EE:FF or AABBCCDDEEFF)");
+      toast.error("Please enter a valid MAC address (e.g., AA:BB:CC:DD:EE:FF or AABBCCDDEEFF)");
       return;
     }
 
@@ -159,55 +171,74 @@ function UserManagement() {
     }, 1500); // disappears after 1.5 sec
   };
 
+  const filteredDevices = devices.filter((item) =>
+    item.deviceId.toLowerCase().includes(search.toLowerCase())
+  );
+
   // ✅ pagination logic
   const indexOfLast = currentPage * itemsPerPage;
   const indexOfFirst = indexOfLast - itemsPerPage;
 
   const currentDevices =
-    devices.length > 0
-      ? devices.slice(indexOfFirst, indexOfLast)
+    filteredDevices.length > 0
+      ? filteredDevices.slice(indexOfFirst, indexOfLast)
       : [];
 
-  const totalPages = Math.ceil((devices?.length || 0) / itemsPerPage);
+  const totalPages = Math.ceil(filteredDevices.length / itemsPerPage);
 
   return (
-    <div style={{ minHeight: "100vh", width: "100%" }}>
-      <div style={mainContentStyle}>
+    <div className="min-h-screen w-full bg-[#f4f4f7]">
+      <div className="w-full p-4">
 
         {/* HEADER */}
-        <header style={headerStyle}>
-          <div>
-            <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-              Device Management
-            </h3>
-            <p className="text-muted">Manage members and subscriptions</p>
-          </div>
+     <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+  
+  {/* LEFT */}
+  <div>
+    <h3 className="font-bold m-0" style={{ color: maroonMain }}>
+      Device Management
+    </h3>
+    <p className="text-gray-500">Manage members and subscriptions</p>
+  </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowModal(true)}
-            style={addBtnStyle}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <UserPlus size={18} />
-              <span>Create New Device</span>
-            </div>
-          </motion.button>
-        </header>
+  {/* RIGHT */}
+ <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-shrink-0">
+    
+    {/* SEARCH */}
+    <input
+      type="text"
+      placeholder="Search device..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="border px-3 py-2 rounded-md w-full sm:w-[250px] focus:ring-2 focus:ring-[#800000]"
+    />
+
+    {/* BUTTON */}
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => setShowModal(true)}
+      className="bg-[#800000] text-white px-4 py-2 rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#660000] transition"
+    >
+      <UserPlus size={18} />
+      <span>Create New Device</span>
+    </motion.button>
+
+  </div>
+</header>
 
         {/* STATS */}
-        <div style={statsRow}>
-          <div style={statCard}>Total Users: {totalUser}</div>
-          <div style={{ ...statCard, borderLeft: "4px solid #1e3a8a" }}>
+        <div className="flex flex-wrap gap-4 mb-5">
+          <div className="flex-1 min-w-[140px] bg-white p-4 rounded-xl font-bold shadow border-l-4 border-[#800000]">Total Users: {totalUser}</div>
+          <div className="flex-1 min-w-[140px] bg-white p-4 rounded-xl font-bold shadow border-l-4 border-blue-900">
             Active: {activeUser}
           </div>
         </div>
 
         {/* TABLE */}
         <div className="bg-white rounded-xl shadow border">
-          <div style={{ overflowX: "auto" }}>
-            <table className="min-w-full text-sm">
+          <div className="hidden md:block w-full overflow-x-auto">
+            <table className="min-w-[900px] w-full text-sm">
               <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3 text-center">Device ID</th>
@@ -220,112 +251,173 @@ function UserManagement() {
               </thead>
 
               <tbody>
-                {currentDevices.length > 0 ? (
-                  currentDevices.map((item) => (
-                    <tr key={item.deviceId} className="border-t text-center">
-
-                      <td className="px-3 py-3 text-gray-600">
-                        <div className="d-flex justify-content-center align-items-center gap-2">
-                          <span>{item.deviceId.slice(0, 8)}...</span>
-                          <div style={{ position: "relative" }}>
-                            <button
-                              onClick={() => copyToClipboard(item.deviceId)}
-                              className="text-blue-500 text-xs border px-2 py-1 rounded"
-                            >
-                              Copy
-                            </button>
-
-                            {copiedId === item.deviceId && (
-                              <span
-                                style={{
-                                  position: "absolute",
-                                  top: "-25px",
-                                  left: "50%",
-                                  transform: "translateX(-50%)",
-                                  background: "#000",
-                                  color: "#fff",
-                                  fontSize: "10px",
-                                  padding: "3px 6px",
-                                  borderRadius: "4px",
-                                }}
-                              >
-                                Copied!
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-3 py-3">
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full fw-semibold ${item.deviceStatus === "ACTIVE"
-                            ? "bg-success-subtle text-success"
-                            : "bg-danger-subtle text-danger"
-                            }`}
-                        >
-                          {item.deviceStatus}
-                        </span>
-                      </td>
-
-                      <td className="px-2 py-3">{item.subscriptionType}</td>
-
-                      <td className="px-2 py-3">
-                        {formatDate(item.expiresAt)}
-                      </td>
-
-                      <td className="px-2 py-3">
-                        {formatDate(item.registeredAt)}
-                      </td>
-
-                      <td className="px-2 py-3">
-                        <button
-                          onClick={() => {
-                            setSelectedDevice(item);
-                            setConfirmModal(true);
-                          }}
-                          style={
-                            item.deviceStatus === "INACTIVE"
-                              ? disableBtn
-                              : enableBtn
-                          }
-                        >
-                          <Power size={14} />
-                        </button>
-                      </td>
-
+                {loadingData ? (
+                  [...Array(6)].map((_, i) => (
+                    <tr key={i} className="border-t animate-pulse">
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded"></div></td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="text-center py-6">
-                      No User found
-                    </td>
-                  </tr>
-                )}
+                ) :
+                  currentDevices.length > 0 ? (
+                    currentDevices.map((item) => (
+                      <tr key={item.deviceId} className="border-t text-center">
+
+                        <td className="px-3 py-3 text-gray-600">
+                          <div className="flex items-center justify-center gap-2 flex-wrap">
+                            <span>{item.deviceId.slice(0, 8)}...</span>
+                            <div className="relative">
+                              <button
+                                onClick={() => copyToClipboard(item.deviceId)}
+                                className="text-xs border px-2 py-1 rounded text-blue-500 hover:bg-blue-50 transition"
+                              >
+                                Copy
+                              </button>
+
+                              {copiedId === item.deviceId && (
+                                <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
+                                  Copied!
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-3 py-3">
+                          <span
+                            className={`px-2 py-1 text-xs rounded-full font-semibold ${item.deviceStatus === "ACTIVE"
+                              ? "bg-success-subtle text-success"
+                              : "bg-danger-subtle text-danger"
+                              }`}
+                          >
+                            {item.deviceStatus}
+                          </span>
+                        </td>
+
+                        <td className="px-2 py-3">{item.subscriptionType}</td>
+
+                        <td className="px-2 py-3">
+                          {formatDate(item.expiresAt)}
+                        </td>
+
+                        <td className="px-2 py-3">
+                          {formatDate(item.registeredAt)}
+                        </td>
+
+                        <td className="px-2 py-3">
+                          <button
+                            onClick={() => {
+                              setSelectedDevice(item);
+                              setConfirmModal(true);
+                            }}
+                            className={`px-3 py-1.5 rounded-md border transition 
+  ${item.deviceStatus === "INACTIVE"
+                                ? "border-[#800000] text-[#800000] hover:bg-[#800000] hover:text-white"
+                                : "bg-[#800000] text-white border-[#800000] hover:bg-[#660000]"
+                              }`}
+                          >
+                            <Power size={14} />
+                          </button>
+                        </td>
+
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="text-center py-6">
+                        No User found
+                      </td>
+                    </tr>
+                  )
+                }
               </tbody>
             </table>
           </div>
 
+
+          {/* MOBILE VIEW */}
+          <div className="block md:hidden space-y-4">
+            {loadingData ? (
+              [...Array(5)].map((_, i) => (
+                <div key={i} className="p-4 bg-white rounded-xl shadow animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              ))
+            ) : currentDevices.length > 0 ? (
+              currentDevices.map((item) => (
+                <div key={item.deviceId} className="p-4 bg-white rounded-xl shadow space-y-2">
+
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-sm">
+                      {item.deviceId.slice(0, 10)}...
+                    </span>
+
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full font-semibold
+              ${item.deviceStatus === "ACTIVE"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-600"
+                        }`}
+                    >
+                      {item.deviceStatus}
+                    </span>
+                  </div>
+
+                  <div className="text-sm text-gray-600">
+                    <p>Plan: {item.subscriptionType}</p>
+                    <p>Expires: {formatDate(item.expiresAt)}</p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedDevice(item);
+                      setConfirmModal(true);
+                    }}
+                    className="w-full mt-2 py-2 rounded-md bg-[#800000] text-white"
+                  >
+                    Toggle Status
+                  </button>
+
+                </div>
+              ))
+            ) : (
+              <p className="text-center">No Users</p>
+            )}
+          </div>
+
           {/* ✅ UPDATED PAGINATION */}
           {totalPages > 1 && (
-            <div className="d-flex justify-content-center align-items-center gap-3 p-3 flex-wrap">
+            <div className="flex justify-center items-center gap-3 p-4 flex-wrap">
 
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className="btn btn-sm btn-outline-dark"
+                className={`px-4 py-1.5 rounded-md border transition 
+      ${currentPage === 1
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-100"}
+    `}
               >
                 Prev
               </button>
 
-              <span style={{ fontWeight: "500" }}>
+              <span className="font-medium text-sm">
                 Page {currentPage} of {totalPages}
               </span>
 
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className="btn btn-sm btn-outline-dark"
+                className={`px-4 py-1.5 rounded-md border transition 
+      ${currentPage === totalPages
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-100"}
+    `}
               >
                 Next
               </button>
@@ -338,14 +430,14 @@ function UserManagement() {
       {/* MODAL */}
       <AnimatePresence>
         {showModal && (
-          <div style={modalOverlay}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.8 }}
-              style={modalContainer}
+              className="bg-white p-5 rounded-2xl w-[90%] max-w-md shadow-lg"
             >
-              <div style={modalHeader}>
+              <div className="flex justify-between items-center mb-3">
                 <h5>New Device</h5>
                 <X onClick={() => setShowModal(false)} />
               </div>
@@ -355,7 +447,7 @@ function UserManagement() {
               <form onSubmit={handleAddUser}>
                 <input
                   required
-                  style={inputStyle}
+                  className="w-full p-2.5 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-[#800000]"
                   value={newUser.deviceId}
                   onChange={(e) =>
                     setNewUser({ deviceId: e.target.value })
@@ -363,7 +455,10 @@ function UserManagement() {
                   placeholder="MAC Address (AA:BB:CC:DD:EE:FF)"
                 />
 
-                <button style={submitBtn} disabled={loading}>
+                <button
+                  disabled={loading}
+                  className="w-full py-3 rounded-md bg-[#800000] text-white hover:bg-[#660000] transition"
+                >
                   {loading ? "Processing..." : "Create"}
                 </button>
               </form>
@@ -371,15 +466,15 @@ function UserManagement() {
           </div>
         )}
         {confirmModal && (
-          <div style={modalOverlay}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              style={modalContainer}
+              className="bg-white p-5 rounded-2xl w-[90%] max-w-md shadow-lg"
             >
-              <div style={{ textAlign: "center" }}>
-                <h5 style={{ marginBottom: "10px" }}>
+              <div className="text-center">
+                <h5 className="mb-2">
                   Confirm Action
                 </h5>
 
@@ -395,25 +490,14 @@ function UserManagement() {
 
                 <div style={{ display: "flex", gap: "10px" }}>
                   <button
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      border: "1px solid #ccc",
-                      background: "#f5f5f5",
-                    }}
+                    className="flex-1 py-2 border rounded-md bg-gray-100 hover:bg-gray-200 transition"
                     onClick={() => setConfirmModal(false)}
                   >
                     Cancel
                   </button>
 
                   <button
-                    style={{
-                      flex: 1,
-                      padding: "10px",
-                      background: "#800000",
-                      color: "#fff",
-                      border: "none",
-                    }}
+                    className="flex-1 py-2 rounded-md bg-[#800000] text-white hover:bg-[#660000] transition"
                     onClick={handleDisable}
                   >
                     Yes, Confirm
@@ -428,97 +512,6 @@ function UserManagement() {
   );
 }
 
-/* STYLES (UNCHANGED) */
 
-const mainContentStyle = {
-  width: "100%",
-  padding: "16px",
-};
-
-const headerStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  flexWrap: "wrap",
-  gap: "10px",
-  marginBottom: "30px",
-};
-
-const statsRow = {
-  display: "flex",
-  gap: "15px",
-  flexWrap: "wrap",
-  marginBottom: "20px",
-};
-
-const statCard = {
-  flex: "1 1 150px",
-  background: "white",
-  padding: "15px",
-  borderRadius: "12px",
-  fontWeight: "bold",
-  boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  borderLeft: "4px solid #800000",
-};
-
-const addBtnStyle = {
-  background: "#800000",
-  color: "white",
-  border: "none",
-  padding: "10px 16px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-};
-
-const disableBtn = {
-  border: "1px solid #800000",
-  color: "#800000",
-  padding: "6px 10px",
-};
-
-const enableBtn = {
-  ...disableBtn,
-  background: "#800000",
-  color: "#fff",
-};
-
-const modalOverlay = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const modalContainer = {
-  background: "#fff",
-  padding: "20px",
-  borderRadius: "16px",
-  width: "90%",
-  maxWidth: "400px",
-};
-
-const modalHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  marginBottom: "15px",
-};
-
-const submitBtn = {
-  width: "100%",
-  padding: "12px",
-  background: "#800000",
-  color: "#fff",
-  border: "none",
-};
 
 export default UserManagement;

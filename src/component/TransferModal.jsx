@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MdClose } from "react-icons/md";
 import { transferCredits } from "../auth/reSeller";
+import { useTranslation } from "react-i18next";
 
 const TransferModal = ({
   open,
@@ -10,10 +11,12 @@ const TransferModal = ({
   availableCredits,
   refreshData,
 }) => {
+  const { t } = useTranslation();
+
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
-  // 🔥 FIX: reset modal state when user changes / modal opens
+  // Reset state when modal opens or user changes
   useEffect(() => {
     if (open) {
       setAmount("");
@@ -30,12 +33,12 @@ const TransferModal = ({
 
     // validation
     if (!numAmount || numAmount <= 0) {
-      setError("Enter valid amount");
+      setError(t("enter_valid_amount"));
       return;
     }
 
     if (numAmount > availableCredits) {
-      setError("Not enough credits");
+      setError(t("not_enough_credits"));
       return;
     }
 
@@ -51,12 +54,11 @@ const TransferModal = ({
       setError("");
       onClose();
 
-      // 🔥 IMPORTANT FIX: refresh EVERYTHING properly
       if (refreshData) {
         await refreshData();
       }
     } else {
-      setError(res.message || "Transfer failed");
+      setError(res.message || t("transfer_failed"));
     }
   };
 
@@ -77,7 +79,7 @@ const TransferModal = ({
 
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h5 className="fw-bold m-0">Transfer Credits</h5>
+          <h5 className="fw-bold m-0">{t("transfer_credits")}</h5>
           <MdClose
             onClick={onClose}
             style={{ cursor: "pointer", fontSize: "20px" }}
@@ -93,7 +95,7 @@ const TransferModal = ({
 
         {/* USER INFO */}
         <div className="mb-2">
-          <div className="text-muted small">User</div>
+          <div className="text-muted small">{t("user")}</div>
           <div className="fw-semibold">
             {selectedUser?.fullName}
           </div>
@@ -101,7 +103,7 @@ const TransferModal = ({
 
         {/* AVAILABLE COINS */}
         <div className="mb-3">
-          <div className="text-muted small">Available Credits</div>
+          <div className="text-muted small">{t("available_credits")}</div>
           <div className="fw-bold text-success">
             {selectedUser?.subResellerCredits ?? 0}
           </div>
@@ -111,7 +113,7 @@ const TransferModal = ({
         <input
           type="number"
           className="form-control mb-3"
-          placeholder="Enter amount"
+          placeholder={t("enter_amount")}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
@@ -122,7 +124,7 @@ const TransferModal = ({
             type="submit"
             className="btn btn-success w-100 fw-semibold"
           >
-            Transfer
+            {t("transfer")}
           </button>
 
           <button
@@ -130,7 +132,7 @@ const TransferModal = ({
             className="btn btn-secondary w-100"
             onClick={onClose}
           >
-            Cancel
+            {t("cancel")}
           </button>
         </div>
 
