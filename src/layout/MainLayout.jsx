@@ -39,7 +39,7 @@ const MainLayout = ({ children }) => {
       {!hideNavbar && !isAdmin && <Navbar />}
 
       {isAdmin ? (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen overflow-hidden">
           <Sidebar
             collapsed={collapsed}
             setCollapsed={setCollapsed}
@@ -49,8 +49,12 @@ const MainLayout = ({ children }) => {
 
           {/* MAIN CONTENT */}
           <div
-  className={`flex-1 min-h-screen bg-[#f8f9fa] transition-all duration-300
+  className={`
+    flex-1 min-h-screen bg-[#f8f9fa] transition-all duration-300
+    ml-0
     ${collapsed ? "md:ml-[90px]" : "md:ml-[260px]"}
+    w-full
+    overflow-x-hidden
   `}
 >
             {/* HEADER */}

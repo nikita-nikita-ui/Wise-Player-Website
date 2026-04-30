@@ -27,7 +27,8 @@ const Sidebar = ({
 
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
-  const sidebarWidth = collapsed ? "90px" : "260px";
+
+
   const maroonMain = "#800000";
 
   const menuItems = [
@@ -54,19 +55,31 @@ const Sidebar = ({
   return (
     <>
       {/* MOBILE BUTTON */}
-      
+      {mobileOpen && (
+  <div
+    className="fixed inset-0 bg-black/40 z-[2000] md:hidden"
+    onClick={() => setMobileOpen(false)}
+  />
+)}
+
+<div
+  className={`
+    fixed top-0 left-0 h-full z-[3000]
+    transition-all duration-300
+    flex flex-col
+
+    bg-[#800000]
+
+    ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+    md:translate-x-0
+
+    ${collapsed ? "md:w-[90px]" : "md:w-[260px]"}
+    w-[260px]
+  `}
+>
 
       {/* SIDEBAR */}
-      <div
-        className={`fixed top-0 h-full z-[1000] transition-all duration-300 
-    ${mobileOpen ? "left-0" : "-left-full"} 
-    md:left-0`}
-        style={{
-          width: sidebarWidth,
-          backgroundColor: maroonMain,
-          fontFamily: "Inter, sans-serif",
-        }}
-      >
+      
 
         {/* HEADER */}
         <div className="d-flex align-items-center justify-content-between px-3 py-3 text-white">
@@ -134,8 +147,9 @@ const Sidebar = ({
                     <span
                       className="ms-3"
                       style={{
-                        whiteSpace: "normal",
-                        wordBreak: "break-word",
+                        whiteSpace: "nowrap",
+overflow: "hidden",
+textOverflow: "ellipsis",
                       }}
                     >
                       {item.label}
