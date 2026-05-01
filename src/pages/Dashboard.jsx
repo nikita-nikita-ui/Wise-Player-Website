@@ -15,6 +15,22 @@ const Dashboard = () => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const { dashboard, refetchDashboard } = useDashboard();
+  const [copiedId, setCopiedId] = useState(null);
+
+  const truncateId = (id, start = 8, end = 4) => {
+    if (!id) return "";
+    if (id.length <= start + end) return id;
+    return `${id.slice(0, start)}...${id.slice(-end)}`;
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(text);
+
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 1500);
+  };
 
   const maroonMain = "#800000";
   const maroonLight = "#fdf2f2";
@@ -55,180 +71,160 @@ const Dashboard = () => {
     refetchDashboard();
   }, []);
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-  };
-
   return (
-    <div
-      className="container-fluid p-0"
-      style={{
-        backgroundColor: "#f8f9fa",
-        minHeight: "100vh",
-        fontFamily: "'Inter', sans-serif",
-      }}
-    >
-      <div className="w-100" style={{ minWidth: 0 }}>
-        
-        {/* HEADER */}
-        <header className="bg-white border-bottom px-3 px-md-4 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2 sticky-top">
-          <h5
-            className="fw-bold text-dark m-0 text-uppercase"
-            style={{ fontSize: "0.9rem", letterSpacing: "1px" }}
-          >
-            {t("panel")} /{" "}
-            <span style={{ color: maroonMain }}>{t(activeTab)}</span>
-          </h5>
+    <div className="min-h-screen bg-[#f4f4f7] w-full">
 
-          <div className="d-flex align-items-center gap-3">
-            <div className="text-end d-none d-sm-block">
-              <p className="m-0 fw-bold small">{t("admin_user")}</p>
-              <p className="m-0 text-success small d-flex align-items-center justify-content-end gap-1">
-                <span
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    backgroundColor: "green",
-                    borderRadius: "50%",
-                  }}
-                ></span>
-                {t("online")}
-              </p>
-            </div>
+      {/* HEADER */}
+      <div className="bg-white border-b px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sticky top-0 z-10">
+        <h5 className="text-xs sm:text-sm font-semibold uppercase tracking-wider">
+          {t("panel")} /{" "}
+          <span className="text-[#800000]">{t(activeTab)}</span>
+        </h5>
 
-            <div
-              className="rounded-circle shadow-sm border border-white"
-              style={{ width: "42px", height: "42px", background: maroonMain }}
-            ></div>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:block text-right">
+            <p className="text-sm font-semibold">{t("admin_user")}</p>
+            <p className="text-xs text-green-600">● {t("online")}</p>
           </div>
-        </header>
 
-        {/* MAIN */}
-        <main className="p-3 p-md-4">
-          <AnimatePresence mode="wait">
-            
-            {/* OVERVIEW */}
-            {activeTab === "overview" && (
-              <motion.div
-                key="overview"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                {/* STATS */}
-                <div className="row g-3 g-md-4 mb-4">
-                  {stats.map((item, i) => (
-                    <div className="col-12 col-sm-6 col-xl-3" key={i}>
-                      <div className="card border-0 shadow-sm p-3 rounded-4 h-100 bg-white">
-                        <div className="d-flex justify-content-between">
-                          <div
-                            className="p-2 rounded-3"
-                            style={{
-                              background: maroonLight,
-                              color: maroonMain,
-                            }}
-                          >
-                            {item.icon}
-                          </div>
+          <div className="w-9 h-9 rounded-full bg-[#800000]" />
+        </div>
+      </div>
 
-                          <span
-                            className={`small fw-bold ${
-                              item.trend.startsWith("+")
-                                ? "text-success"
-                                : "text-danger"
-                            }`}
+      {/* MAIN */}
+      <div className="p-4 space-y-6">
+
+        {/* STATS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {stats.map((item, i) => (
+            <div key={i} className="bg-white p-4 rounded-xl shadow border">
+              <div className="flex justify-between">
+                <div className="p-2 bg-red-50 text-[#800000] rounded-md">
+                  {item.icon}
+                </div>
+                <span className="text-xs font-bold text-green-600">
+                  {item.trend}
+                </span>
+              </div>
+
+              <h2 className="text-xl font-bold mt-3">{item.count}</h2>
+              <p className="text-sm text-gray-500">{item.title}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* TABLE (DESKTOP) */}
+        <div className="hidden md:block bg-white rounded-xl shadow border overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100 text-xs uppercase text-gray-600">
+              <tr>
+                <th className="px-4 py-3 text-center">Device ID</th>
+                <th className="px-4 py-3 text-center">Status</th>
+                <th className="px-4 py-3 text-center">Subscription</th>
+                <th className="px-4 py-3 text-center">Registered</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {dashboard?.devices?.length > 0 ? (
+                dashboard.devices.slice(0, 8).map((item) => (
+                  <tr key={item.deviceId} className="border-t text-center">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+
+                        <span
+                          className="text-blue-600 cursor-pointer"
+                          title={item.deviceId}   // 👈 hover shows full ID
+                        >
+                          {truncateId(item.deviceId)}
+                        </span>
+
+                        <div className="relative">
+                          <button
+                            onClick={() => copyToClipboard(item.deviceId)}
+                            className="text-xs border px-2 py-1 rounded hover:bg-blue-50 transition"
                           >
-                            {item.trend}
-                          </span>
+                            Copy
+                          </button>
+
+                          {copiedId === item.deviceId && (
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
+                              Copied!
+                            </span>
+                          )}
                         </div>
 
-                        <h3 className="mt-3 mb-1 fw-bold">{item.count}</h3>
-                        <p className="text-muted small mb-0 fw-medium">
-                          {item.title}
-                        </p>
                       </div>
+                    </td>
+                    <td>{item.deviceStatus}</td>
+                    <td>{item.subscriptionType}</td>
+                    <td>{formatDate(item.registeredAt)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="py-6 text-center">
+                    No devices found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* MOBILE */}
+        <div className="md:hidden space-y-4">
+          {dashboard?.devices?.length > 0 ? (
+            dashboard.devices.slice(0, 8).map((item) => (
+              <div key={item.deviceId} className="bg-white p-4 rounded-xl shadow">
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-2 flex-wrap">
+
+                    <span
+                      className="text-blue-600 font-semibold text-sm"
+                      title={item.deviceId}
+                    >
+                      {truncateId(item.deviceId, 6, 4)}
+                    </span>
+
+                    <div className="relative">
+                      <button
+                        onClick={() => copyToClipboard(item.deviceId)}
+                        className="text-[10px] border px-2 py-0.5 rounded hover:bg-blue-50 transition"
+                      >
+                        Copy
+                      </button>
+
+                      {copiedId === item.deviceId && (
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
+                          Copied!
+                        </span>
+                      )}
                     </div>
-                  ))}
-                </div>
 
-                {/* TABLE */}
-                <div className="bg-white rounded-xl shadow border">
-                  <div style={{ overflowX: "auto" }}>
-                    <table className="min-w-full text-sm">
-                      <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-                        <tr>
-                          <th className="px-4 py-3 text-center">
-                            {t("device_id")}
-                          </th>
-                          <th className="px-4 py-3 text-center">
-                            {t("status")}
-                          </th>
-                          <th className="px-4 py-3 text-center">
-                            {t("subscription")}
-                          </th>
-                          <th className="px-4 py-3 text-center">
-                            {t("registered")}
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {dashboard?.devices?.length > 0 ? (
-                          dashboard.devices.slice(0, 8).map((item) => (
-                            <tr
-                              key={item.deviceId}
-                              className="border-top text-center"
-                            >
-                              <td className="px-3 py-3">
-                                <div className="d-flex justify-content-center align-items-center gap-2">
-                                  <span>
-                                    {item.deviceId?.slice(0, 8)}...
-                                  </span>
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(item.deviceId)
-                                    }
-                                    className="text-blue-500 text-xs border px-2 py-1 rounded"
-                                  >
-                                    Copy
-                                  </button>
-                                </div>
-                              </td>
-
-                              <td className="px-3 py-3">
-                                {item.deviceStatus}
-                              </td>
-
-                              <td className="px-3 py-3">
-                                {item.subscriptionType}
-                              </td>
-
-                              <td className="px-3 py-3">
-                                {formatDate(item.registeredAt)}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="4" className="text-center py-4">
-                              No devices found
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
                   </div>
-                </div>
-              </motion.div>
-            )}
 
-            {/* OTHER TABS */}
-            {activeTab === "users" && <UserManagement />}
-            {activeTab === "requests" && <RequestManagement />}
-            {activeTab === "subreseller" && <SubReseller />}
-          </AnimatePresence>
-        </main>
+                  <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                    {item.deviceStatus}
+                  </span>
+                </div>
+
+                <div className="text-sm text-gray-500 mt-2">
+                  <p>Plan: {item.subscriptionType}</p>
+                  <p>Registered: {formatDate(item.registeredAt)}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center">No devices</p>
+          )}
+        </div>
+
+        {/* TABS */}
+        {activeTab === "users" && <UserManagement />}
+        {activeTab === "requests" && <RequestManagement />}
+        {activeTab === "subreseller" && <SubReseller />}
+
       </div>
     </div>
   );
