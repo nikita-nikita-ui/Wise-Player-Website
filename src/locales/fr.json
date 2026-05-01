@@ -6,7 +6,6 @@
   "nav_contact": "Contact",
   "home": "Accueil",
   "uploadList": "Liste de téléchargement",
-  "activation": "Activation",
   "reseller": "Revendeur",
   "contact": "Contact",
   "futureIs": "LE FUTUR EST",
@@ -268,5 +267,45 @@
   "available_credits": "Crédits disponibles",
   "enter_valid_amount": "Entrez un montant valide",
   "not_enough_credits": "Crédits insuffisants",
-  "transfer_failed": "Échec du transfert"
+  "transfer_failed": "Échec du transfert",
+  
+  "activation": {
+    "appName": "WISE ",
+    "appName2": "PLAYER",
+    "tagline": "Rapide · Sécurisé · Premium · Activation",
+
+    "stepEnterMac": "Entrer MAC",
+    "stepGenerateKey": "Générer la clé",
+    "stepActivate": "Activer",
+
+    "macLabel": "Adresse MAC",
+
+    "generateKey": "Générer la clé",
+    "generating": "Génération...",
+    "keyGenerated": "Clé générée",
+
+    "agreement": "Je confirme que j'ai mon propre contenu et que je paie pour",
+    "terms": "licence à vie Wise Player",
+    "activateDevice": "Activer l'appareil",
+    "verifying": "Vérification...",
+
+    "successTitle": "Vérifié et actif !",
+    "successDesc": "Votre appareil est maintenant sous licence premium.",
+    "activatedDevice": "Appareil activé",
+
+    "lifetime": "Accès à vie",
+    "secured": "Sécurisé",
+
+    "activateAnother": "Activer un autre appareil",
+    "goToDashboard": "Aller au tableau de bord",
+
+    "keyGeneratedSuccess": "Clé d'activation générée",
+    "keyGenerateFailed": "Échec de la génération de la clé",
+    "deviceActivated": "Appareil activé avec succès",
+    "activationFailed": "Échec de l'activation",
+    "macPlaceholder": "00:00:00:00:00:00",
+    "footer": "Wise Player · Tous droits réservés",
+    "goToHome": "Aller à l'accueil"
+  }
+
 }

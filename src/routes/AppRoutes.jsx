@@ -16,7 +16,7 @@ import PurchaseCredit from "../pages/PurchaseCredit";
 import TransitionHistory from "../pages/TransactionHistory";
 import PaymentStatus from "../pages/PaymentStatus";
 import RegisterSuccess from "../pages/ragistersuccess";
-import WisePlayerActivation from "../pages/Activation/Activation";
+import WisePlayerActivation from "../pages/Activation";
 import WisePlayerUploadList from "../pages/UploadList/UploadList";
 import WisePlayerUploadPlayList from "../pages/UploadPlayList";
 

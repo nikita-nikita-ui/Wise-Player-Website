@@ -9,20 +9,19 @@ const Navbar = () => {
     const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     // Set initial language based on i18n state or default ('EN')
-    const [currentLang, setCurrentLang] = useState(i18n.language || 'EN');
+    const [currentLang, setCurrentLang] = useState(
+        (i18n.language || 'en').toUpperCase()
+    );
 
     const availableLanguages = [
-        { code: 'EN', name: 'English' },
-        { code: 'FR', name: 'French' }, // Only EN and FR are configured in your i18n setup
-        // Baki languages yahan hain, lekin unke translation files nahi hain
-        { code: 'ZH', name: 'Mandarin Chinese' },
-        { code: 'HI', name: 'Hindi' },
-        { code: 'ES', name: 'Spanish' },
-        { code: 'AR', name: 'Standard Arabic' },
-        { code: 'BN', name: 'Bengali' },
-        { code: 'PT', name: 'Portuguese' },
-        { code: 'RU', name: 'Russian' },
-        { code: 'ID', name: 'Indonesian' },
+        { code: 'en', name: 'English' },
+        { code: 'fr', name: 'French' },
+        { code: 'es', name: 'Spanish' },
+        { code: 'de', name: 'German' },
+        { code: 'it', name: 'Italian' },
+        { code: 'pt', name: 'Portuguese' },
+        { code: 'nl', name: 'Dutch' },
+        { code: 'ar', name: 'Arabic' },
     ];
 
     const colors = {
@@ -46,7 +45,7 @@ const Navbar = () => {
 
     // Update currentLang state when i18n language changes globally (e.g., from another component)
     useEffect(() => {
-        setCurrentLang(i18n.language);
+        setCurrentLang(i18n.language.toUpperCase());
     }, [i18n.language]);
 
 
@@ -205,7 +204,7 @@ const Navbar = () => {
                                 {link.name}
                             </Link>
                         ))}
-                        
+
                     </nav>
 
                     {/* RIGHT ACTIONS */}
@@ -256,32 +255,30 @@ const Navbar = () => {
                                         <div
                                             key={lang.code}
                                             onClick={() => {
-                                                if (lang.code === 'EN' || lang.code === 'FR') { // Only change language if EN/FR translation exists
-                                                    i18n.changeLanguage(lang.code); // Change language using i18n object
-                                                    setCurrentLang(lang.code); // Update local state
-                                                    setIsLanguageDropdownOpen(false); // Close dropdown
-                                                }
+                                                i18n.changeLanguage(lang.code);
+                                                setCurrentLang(lang.code.toUpperCase());
+                                                setIsLanguageDropdownOpen(false);
                                             }}
                                             style={{
                                                 padding: '10px 15px',
                                                 fontSize: '13px',
-                                                cursor: (lang.code === 'EN' || lang.code === 'FR') ? 'pointer' : 'not-allowed',
-                                                color: (lang.code === 'EN' || lang.code === 'FR') ? (lang.code === currentLang ? colors.primary : colors.dark) : '#aaa',
-                                                fontWeight: lang.code === currentLang ? '700' : '500',
-                                                backgroundColor: lang.code === currentLang ? 'rgba(177, 25, 5, 0.05)' : 'transparent',
+                                                cursor: 'pointer',
+                                                color: lang.code === i18n.language ? colors.primary : colors.dark,
+                                                fontWeight: lang.code === i18n.language ? '700' : '500',
+                                                backgroundColor: lang.code === i18n.language
+                                                    ? 'rgba(177, 25, 5, 0.05)'
+                                                    : 'transparent',
                                             }}
                                             onMouseEnter={(e) => {
-                                                if (lang.code === 'EN' || lang.code === 'FR') {
-                                                    e.currentTarget.style.backgroundColor = 'rgba(230, 230, 230, 0.5)';
-                                                }
+                                                e.currentTarget.style.backgroundColor = 'rgba(230, 230, 230, 0.5)';
                                             }}
                                             onMouseLeave={(e) => {
-                                                if (lang.code !== currentLang && (lang.code === 'EN' || lang.code === 'FR')) {
+                                                if (lang.code !== i18n.language) {
                                                     e.currentTarget.style.backgroundColor = 'transparent';
                                                 }
                                             }}
                                         >
-                                            {lang.name} {!(lang.code === 'EN' || lang.code === 'FR') && " (N/A)"}
+                                            {lang.name}
                                         </div>
                                     ))}
                                 </div>

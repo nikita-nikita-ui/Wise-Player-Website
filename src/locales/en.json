@@ -6,7 +6,6 @@
   "nav_contact": "Contact",
   "home": "Home",
   "uploadList": "Upload List",
-  "activation": "Activation",
   "contact": "Contact",
   "futureIs": "THE FUTURE IS",
   "wisePlay": "WISE PLAY",
@@ -270,5 +269,42 @@
   "available_credits": "Available Credits",
   "enter_valid_amount": "Enter a valid amount",
   "not_enough_credits": "Not enough credits",
-  "transfer_failed": "Transfer failed"
+  "transfer_failed": "Transfer failed",
+  
+  "activation": {
+    "appName": "WISE ",
+    "appName2": "PLAYER",
+    "tagline": "Fast · Secure · Premium · Activation",
+
+    "stepEnterMac": "Enter MAC",
+    "stepGenerateKey": "Generate Key",
+    "stepActivate": "Activate",
+
+    "macLabel": "MAC Address",
+
+    "generateKey": "Generate Key",
+    "generating": "Generating...",
+    "keyGenerated": "Key Generated",
+
+    "agreement": "I confirm I have my own content and I am paying for",
+    "terms": "Wise Player lifetime license",
+    "activateDevice": "Activate Device",
+    "verifying": "Verifying...",
+
+    "successTitle": "Verified & Active!",
+    "successDesc": "Your device is now premium licensed.",
+    "activatedDevice": "Activated Device",
+
+    "lifetime": "Lifetime Access",
+    "secured": "Secured",
+
+    "activateAnother": "Activate Another Device",
+    "goToHome": "Go to Home",
+      "keyGeneratedSuccess": "Activation key generated",
+    "keyGenerateFailed": "Failed to generate key",
+    "deviceActivated": "Device Activated Successfully",
+    "activationFailed": "Activation Failed",
+    "macPlaceholder": "00:00:00:00:00:00",
+    "footer": "Wise Player · All Rights Reserved"
+  }
 }

@@ -10,6 +10,12 @@ import { initReactI18next } from 'react-i18next';
 
 import translationEN from './locales/en.json';
 import translationFR from './locales/fr.json';
+import translationES from './locales/es.json';
+import translationDE from './locales/de.json';
+import translationIT from './locales/it.json';
+import translationPT from './locales/pt.json';
+import translationNL from './locales/nl.json';
+import translationAR from './locales/ar.json'; 
 
 import { AuthProvider } from '../src/context/AuthContext.jsx'
 import {RefreshProvider} from '../src/context/RefreshContext.jsx'
@@ -18,11 +24,17 @@ i18n
   .use(initReactI18next)
   .init({
     resources: {
-      EN: { translation: translationEN },
-      FR: { translation: translationFR },
+      en: { translation: translationEN },
+      fr: { translation: translationFR },
+      es: { translation: translationES },
+      de: { translation: translationDE },
+      it: { translation: translationIT },
+      pt: { translation: translationPT },
+      nl: { translation: translationNL },
+      ar: { translation: translationAR },
     },
-    lng: localStorage.getItem("lang") || "EN",
-    fallbackLng: "EN",
+    lng: localStorage.getItem("lang") || "en",
+    fallbackLng: "en",
     interpolation: { escapeValue: false }
   });
 
