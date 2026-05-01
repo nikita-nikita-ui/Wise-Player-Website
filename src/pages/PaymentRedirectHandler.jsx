@@ -60,7 +60,7 @@ const PaymentRedirectHandler = () => {
             </button>
           )}
 
-          <button
+          {/* <button
             style={{ ...styles.button, background: "#374151" }}
             onClick={() => {
               setShow(false);
@@ -68,7 +68,7 @@ const PaymentRedirectHandler = () => {
             }}
           >
             Go to Dashboard
-          </button>
+          </button> */}
 
           <button
             style={{ ...styles.button, background: "#999", padding: "8px" }}
