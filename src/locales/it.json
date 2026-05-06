@@ -1,0 +1,40 @@
+{
+  "activation": {
+    "appName": "WISE ",
+    "appName2": "PLAYER",
+    "tagline": "Veloce · Sicuro · Premium · Attivazione",
+
+    "stepEnterMac": "Inserisci MAC",
+    "stepGenerateKey": "Genera chiave",
+    "stepActivate": "Attiva",
+
+    "macLabel": "Indirizzo MAC",
+
+    "generateKey": "Genera chiave",
+    "generating": "Generazione...",
+    "keyGenerated": "Chiave generata",
+
+    "agreement": "Confermo di avere i miei contenuti e di pagare per",
+    "terms": "licenza a vita Wise Player",
+    "activateDevice": "Attiva dispositivo",
+    "verifying": "Verifica...",
+
+    "successTitle": "Verificato e attivo!",
+    "successDesc": "Il tuo dispositivo è ora con licenza premium.",
+    "activatedDevice": "Dispositivo attivato",
+
+    "lifetime": "Accesso a vita",
+    "secured": "Protetto",
+
+    "activateAnother": "Attiva un altro dispositivo",
+    "goToDashboard": "Vai alla dashboard",
+
+    "keyGeneratedSuccess": "Chiave di attivazione generata",
+    "keyGenerateFailed": "Errore nella generazione della chiave",
+    "deviceActivated": "Dispositivo attivato con successo",
+    "activationFailed": "Attivazione fallita",
+    "macPlaceholder": "00:00:00:00:00:00",
+    "footer": "Wise Player · Tutti i diritti riservati",
+    "goToHome": "Vai alla home"
+  }
+}

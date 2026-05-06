@@ -1,0 +1,40 @@
+{
+  "activation": {
+    "appName": "WISE ",
+    "appName2": "PLAYER",
+    "tagline": "Snel · Veilig · Premium · Activatie",
+
+    "stepEnterMac": "MAC invoeren",
+    "stepGenerateKey": "Sleutel genereren",
+    "stepActivate": "Activeren",
+
+    "macLabel": "MAC-adres",
+
+    "generateKey": "Sleutel genereren",
+    "generating": "Bezig met genereren...",
+    "keyGenerated": "Sleutel gegenereerd",
+
+    "agreement": "Ik bevestig dat ik mijn eigen inhoud heb en betaal voor",
+    "terms": "Wise Player levenslange licentie",
+    "activateDevice": "Apparaat activeren",
+    "verifying": "Controleren...",
+
+    "successTitle": "Geverifieerd en actief!",
+    "successDesc": "Uw apparaat heeft nu een premium licentie.",
+    "activatedDevice": "Geactiveerd apparaat",
+
+    "lifetime": "Levenslange toegang",
+    "secured": "Beveiligd",
+
+    "activateAnother": "Ander apparaat activeren",
+    "goToDashboard": "Ga naar dashboard",
+
+    "keyGeneratedSuccess": "Activatiesleutel gegenereerd",
+    "keyGenerateFailed": "Genereren van sleutel mislukt",
+    "deviceActivated": "Apparaat succesvol geactiveerd",
+    "activationFailed": "Activatie mislukt",
+    "macPlaceholder": "00:00:00:00:00:00",
+    "footer": "Wise Player · Alle rechten voorbehouden",
+    "goToHome": "Ga naar startpagina"
+  }
+}

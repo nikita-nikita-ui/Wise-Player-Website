@@ -1,383 +1,544 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserPlus, Power, ShieldCheck, X } from "lucide-react";
-import { subscibedUserinfo } from "../auth/userManagement";
+import { UserPlus, Power, X } from "lucide-react";
+import toast from "react-hot-toast";
+import {
+  subscibedUserinfo,
+  DisableUserAccount,
+  createUser,
+} from "../auth/userManagement";
 import { formatDate } from "../auth/utilfunction";
-import { DisableUserAccount, createUser } from "../auth/userManagement";
-import { span } from "framer-motion/client";
-function UserManagement() {
-  const [users, setUsers] = useState([
-    {
-      id: "1",
-      name: "santosh",
-      email: "skemail.com",
-      status: "Active",
-      plan: "preminum",
-      joinDate: "1-1-1",
-    },
-  ]);
-    const maroonMain = "#800000";
-  const [devices, setDevices] = useState([]);
+import { useAuth } from "../context/AuthContext";
+import {
+  createSubResellerUser,
+  subResellerUserInfo,
+  disableSubResellerUser,
+} from "../auth/subReseller/userManagement";
 
+
+function UserManagement() {
+  const maroonMain = "#800000";
+
+  const [devices, setDevices] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [newUser, setNewUser] = useState({
-    deviceId: "",
-  });
+  const [newUser, setNewUser] = useState({ deviceId: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
   const [totalUser, setTotalUser] = useState("");
   const [activeUser, setActiveUser] = useState(null);
-  console.log("activeUser", activeUser);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+  const { userRole } = useAuth();
+  const [copiedId, setCopiedId] = useState(null);
 
-  useEffect(() => {
-    document.body.style.margin = "0";
-    document.body.style.backgroundColor = "#f4f7f6";
-    document.body.style.fontFamily = "'Inter', sans-serif";
-  }, []);
+
+  const [search, setSearch] = useState("");
+  const [loadingData, setLoadingData] = useState(true);
+  // ✅ pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
 
   const fetchDashboard = async () => {
-    const res = await subscibedUserinfo();
+    setLoadingData(true);
 
-    console.log("API Response:", res.data); // ✅ ab actual data aaye
-    console.log("length : ", res.data.length);
-    setTotalUser(res.data?.content?.length || 0);
-    setActiveUser(
-      res?.data?.content?.filter((u) => u.deviceStatus === "ACTIVE")?.length ||
-        0,
-    );
+    let res;
+
+    if (userRole === "SUB_RESELLER") {
+      res = await subResellerUserInfo();
+    } else {
+      res = await subscibedUserinfo();
+    }
 
     if (res.success) {
-      setDevices(res.data?.content || []);
-    } else {
-      console.error(res.message);
+      const data = res.data?.content || [];
+
+      const sortedData = [...data].sort(
+        (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
+      );
+
+      setDevices(sortedData);
+      setTotalUser(data.length);
+      setActiveUser(
+        data.filter((u) => u.deviceStatus === "ACTIVE").length
+      );
     }
+
+    setLoadingData(false);
   };
+
 
   useEffect(() => {
     fetchDashboard();
+
   }, []);
 
-  const handleDisable = async (deviceId) => {
-    const response = await DisableUserAccount(deviceId);
+  // ✅ prevent invalid page
+  useEffect(() => {
+    const totalPages = Math.ceil(filteredDevices.length / itemsPerPage);
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages || 1);
+    }
+  }, [devices, currentPage]);
 
-    console.log(response.data);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
-    await fetchDashboard();
+  const handleDisable = async () => {
+    if (!selectedDevice) return;
+
+    const deviceId = selectedDevice.deviceId;
+
+    let response;
+
+    if (userRole === "SUB_RESELLER") {
+      response = await disableSubResellerUser(deviceId);
+    } else {
+      response = await DisableUserAccount(deviceId);
+    }
+
+    if (response?.success) {
+      setDevices((prev) => {
+        const updated = prev.map((item) =>
+          item.deviceId === deviceId
+            ? {
+              ...item,
+              deviceStatus:
+                item.deviceStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+            }
+            : item
+        );
+
+        setActiveUser(
+          updated.filter((u) => u.deviceStatus === "ACTIVE").length
+        );
+
+        return updated;
+      });
+    }
+
+    setConfirmModal(false);
+    setSelectedDevice(null);
   };
 
   const handleAddUser = async (e) => {
-    setLoading(true);
     e.preventDefault();
 
-    if (!newUser.deviceId) return;
-
-    try {
-      const response = await createUser(newUser.deviceId);
-      console.log("API Response:", response);
-      if (response?.success === true) {
-        fetchDashboard();
-        setShowModal(false);
-        await fetchDashboard();
-      } else {
-        setError(response?.message);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
+    // ✅ MAC address validation
+    const macRegex =
+      /^([0-9A-Fa-f]{2}([:-]?)){5}[0-9A-Fa-f]{2}$|^([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}$/;
+    if (!macRegex.test(newUser.deviceId)) {
+      toast.error("Please enter a valid MAC address (e.g., AA:BB:CC:DD:EE:FF or AABBCCDDEEFF)");
+      return;
     }
-  };
-  const toggleStatus = (id) => {
-    setUsers(
-      users.map((u) =>
-        u.id === id
-          ? { ...u, status: u.status === "Active" ? "Disabled" : "Active" }
-          : u,
-      ),
-    );
+
+    setLoading(true);
+
+    const payload = {
+      deviceId: newUser.deviceId,
+      deviceModel: "Generic Smart Device",
+      osVersion: "1.0.0",
+      platform: "UNKNOWN",
+    };
+
+    let response;
+
+    if (userRole === "SUB_RESELLER") {
+      response = await createSubResellerUser(payload);
+    } else {
+      response = await createUser(newUser.deviceId);
+    }
+
+    if (response?.success) {
+      setShowModal(false);
+      fetchDashboard();
+      setNewUser({ deviceId: "" });
+      setError("");
+    } else {
+      setError(response?.message);
+    }
+
+    setLoading(false);
   };
 
   const copyToClipboard = (text) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        console.log("Copied to clipboard:", text);
-        // optional: show toast
-      })
-      .catch((err) => {
-        console.error("Failed to copy:", err);
-      });
+    navigator.clipboard.writeText(text);
+    setCopiedId(text);
+
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 1500); // disappears after 1.5 sec
+  };
+
+  const filteredDevices = devices.filter((item) =>
+    item.deviceId.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // ✅ pagination logic
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+
+  const currentDevices =
+    filteredDevices.length > 0
+      ? filteredDevices.slice(indexOfFirst, indexOfLast)
+      : [];
+
+  const totalPages = Math.ceil(filteredDevices.length / itemsPerPage);
+  const truncateId = (id, start = 8, end = 5) => {
+    if (!id) return "";
+    if (id.length <= start + end) return id;
+    return `${id.slice(0, start)}...${id.slice(-end)}`;
   };
 
   return (
-    <div style={layoutStyle}>
-      {/* Main Content - Now 100% Width */}
-      <div style={mainContentStyle}>
-        <header style={headerStyle}>
+    <div className="min-h-screen w-full bg-[#f4f4f7]">
+      <div className="w-full p-4">
+
+        {/* HEADER */}
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+
+          {/* LEFT */}
           <div>
-            {/* <h2
-              style={{
-                margin: 0,
-                color: "#2d3436",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-              }}
-            >
-              User Management
-            </h2>
-            <p style={{ margin: 0, fontSize: "14px", color: "#636e72" }}>
-              Manage members and subscriptions
-            </p> */}
-            <div className="col-md-12">
-          <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-            User Management
-          </h3>
-          <p className="text-muted">
-             Manage members and subscriptions
-          </p>
-        </div>
+            <h3 className="font-bold m-0" style={{ color: maroonMain }}>
+              Device Management
+            </h3>
+            <p className="text-gray-500">Manage members and subscriptions</p>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowModal(true)}
-            style={addBtnStyle}
-          >
-            <UserPlus size={18} /> Create New User
-          </motion.button>
+
+          {/* RIGHT */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto flex-shrink-0">
+
+            {/* SEARCH */}
+            <input
+              type="text"
+              placeholder="Search device..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border px-3 py-2 rounded-md w-full sm:w-[250px] focus:ring-2 focus:ring-[#800000]"
+            />
+
+            {/* BUTTON */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowModal(true)}
+              className="bg-[#800000] text-white px-4 py-2 rounded-[10px] flex items-center justify-center gap-2 hover:bg-[#660000] transition"
+            >
+              <UserPlus size={18} />
+              <span>Create New Device</span>
+            </motion.button>
+
+          </div>
         </header>
 
-        {/* Stats Row */}
-        <div style={statsRow}>
-          <div style={statCard}>Total Users: {totalUser}</div>
-          <div style={{ ...statCard, borderLeft: "4px solid #1e3a8a" }}>
+        {/* STATS */}
+        <div className="flex flex-wrap gap-4 mb-5">
+          <div className="flex-1 min-w-[140px] bg-white p-4 rounded-xl font-bold shadow border-l-4 border-[#800000]">Total Users: {totalUser}</div>
+          <div className="flex-1 min-w-[140px] bg-white p-4 rounded-xl font-bold shadow border-l-4 border-blue-900">
             Active: {activeUser}
           </div>
         </div>
 
-        {/* Grid Container - Full Width */}
-        <div>
-          <AnimatePresence>
-            {/* {users.map((user) => (
-              <motion.div
-                key={user.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={cardStyle}
-              >
-                <div style={cardTop}>
-                  <div style={avatarStyle}>{user.name.charAt(0)}</div>
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ margin: 0, color: "#2d3436" }}>{user.name}</h4>
-                    <span
-                      style={
-                        user.status === "Active" ? activeBadge : inactiveBadge
-                      }
-                    >
-                      {user.status}
-                    </span>
-                  </div>
-                  <div style={planBadge(user.plan === "Premium")}>
-                    {user.plan}
-                  </div>
-                </div>
+        {/* TABLE */}
+        <div className="bg-white rounded-xl shadow border">
+          <div className="hidden md:block w-full overflow-x-auto">
+            <table className="min-w-[900px] w-full text-sm">
+              <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+                <tr>
+                  <th className="px-4 py-3 text-center">Device ID</th>
+                  <th className="px-4 py-3 text-center">Status</th>
+                  <th className="px-4 py-3 text-center">Subscription</th>
+                  <th className="px-4 py-3 text-center">Expires</th>
+                  <th className="px-4 py-3 text-center">Registered</th>
+                  <th className="px-4 py-3 text-center">Action</th>
+                </tr>
+              </thead>
 
-                <div style={cardBody}>
-                  <p style={detailText}>
-                    <strong>Email:</strong> {user.email}
-                  </p>
-                  <p style={detailText}>
-                    <strong>Joined:</strong> {user.joinDate}
-                  </p>
-                </div>
+              <tbody>
+                {loadingData ? (
+                  [...Array(6)].map((_, i) => (
+                    <tr key={i} className="border-t animate-pulse">
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-3 bg-gray-200 rounded"></div></td>
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded"></div></td>
+                    </tr>
+                  ))
+                ) :
+                  currentDevices.length > 0 ? (
+                    currentDevices.map((item) => (
+                      <tr key={item.deviceId} className="border-t text-center">
 
-                <div style={cardActions}>
-                  <button
-                    onClick={() => toggleStatus(user.id)}
-                    style={user.status === "Active" ? disableBtn : enableBtn}
-                  >
-                    <Power size={14} />{" "}
-                    {user.status === "Active" ? "Disable" : "Enable"}
-                  </button>
-                  <button
-                    onClick={() => alert(`Plan: ${user.plan}`)}
-                    style={checkBtn}
-                  >
-                    Subscription
-                  </button>
-                </div>
-              </motion.div>
-            ))} */}
-            <div className="bg-white rounded-xl shadow border overflow-x-auto">
-              <table className="min-w-full text-sm text-left">
-                {/* Header */}
-                <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-                  <tr>
-                    <th className="px-4 py-3">Device ID</th>
+                        <td className="px-3 py-3 text-gray-600">
+                          <div className="flex items-center justify-center gap-2 flex-wrap">
 
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Subscription</th>
-                    <th className="px-4 py-3">Expires</th>
-                    <th className="px-4 py-3">Registered</th>
-                    <th className="px-4 py-3">action</th>
-                  </tr>
-                </thead>
+                            <span
+                              className="text-blue-600 cursor-pointer"
+                              title={item.deviceId} // 👈 hover full ID (desktop)
+                            >
+                              {truncateId(item.deviceId)}
+                            </span>
 
-                {/* Body */}
-                <tbody>
-                  {devices.length > 0 ? (
-                    devices.slice(0, 8).map((item, index) => (
-                      <tr key={index} className="border-t hover:bg-gray-50">
-                        {/* Device */}
+                            <div className="relative">
+                              <button
+                                onClick={() => copyToClipboard(item.deviceId)}
+                                className="text-xs border px-2 py-1 rounded text-black-500 hover:bg-blue-50 transition"
+                              >
+                                Copy
+                              </button>
 
-                        {/* Device ID */}
-                        <td className="px-3 line-clamp-1 truncate py-3 text-gray-600 flex items-center gap-2">
-                          <span>{item.deviceId.slice(0, 8)}...</span>
+                              {copiedId === item.deviceId && (
+                                <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
+                                  Copied!
+                                </span>
+                              )}
+                            </div>
 
-                          <button
-                            onClick={() => copyToClipboard(item.deviceId)}
-                            className="text-blue-500 hover:text-blue-700 text-xs border px-2 py-1 rounded"
-                          >
-                            Copy
-                          </button>
+                          </div>
                         </td>
 
-                        {/* Platform */}
-
-                        {/* Status */}
                         <td className="px-3 py-3">
                           <span
-                            className={`px-2 py-1 text-center text-xs rounded-full font-semibold ${
-                              item.deviceStatus === "ACTIVE"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-600"
-                            }`}
+                            className={`px-2 py-1 text-xs rounded-full font-semibold ${item.deviceStatus === "ACTIVE"
+                              ? "bg-success-subtle text-success"
+                              : "bg-danger-subtle text-danger"
+                              }`}
                           >
                             {item.deviceStatus}
                           </span>
                         </td>
 
-                        {/* Subscription */}
-                        <td className="px-2 text-center py-3">
-                          {item.subscriptionType}
-                        </td>
+                        <td className="px-2 py-3">{item.subscriptionType}</td>
 
-                        {/* Expires */}
-                        <td className="px-2 text-center py-3">
+                        <td className="px-2 py-3">
                           {formatDate(item.expiresAt)}
                         </td>
 
-                        {/* Registered */}
-                        <td className="px-2 text-center py-3">
+                        <td className="px-2 py-3">
                           {formatDate(item.registeredAt)}
                         </td>
 
-                        <td>
+                        <td className="px-2 py-3">
                           <button
-                            onClick={() => handleDisable(item.deviceId)}
-                            style={
-                              item.deviceStatus === "INACTIVE"
-                                ? disableBtn
-                                : enableBtn
-                            }
+                            onClick={() => {
+                              setSelectedDevice(item);
+                              setConfirmModal(true);
+                            }}
+                            className={`px-3 py-1.5 rounded-md border transition 
+  ${item.deviceStatus === "INACTIVE"
+                                ? "border-[#800000] text-[#800000] hover:bg-[#800000] hover:text-white"
+                                : "bg-[#800000] text-white border-[#800000] hover:bg-[#660000]"
+                              }`}
                           >
-                            <Power size={14} />{" "}
-                            {item.active === false ? "Disable" : "Enable"}
+                            <Power size={14} />
                           </button>
                         </td>
+
                       </tr>
                     ))
                   ) : (
-                    <>
-                      <tr className="w-full ">
-                        <td colSpan="6" className="py-6">
-                          <div className="w-full flex justify-center items-center text-gray-500">
-                            No User found
-                          </div>
-                        </td>
-                      </tr>
-                    </>
-                  )}
-                </tbody>
-              </table>
+                    <tr>
+                      <td colSpan="6" className="text-center py-6">
+                        No User found
+                      </td>
+                    </tr>
+                  )
+                }
+              </tbody>
+            </table>
+          </div>
+
+
+          {/* MOBILE VIEW */}
+          <div className="block md:hidden space-y-4">
+            {loadingData ? (
+              [...Array(5)].map((_, i) => (
+                <div key={i} className="p-4 bg-white rounded-xl shadow animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+                </div>
+              ))
+            ) : currentDevices.length > 0 ? (
+              currentDevices.map((item) => (
+                <div key={item.deviceId} className="p-4 bg-white rounded-xl shadow space-y-2">
+
+                  <div className="flex justify-between items-center">
+                   <div className="flex items-center gap-2 flex-wrap">
+
+  <span
+    className="font-semibold text-sm text-blue-600"
+    title={item.deviceId} // works only desktop but safe
+  >
+    {truncateId(item.deviceId, 6, 4)}
+  </span>
+
+  <div className="relative">
+    <button
+      onClick={() => copyToClipboard(item.deviceId)}
+      className="text-[10px] border px-2 py-0.5 rounded text-black-500 hover:bg-blue-50 transition"
+    >
+      Copy
+    </button>
+
+    {copiedId === item.deviceId && (
+      <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
+        Copied!
+      </span>
+    )}
+  </div>
+
+</div>
+
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full font-semibold
+              ${item.deviceStatus === "ACTIVE"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-600"
+                        }`}
+                    >
+                      {item.deviceStatus}
+                    </span>
+                  </div>
+
+                  <div className="text-sm text-gray-600">
+                    <p>Plan: {item.subscriptionType}</p>
+                    <p>Expires: {formatDate(item.expiresAt)}</p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedDevice(item);
+                      setConfirmModal(true);
+                    }}
+                    className="w-full mt-2 py-2 rounded-md bg-[#800000] text-white"
+                  >
+                    Toggle Status
+                  </button>
+
+                </div>
+              ))
+            ) : (
+              <p className="text-center">No Users</p>
+            )}
+          </div>
+
+          {/* ✅ UPDATED PAGINATION */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-3 p-4 flex-wrap">
+
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+                className={`px-4 py-1.5 rounded-md border transition 
+      ${currentPage === 1
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-100"}
+    `}
+              >
+                Prev
+              </button>
+
+              <span className="font-medium text-sm">
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+                className={`px-4 py-1.5 rounded-md border transition 
+      ${currentPage === totalPages
+                    ? "opacity-40 cursor-not-allowed"
+                    : "hover:bg-gray-100"}
+    `}
+              >
+                Next
+              </button>
+
             </div>
-          </AnimatePresence>
+          )}
         </div>
       </div>
 
-      {/* Modal Code */}
+      {/* MODAL */}
       <AnimatePresence>
         {showModal && (
-          <div style={modalOverlay}>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              style={modalContainer}
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className="bg-white p-5 rounded-2xl w-[90%] max-w-md shadow-lg"
             >
-              <div style={modalHeader}>
-                <h3>New User Registration</h3>
-                <X
-                  size={20}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setShowModal(false)}
-                />
+              <div className="flex justify-between items-center mb-3">
+                <h5>New Device</h5>
+                <X onClick={() => setShowModal(false)} />
               </div>
-              <div>
-                {error !== "" && (
-                  <span className="text-sm text-red-400 py-1 px-1 font-semibold">
-                    {error}
-                  </span>
-                )}
-              </div>
+
+              {error && <p style={{ color: "red" }}>{error}</p>}
+
               <form onSubmit={handleAddUser}>
                 <input
                   required
-                  placeholder="Device Id : 00:1A:2B:3C:4D:5E"
-                  style={inputStyle}
-                  type="text"
-                  value={newUser.deviceId || ""}
+                  className="w-full p-2.5 border rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-[#800000]"
+                  value={newUser.deviceId}
                   onChange={(e) =>
-                    setNewUser({ ...newUser, deviceId: e.target.value })
+                    setNewUser({ deviceId: e.target.value })
                   }
+                  placeholder="MAC Address (AA:BB:CC:DD:EE:FF)"
                 />
 
                 <button
-                  type="submit"
-                  style={submitBtn}
                   disabled={loading}
-                  className="flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-md bg-[#800000] text-white hover:bg-[#660000] transition"
                 >
-                  {loading ? (
-                    <>
-                      <svg
-                        className="animate-spin h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v8H4z"
-                        ></path>
-                      </svg>
-                      Processing...
-                    </>
-                  ) : (
-                    "Confirm & Create"
-                  )}
+                  {loading ? "Processing..." : "Create"}
                 </button>
               </form>
+            </motion.div>
+          </div>
+        )}
+        {confirmModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-white p-5 rounded-2xl w-[90%] max-w-md shadow-lg"
+            >
+              <div className="text-center">
+                <h5 className="mb-2">
+                  Confirm Action
+                </h5>
+
+                <p style={{ marginBottom: "20px" }}>
+                  Are you sure you want to{" "}
+                  <strong>
+                    {selectedDevice?.deviceStatus === "ACTIVE"
+                      ? "disable"
+                      : "activate"}
+                  </strong>{" "}
+                  this user?
+                </p>
+
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    className="flex-1 py-2 border rounded-md bg-gray-100 hover:bg-gray-200 transition"
+                    onClick={() => setConfirmModal(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="flex-1 py-2 rounded-md bg-[#800000] text-white hover:bg-[#660000] transition"
+                    onClick={handleDisable}
+                  >
+                    Yes, Confirm
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
@@ -386,188 +547,6 @@ function UserManagement() {
   );
 }
 
-// --- संशोधित Styles ---
 
-const layoutStyle = {
-  width: "100%",
-  minHeight: "100vh",
-  display: "block", // Flex हटा दिया ताकि विड्थ सही रहे
-};
-
-const mainContentStyle = {
-  width: "100%", // अब ये पूरी स्क्रीन लेगा
-  padding: "20px",
-  boxSizing: "border-box", // पैडिंग को विड्थ के अंदर रखने के लिए
-  margin: "0", // कोई मार्जिन नहीं
-};
-
-const headerStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "40px",
-  width: "100%",
-};
-
-const gridContainer = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-  gap: "25px",
-  width: "100%", // सुनिश्चित करें कि ग्रिड पूरी जगह ले
-};
-
-// ... बाकी स्टाइल वही रहेंगे (Maroon/Blue थीम वाले) ...
-
-const addBtnStyle = {
-  background: "#800000",
-  color: "white",
-  border: "none",
-  padding: "12px 24px",
-  borderRadius: "12px",
-  fontWeight: "bold",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  boxShadow: "0 4px 15px rgba(128, 0, 0, 0.2)",
-};
-const statsRow = { display: "flex", gap: "20px", marginBottom: "30px" };
-const statCard = {
-  background: "white",
-  padding: "15px 25px",
-  borderRadius: "12px",
-  fontWeight: "bold",
-  boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-  borderLeft: "4px solid #800000",
-};
-const cardStyle = {
-  background: "white",
-  borderRadius: "20px",
-  padding: "24px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
-  border: "1px solid #eee",
-};
-const cardTop = {
-  display: "flex",
-  gap: "15px",
-  alignItems: "center",
-  marginBottom: "20px",
-  borderBottom: "1px solid #f5f5f5",
-  paddingBottom: "15px",
-};
-const avatarStyle = {
-  width: "45px",
-  height: "45px",
-  background: "#f0f2f5",
-  color: "#800000",
-  borderRadius: "12px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontWeight: "bold",
-  fontSize: "20px",
-};
-const activeBadge = {
-  fontSize: "11px",
-  background: "#dcfce7",
-  color: "#15803d",
-  padding: "2px 8px",
-  borderRadius: "20px",
-  fontWeight: "bold",
-};
-const inactiveBadge = {
-  fontSize: "11px",
-  background: "#fee2e2",
-  color: "#b91c1c",
-  padding: "2px 8px",
-  borderRadius: "20px",
-  fontWeight: "bold",
-};
-const planBadge = (isPremium) => ({
-  fontSize: "12px",
-  color: isPremium ? "#1e3a8a" : "#636e72",
-  fontWeight: "bold",
-  textTransform: "uppercase",
-  border: `1px solid ${isPremium ? "#1e3a8a" : "#ddd"}`,
-  padding: "4px 10px",
-  borderRadius: "8px",
-});
-const detailText = { margin: "5px 0", fontSize: "14px", color: "#636e72" };
-const cardBody = { marginBottom: "20px" };
-const cardActions = { display: "flex", gap: "10px" };
-const disableBtn = {
-  flex: 1,
-  background: "#fff",
-  border: "1px solid #800000",
-  color: "#800000",
-  padding: "10px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "5px",
-  fontSize: "13px",
-  fontWeight: "600",
-};
-const enableBtn = { ...disableBtn, background: "#800000", color: "#fff" };
-const checkBtn = {
-  flex: 1,
-  background: "#1e3a8a",
-  color: "#fff",
-  border: "none",
-  padding: "10px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontSize: "13px",
-  fontWeight: "600",
-};
-const modalOverlay = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  background: "rgba(0,0,0,0.6)",
-  backdropFilter: "blur(5px)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 1000,
-};
-const modalContainer = {
-  background: "white",
-  padding: "35px",
-  borderRadius: "24px",
-  width: "400px",
-  boxShadow: "0 20px 50px rgba(0,0,0,0.3)",
-};
-const modalHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "25px",
-  color: "#800000",
-};
-const inputStyle = {
-  width: "100%",
-  padding: "12px",
-  marginBottom: "20px",
-  borderRadius: "10px",
-  border: "1px solid #ddd",
-  outline: "none",
-  boxSizing: "border-box",
-};
-const submitBtn = {
-  width: "100%",
-  padding: "14px",
-  background: "linear-gradient(90deg, #800000, #1e3a8a)",
-  color: "white",
-  border: "none",
-  borderRadius: "10px",
-  fontWeight: "bold",
-  cursor: "pointer",
-  fontSize: "16px",
-};
 
 export default UserManagement;

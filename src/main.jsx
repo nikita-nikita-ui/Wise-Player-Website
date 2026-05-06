@@ -1,43 +1,58 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App.jsx'
 import './index.css'
 import { DashboardProvider } from '../src/context/dashboardContext.jsx'
 
-// *** NEW IMPORTS FOR I18N ***
+// i18n
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// *** TRANSLATION FILES IMPORT (Only EN and FR kept) ***
 import translationEN from './locales/en.json';
 import translationFR from './locales/fr.json';
+import translationES from './locales/es.json';
+import translationDE from './locales/de.json';
+import translationIT from './locales/it.json';
+import translationPT from './locales/pt.json';
+import translationNL from './locales/nl.json';
+import translationAR from './locales/ar.json'; 
 
+import { AuthProvider } from '../src/context/AuthContext.jsx'
+import {RefreshProvider} from '../src/context/RefreshContext.jsx'
 
-import {AuthProvider} from '../src/context/AuthContext.jsx'
-// Configure i18n
 i18n
   .use(initReactI18next)
   .init({
     resources: {
-      EN: { translation: translationEN },
-      FR: { translation: translationFR }, // *** French Kept ***
+      en: { translation: translationEN },
+      fr: { translation: translationFR },
+      es: { translation: translationES },
+      de: { translation: translationDE },
+      it: { translation: translationIT },
+      pt: { translation: translationPT },
+      nl: { translation: translationNL },
+      ar: { translation: translationAR },
     },
-    lng: "FR",// Default language when the app loads
-    fallbackLng: "EN", // Fallback language
-    interpolation: {
-      escapeValue: false // React handles escaping by default
-    }
+    lng: localStorage.getItem("lang") || "en",
+    fallbackLng: "en",
+    interpolation: { escapeValue: false }
   });
 
+// ✅ GLOBAL SYNC
+i18n.on("languageChanged", (lng) => {
+  localStorage.setItem("lang", lng);
+  document.documentElement.lang = lng;
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <DashboardProvider>
-      <AuthProvider>
-      <App />
-      </AuthProvider>
-    </DashboardProvider>
-  </React.StrictMode>,
+    <AuthProvider>            {/* ✅ MUST be first */}
+      <RefreshProvider>
+      <DashboardProvider>     {/* ✅ depends on Auth */}
+        <App />
+      </DashboardProvider>
+      </RefreshProvider>
+    </AuthProvider>
+  </React.StrictMode>
 )
 

@@ -4,130 +4,245 @@ import {
   Users,
   Layers,
   Clock,
-  PlusCircle,
   LogOut,
   ShoppingCart,
+  Menu,
+  X,
+  CirclePlus,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useTranslation } from 'react-i18next';
 import { useAuth } from "../context/AuthContext";
-const Sidebar = () => {
-  const { t } = useTranslation();
-  const maroonMain = "#800000";
+import { useTranslation } from "react-i18next";
+
+const Sidebar = ({
+  collapsed,
+  setCollapsed,
+  mobileOpen,
+  setMobileOpen,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
   const { userRole } = useAuth();
-  console.log("user : ", userRole);
+  const { t } = useTranslation();
 
- const menuItems = [
-    { path: "/dashboard", label: t('side_dashboard'), icon: LayoutDashboard },
-    { path: "/users", label:  t('side_users'), icon: Users },
-    // 👇 ONLY show for reseller
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+
+
+  const maroonMain = "#800000";
+
+  const menuItems = [
+    { path: "/dashboard", label: t("dashboard"), icon: LayoutDashboard },
+    { path: "/users", label: t("device_management"), icon: Users },
+
     userRole === "RESELLER" && {
       path: "/subreseller",
-      label: t('side_subreseller'),
+      label: t("sub_reseller"),
       icon: Layers,
     },
-    { path: "/requests", label: t('side_requests'), icon: Clock },
-    {
-      path: "/transition-history",
-      label: "Transition History",
-      icon: PlusCircle,
-    },
-    { path: "/purchase-credit", label:  t('side_purchase'), icon: ShoppingCart },
-    { path: "/logout", label: t('side_logout'), icon: LogOut },
+
+    { path: "/requests", label: t("activation_requests"), icon: Clock },
+    { path: "/transition-history", label: t("transaction_history"), icon: CirclePlus },
+    { path: "/purchase-credit", label: t("purchase_credit"), icon: ShoppingCart },
+    { path: "/logout", label: t("logout"), icon: LogOut },
   ].filter(Boolean);
 
   const handleLogout = () => {
-    // ❌ remove stored auth data
-    localStorage.removeItem("token");
-    localStorage.removeItem("id");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("user");
-    localStorage.removeItem("userName");
+    localStorage.clear();
     navigate("/");
   };
 
   return (
     <>
-      <div
-        className="sidebar d-none d-lg-block shadow"
-        style={{
-          width: "280px",
-          backgroundColor: maroonMain,
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          zIndex: 1000,
-        }}
-      >
-        <div className="p-4 mb-4 text-center">
-          <h3 className="text-white fw-bold letter-spacing-1">
-            RESELLER<span style={{ color: "#ffc107" }}>HUB</span>
-          </h3>
+      {/* MOBILE BUTTON */}
+      {mobileOpen && (
+  <div
+    className="fixed inset-0 bg-black/40 z-[2000] md:hidden"
+    onClick={() => setMobileOpen(false)}
+  />
+)}
+
+<div
+  className={`
+    fixed top-0 left-0 h-full z-[3000]
+    transition-all duration-300
+    flex flex-col
+
+    bg-[#800000]
+
+    ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+    md:translate-x-0
+
+    ${collapsed ? "md:w-[90px]" : "md:w-[260px]"}
+    w-[260px]
+  `}
+>
+
+      {/* SIDEBAR */}
+      
+
+        {/* HEADER */}
+        <div className="d-flex align-items-center justify-content-between px-3 py-3 text-white">
+          {!collapsed && (
+            <h5 className="m-0 fw-bold" style={{ letterSpacing: "0.5px" }}>
+              RESELLER
+              <span style={{ color: "#ffc107", marginLeft: 4 }}>HUB</span>
+            </h5>
+          )}
+
+          <div className={`flex items-center gap-2 ${collapsed ? "justify-center w-full" : ""}`}>
+            <Menu
+              onClick={() => setCollapsed(!collapsed)}
+              style={{ cursor: "pointer" }}
+            />
+
+          </div>
         </div>
 
-        <div className="nav flex-column ps-3">
+        {/* MENU */}
+        <div className="d-flex flex-column mt-2">
           {menuItems.map((item) => {
             const isActive = location.pathname === item.path;
 
             return (
-              <button
-                key={item.path}
-                // onClick={() => navigate(item.path)}
-                onClick={() => {
-                  if (item.path === "/logout") {
-                    setShowLogoutPopup(true);
-                  } else {
-                    navigate(item.path);
-                  }
-                }}
-                className={`nav-link w-100 text-start border-0 px-4 py-3 d-flex align-items-center mb-1 transition-all
-              ${isActive ? "bg-white shadow-sm" : "bg-transparent text-white opacity-75"}`}
-                style={{
-                  borderRadius: "12px 0 0 12px",
-                  color: isActive ? maroonMain : "white",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <item.icon size={20} className="me-3" />
-                <span className="fw-500">{item.label}</span>
-              </button>
+              <div key={item.path} style={{ padding: "4px 10px" }}>
+                <button
+                  onClick={() => {
+                    if (item.path === "/logout") {
+                      setShowLogoutPopup(true);
+                    } else {
+                      navigate(item.path);
+                      setMobileOpen(false);
+                    }
+                  }}
+                  className="w-100 border-0 d-flex align-items-center"
+                  style={{
+                    borderRadius: "12px 0 0 12px",
+                    padding: collapsed ? "12px 0" : "12px 14px",
+                    justifyContent: collapsed ? "center" : "flex-start",
+                    background: isActive
+                      ? "#ffffff"
+                      : "transparent",
+                    color: isActive ? maroonMain : "#ffffff",
+                    transition: "all 0.25s ease",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    lineHeight: "1.2",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background =
+                        "rgba(255,255,255,0.15)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = "transparent";
+                    }
+                  }}
+                >
+                  <item.icon size={20} />
+
+                  {!collapsed && (
+                    <span
+                      className="ms-3"
+                      style={{
+                        whiteSpace: "nowrap",
+overflow: "hidden",
+textOverflow: "ellipsis",
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+                </button>
+              </div>
             );
           })}
         </div>
       </div>
-      {showLogoutPopup && (
-        <div className="fixed pl-[26%]  inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-md text-center">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Confirm Logout
-            </h2>
 
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to logout?
+      {/* 🔥 LOGOUT MODAL */}
+      {showLogoutPopup && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.55)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 2000,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: "16px",
+              padding: "26px",
+              width: "100%",
+              maxWidth: "360px",
+              textAlign: "center",
+              boxShadow: "0 12px 35px rgba(0,0,0,0.18)",
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
+            {/* ICON */}
+            <div
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: "50%",
+                background: "#fdecea",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 10px",
+              }}
+            >
+              <LogOut color="#dc3545" size={22} />
+            </div>
+
+            <h5 className="fw-bold mb-2">
+              {t("confirm_logout")}
+            </h5>
+
+            <p className="text-muted mb-4" style={{ fontSize: "14px" }}>
+              {t("are_you_sure_logout")}
             </p>
 
-            <div className="flex justify-center gap-4">
-              {/* Cancel Button */}
+            <div className="d-flex gap-2">
               <button
                 onClick={() => setShowLogoutPopup(false)}
-                className="px-4 py-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
+                className="btn w-50"
+                style={{
+                  background: "#f1f5f9",
+                  color: "#475569",
+                  borderRadius: "10px",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  border: "1px solid #e2e8f0",
+                }}
               >
-                Cancel
+                {t("cancel")}
               </button>
 
-              {/* Confirm Logout */}
               <button
                 onClick={() => {
                   setShowLogoutPopup(false);
                   handleLogout();
                 }}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                className="btn w-50 text-white"
+                style={{
+                  background: "#dc3545",
+                  borderRadius: "10px",
+                  fontWeight: "600",
+                  fontSize: "14px",
+                  boxShadow: "0 4px 12px rgba(220, 53, 69, 0.2)",
+                }}
               >
-                Logout
+                {t("logout")}
               </button>
             </div>
           </div>

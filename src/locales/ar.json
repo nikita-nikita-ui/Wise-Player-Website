@@ -1,0 +1,40 @@
+{
+  "activation": {
+    "appName": "حكيم ",
+    "appName2": "لاعب",
+    "tagline": "سريع · آمن · مميز · تفعيل",
+
+    "stepEnterMac": "أدخل ماك",
+    "stepGenerateKey": "إنشاء المفتاح",
+    "stepActivate": "تفعيل",
+
+    "macLabel": "عنوان ماك",
+
+    "generateKey": "إنشاء المفتاح",
+    "generating": "جارٍ الإنشاء...",
+    "keyGenerated": "تم إنشاء المفتاح",
+
+    "agreement": "أؤكد أن لدي محتوى خاص بي وأنا أدفع مقابل",
+    "terms": "ترخيص حكيم لاعب مدى الحياة",
+    "activateDevice": "تفعيل الجهاز",
+    "verifying": "جارٍ التحقق...",
+
+    "successTitle": "تم التحقق والتفعيل!",
+    "successDesc": "جهازك الآن مرخص بنسخة مميزة.",
+    "activatedDevice": "الجهاز المُفعل",
+
+    "lifetime": "وصول مدى الحياة",
+    "secured": "آمن",
+
+    "activateAnother": "تفعيل جهاز آخر",
+    "goToDashboard": "الذهاب إلى لوحة التحكم",
+
+    "keyGeneratedSuccess": "تم إنشاء مفتاح التفعيل",
+    "keyGenerateFailed": "فشل إنشاء المفتاح",
+    "deviceActivated": "تم تفعيل الجهاز بنجاح",
+    "activationFailed": "فشل التفعيل",
+    "macPlaceholder": "00:00:00:00:00:00",
+    "footer": "حكيم لاعب · جميع الحقوق محفوظة",
+    "goToHome": "الذهاب إلى الصفحة الرئيسية"
+  }
+}
