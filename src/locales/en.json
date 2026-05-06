@@ -4,14 +4,10 @@
   "nav_activation": "Activation",
   "nav_reseller": "Reseller",
   "nav_contact": "Contact",
-  "home": "Home",
   "uploadList": "Upload List",
   "contact": "Contact",
-  "futureIs": "THE FUTURE IS",
+  
   "wisePlay": "WISE PLAY",
-  "experienceText": "Experience premium media playback without buffering. Optimized for all high-end Smart TVs.",
-  "freeTrial": "7-DAY FREE TRIAL",
-  "tutorial": "Tutorial",
   "login": "Login",
   "disclaimerHeading": "WARNING",
   "disclaimerText1": "Wiseplayer is an independent multimedia player application. We are not affiliated with unauthorized websites using our brand to sell IPTV services. We do not provide, host, or sell any multimedia content, subscription, or channel package.",
@@ -306,5 +302,109 @@
     "activationFailed": "Activation Failed",
     "macPlaceholder": "00:00:00:00:00:00",
     "footer": "Wise Player · All Rights Reserved"
+  },
+  "home": {
+    "headExperienceText": "Experience premium media playback without buffering. Optimized for all high-end Smart TVs.",
+    "features": [
+      {
+        "title": "Hyper Speed",
+        "desc": "C++ engine optimized for ultra-fast loading."
+      },
+      {
+        "title": "Secure Stream",
+        "desc": "Management of encrypted playlist for your private viewing."
+      },
+      {
+        "title": "Native 4K",
+        "desc": "Support for true 4K and 8K resolution for OLED screens."
+      }
+    ],
+     "system_online": "SYSTEM ONLINE V2.0",
+
+    "type_ultra_fast": "Ultra Fast",
+    "type_crystal_clear": "Crystal Clear",
+    "type_wise_player": "Wise Player",
+
+    "brand_name": "Wise Player",
+    "ready_to_stream": "Ready to Stream",
+
+    "brand_small": "Wise",
+    "brand_big": "Player",
+    "brand_upper": "WISEPLAYER",
+
+    "plans": "PLANS",
+    "choose_access": "Choose Your Access",
+    "days_access": "Days Access",
+    "instant_activation": "Instant Activation",
+
+    "faq_title": "Frequently Asked",
+    "still_questions": "Still have questions?",
+    "still_questions_desc": "Join thousands of users enjoying the best streaming experience.",
+    "contact_support": "Contact Support",
+
+    "instagram": "Instagram",
+    "twitter": "Twitter",
+
+    "mac_placeholder": "00:1A:79:XX:XX:XX",
+    "futureIs": "The Future is",
+    "experienceText": "Experience next level streaming with ultra performance.",
+    "freeTrial": "Free Trial",
+    "tutorial": "Tutorial",
+
+    "disclaimerHeading": "Disclaimer",
+    "disclaimerText1": "Wise Player does not host any content.",
+    "disclaimerPoint1": "We are not responsible for content",
+    "disclaimerPoint2": "Users must comply with laws",
+    "disclaimerPoint3": "Third-party sources only",
+    "disclaimerPoint4": "No copyrighted material stored",
+
+    "featureHeadingParent": "FEATURES",
+    "featureHeadingChild": "Why Choose Us",
+
+    "cta_dive_in": "Ready to Dive In?",
+    "cta_trial_text": "Start your free trial today",
+
+    "check_status": "Check Status",
+    "proceed_payment": "Proceed to Payment",
+    "activate_now": "Activate Now",
+    "cancel": "Cancel",
+    "try_another_mac": "Try Another MAC",
+
+    "device_activation": "Device Activation",
+    "enter_mac_desc": "Enter your device MAC address to continue",
+    "enter_mac": "Enter MAC Address",
+    "invalid_mac": "Invalid MAC format (AA:BB:CC:DD:EE:FF)",
+
+    "status_active": "Status: ACTIVE",
+    "status_inactive": "Status: INACTIVE",
+
+    "faq_mac_title": "What is a MAC address?",
+    "faq_mac_answer": "A MAC address is a unique device identifier.",
+    "faq_transfer_title": "Can I transfer my plan?",
+    "faq_transfer_answer": "No, plans are device-specific.",
+
+    "footerBrandText": "Best streaming experience platform.",
+    "support": "Support",
+    "reseller": "Reseller",
+    "customerSupport": "Customer Support",
+    "privacyPolicy": "Privacy Policy",
+    "refundPolicy": "Refund Policy",
+    "socialMedia": "Social Media",
+    "beyondTheScreen": "Beyond the Screen",
+  "headFreeTrial": "7-DAY FREE TRIAL",
+  "headTutorial": "Tutorial"
+  
+  },
+
+  "common": {
+    "something_wrong": "Something went wrong"
+  },
+
+  "api": {
+    "device_not_found": "Device not found",
+    "invalid_device": "Invalid device",
+    "payment_failed": "Payment failed",
+    "something_wrong": "Something went wrong",
+     "plans_error": "Unable to load plans"
   }
 }

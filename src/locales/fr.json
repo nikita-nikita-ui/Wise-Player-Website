@@ -4,7 +4,6 @@
   "nav_activation": "Activation",
   "nav_reseller": "Revendeur",
   "nav_contact": "Contact",
-  "home": "Accueil",
   "uploadList": "Liste de téléchargement",
   "reseller": "Revendeur",
   "contact": "Contact",
@@ -306,6 +305,96 @@
     "macPlaceholder": "00:00:00:00:00:00",
     "footer": "Wise Player · Tous droits réservés",
     "goToHome": "Aller à l'accueil"
+  },
+  "home": {
+     "headExperienceText": "Profitez d’une lecture multimédia premium sans mise en mémoire tampon. Optimisé pour tous les Smart TV haut de gamme.",
+    "features": [
+      { "title": "Vitesse Ultra", "desc": "Moteur C++ optimisé pour un chargement ultra rapide." },
+      { "title": "Streaming Sécurisé", "desc": "Gestion de playlists chiffrées pour un usage privé." },
+      { "title": "4K Native", "desc": "Prise en charge de la 4K et 8K réelles pour écrans OLED." }
+    ],
+    "system_online": "SYSTÈME EN LIGNE V2.0",
+
+    "type_ultra_fast": "Ultra Rapide",
+    "type_crystal_clear": "Clarté Cristalline",
+    "type_wise_player": "Wise Player",
+
+    "brand_name": "Wise Player",
+    "ready_to_stream": "Prêt à diffuser",
+
+    "brand_small": "Wise",
+    "brand_big": "Player",
+    "brand_upper": "WISEPLAYER",
+
+    "plans": "PLANS",
+    "choose_access": "Choisissez votre accès",
+    "days_access": "Jours d'accès",
+    "instant_activation": "Activation instantanée",
+
+    "faq_title": "Questions fréquentes",
+    "still_questions": "Encore des questions ?",
+    "still_questions_desc": "Rejoignez des milliers d'utilisateurs.",
+    "contact_support": "Contacter le support",
+
+    "instagram": "Instagram",
+    "twitter": "Twitter",
+
+    "mac_placeholder": "00:1A:79:XX:XX:XX",
+    "futureIs": "Le futur est",
+    "experienceText": "Streaming nouvelle génération avec performance ultra.",
+    "freeTrial": "Essai gratuit",
+    "tutorial": "Tutoriel",
+
+    "disclaimerHeading": "Avertissement",
+    "disclaimerText1": "Wise Player n'héberge aucun contenu.",
+    "disclaimerPoint1": "Nous ne sommes pas responsables du contenu",
+    "disclaimerPoint2": "Les utilisateurs doivent respecter les lois",
+    "disclaimerPoint3": "Sources tierces uniquement",
+    "disclaimerPoint4": "Aucun contenu protégé stocké",
+
+    "featureHeadingParent": "FONCTIONNALITÉS",
+    "featureHeadingChild": "Pourquoi nous choisir",
+
+    "cta_dive_in": "Prêt à commencer ?",
+    "cta_trial_text": "Commencez votre essai gratuit aujourd’hui",
+
+    "check_status": "Vérifier le statut",
+    "proceed_payment": "Procéder au paiement",
+    "activate_now": "Activer maintenant",
+    "cancel": "Annuler",
+    "try_another_mac": "Essayer une autre MAC",
+
+    "device_activation": "Activation de l'appareil",
+    "enter_mac_desc": "Entrez l'adresse MAC pour continuer",
+    "enter_mac": "Entrer adresse MAC",
+    "invalid_mac": "Format MAC invalide",
+
+    "status_active": "Statut : ACTIF",
+    "status_inactive": "Statut : INACTIF",
+
+    "faq_mac_title": "Qu'est-ce qu'une adresse MAC ?",
+    "faq_mac_answer": "Identifiant unique de l'appareil.",
+    "faq_transfer_title": "Puis-je transférer mon plan ?",
+    "faq_transfer_answer": "Non, lié à l’appareil.",
+
+    "footerBrandText": "Meilleure plateforme de streaming.",
+    "support": "Support",
+    "reseller": "Revendeur",
+    "customerSupport": "Support client",
+    "privacyPolicy": "Politique de confidentialité",
+    "refundPolicy": "Politique de remboursement",
+    "socialMedia": "Réseaux sociaux",
+    "beyondTheScreen": "Au-delà de l'écran",
+  "headFreeTrial": "ESSAI GRATUIT 7 JOURS",
+  "headTutorial": "Tutoriel"
+  },
+  "common": { "something_wrong": "Une erreur s'est produite" },
+  "api": {
+    "device_not_found": "Appareil non trouvé",
+    "invalid_device": "Appareil invalide",
+    "payment_failed": "Échec du paiement",
+    "something_wrong": "Une erreur s'est produite",
+    "plans_error": "Impossible de charger les offres"
   }
 
 }

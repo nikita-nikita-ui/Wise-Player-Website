@@ -36,5 +36,98 @@
     "macPlaceholder": "00:00:00:00:00:00",
     "footer": "Wise Player · Tutti i diritti riservati",
     "goToHome": "Vai alla home"
+  },
+  
+  "home": {
+    "headExperienceText": "Riproduzione premium senza buffering. Ottimizzato per Smart TV di fascia alta.",
+    "features": [
+      { "title": "Alta Velocità", "desc": "Motore C++ ottimizzato per caricamenti rapidi." },
+      { "title": "Streaming Sicuro", "desc": "Gestione playlist criptate." },
+      { "title": "4K Nativo", "desc": "Supporto reale 4K e 8K per OLED." }
+    ],
+    "system_online": "SISTEMA ONLINE V2.0",
+
+    "type_ultra_fast": "Ultra Veloce",
+    "type_crystal_clear": "Cristallino",
+    "type_wise_player": "Wise Player",
+
+    "brand_name": "Wise Player",
+    "ready_to_stream": "Pronto allo streaming",
+
+    "brand_small": "Wise",
+    "brand_big": "Player",
+    "brand_upper": "WISEPLAYER",
+
+    "plans": "PIANI",
+    "choose_access": "Scegli accesso",
+    "days_access": "Giorni accesso",
+    "instant_activation": "Attivazione istantanea",
+
+    "faq_title": "Domande frequenti",
+    "still_questions": "Hai domande?",
+    "still_questions_desc": "Unisciti a migliaia di utenti.",
+    "contact_support": "Contatta supporto",
+
+    "instagram": "Instagram",
+    "twitter": "Twitter",
+
+    "mac_placeholder": "00:1A:79:XX:XX:XX",
+    "futureIs": "Il futuro è",
+    "experienceText": "Streaming avanzato con alte prestazioni.",
+    "freeTrial": "Prova gratis",
+    "tutorial": "Guida",
+
+    "disclaimerHeading": "Disclaimer",
+    "disclaimerText1": "Wise Player non ospita contenuti.",
+    "disclaimerPoint1": "Non responsabili dei contenuti",
+    "disclaimerPoint2": "Rispettare le leggi",
+    "disclaimerPoint3": "Solo terze parti",
+    "disclaimerPoint4": "Nessun contenuto protetto",
+
+    "featureHeadingParent": "FEATURES",
+    "featureHeadingChild": "Perché sceglierci",
+
+    "cta_dive_in": "Pronto?",
+    "cta_trial_text": "Inizia la prova oggi",
+
+    "check_status": "Controlla stato",
+    "proceed_payment": "Vai al pagamento",
+    "activate_now": "Attiva ora",
+    "cancel": "Annulla",
+    "try_another_mac": "Prova altro MAC",
+
+    "device_activation": "Attivazione dispositivo",
+    "enter_mac_desc": "Inserisci MAC",
+    "enter_mac": "Inserisci MAC",
+    "invalid_mac": "Formato MAC non valido",
+
+    "status_active": "Stato: ATTIVO",
+    "status_inactive": "Stato: INATTIVO",
+
+    "faq_mac_title": "Cos'è MAC?",
+    "faq_mac_answer": "Identificatore unico.",
+    "faq_transfer_title": "Trasferire piano?",
+    "faq_transfer_answer": "No.",
+
+    "footerBrandText": "Miglior piattaforma streaming.",
+    "support": "Supporto",
+    "reseller": "Rivenditore",
+    "customerSupport": "Assistenza",
+    "privacyPolicy": "Privacy",
+    "refundPolicy": "Rimborso",
+    "socialMedia": "Social",
+    "beyondTheScreen": "Oltre lo schermo",
+     "headFreeTrial": "PROVA GRATIS 7 GIORNI",
+  "headTutorial": "Guida"
+
+  },
+  "common": { "something_wrong": "Errore" },
+  "api": {
+    "device_not_found": "Dispositivo non trovato",
+    "invalid_device": "Dispositivo non valido",
+    "payment_failed": "Pagamento fallito",
+    "something_wrong": "Errore",
+    "plans_error": "Impossibile caricare piani"
   }
+
 }
