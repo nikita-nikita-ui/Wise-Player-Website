@@ -119,296 +119,282 @@ function RequestManagement() {
 
   const maroonMain = "#800000";
 
-  return (
-    <div style={{ padding: "20px" }}>
-      {/* HEADER (UI from first file) */}
-      <div style={header}>
-        <h3 className="fw-bold m-0" style={{ color: maroonMain }}>
-          Request Management
-        </h3>
+ return (
+  <div className="p-4 space-y-6">
 
-        <button style={primaryBtn} onClick={() => setShowModal(true)}>
-          <Plus size={16} /> New Request
+    {/* HEADER */}
+    <div className="flex justify-between items-center">
+      <h2 className="text-lg font-semibold text-[#800000]">
+        Request Management
+      </h2>
+
+      <button
+        onClick={() => setShowModal(true)}
+        className="flex items-center gap-2 bg-[#800000] text-white px-4 py-2 rounded-lg text-sm hover:opacity-90"
+      >
+        <Plus size={16} /> New Request
+      </button>
+    </div>
+
+    {/* FILTER */}
+    <div className="flex gap-2 flex-wrap">
+      {["All", "Pending", "Approved", "Rejected"].map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setFilter(tab)}
+          className={`px-3 py-1 rounded-md text-sm transition ${
+            filter === tab
+              ? "bg-black text-white"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          {tab}
         </button>
-      </div>
+      ))}
+    </div>
 
-      {/* FILTER (same style as first) */}
-      <div style={{ margin: "20px 0" }}>
-        {["All", "Pending", "Approved", "Rejected"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            style={{
-              ...filterBtn,
-              background: filter === tab ? "#333" : "#eee",
-              color: filter === tab ? "#fff" : "#000",
-            }}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* TABLE (styled like first) */}
-      <table className="table table-bordered">
-        <thead>
+    {/* DESKTOP TABLE */}
+    <div className="hidden md:block bg-white rounded-xl shadow border overflow-x-auto">
+      <table className="min-w-full text-sm">
+        <thead className="bg-gray-100 text-xs uppercase text-gray-600">
           <tr>
-            <th>Device Id</th>
-            <th>Reseller Id</th>
-            <th>Plan Name</th>
-            <th>Credits Used</th>
-            <th>Created At</th>
-            <th>Status</th>
+            <th className="px-4 py-3 text-center">Device ID</th>
+            <th className="px-4 py-3 text-center">Reseller ID</th>
+            <th className="px-4 py-3 text-center">Plan</th>
+            <th className="px-4 py-3 text-center">Credits</th>
+            <th className="px-4 py-3 text-center">Created</th>
+            <th className="px-4 py-3 text-center">Status</th>
           </tr>
         </thead>
 
         <tbody>
-          {filteredRequests.length > 0 ? (
+          {currentRequests.length > 0 ? (
             currentRequests.map((req) => (
-              <tr key={req.id}>
-                <td>
-                  <div style={{ ...cellFlex, position: "relative" }}>
-                    <span style={ellipsis} title={req.deviceId}>
-                      {req.deviceId}
+              <tr key={req.id} className="border-t text-center">
+
+                {/* DEVICE */}
+                <td className="px-4 py-3">
+                  <div className="flex justify-center gap-2 items-center">
+                    <span
+                      className="text-blue-600 cursor-pointer"
+                      title={req.deviceId}
+                    >
+                      {req.deviceId.slice(0, 8)}...
                     </span>
 
                     <button
                       onClick={() =>
                         copyToClipboard(req.deviceId, req.id, "device")
                       }
-                      className="text-blue-500 text-xs border px-2 py-1 rounded"
+                      className="text-xs border px-2 py-1 rounded hover:bg-blue-50"
                     >
-                      <IoCopyOutline />
+                      Copy
                     </button>
 
-                    {copied.id === req.id && copied.field === "device" && (
-                      <div className="absolute top-[-25px] left-0 bg-black text-white text-xs px-2 py-1 rounded">
-                        Copied!
-                      </div>
-                    )}
+                    {copied.id === req.id &&
+                      copied.field === "device" && (
+                        <span className="absolute mt-[-30px] bg-black text-white text-[10px] px-2 py-1 rounded">
+                          Copied!
+                        </span>
+                      )}
                   </div>
                 </td>
 
+                {/* RESELLER */}
                 <td>
-                  <div style={{ ...cellFlex, position: "relative" }}>
-                    <span style={ellipsis} title={req.resellerId}>
-                      {req.resellerId}
+                  <div className="flex justify-center gap-2 items-center">
+                    <span title={req.resellerId}>
+                      {req.resellerId?.slice(0, 8)}...
                     </span>
 
                     <button
                       onClick={() =>
                         copyToClipboard(req.resellerId, req.id, "reseller")
                       }
-                      className="text-blue-500 text-xs border px-2 py-1 rounded"
+                      className="text-xs border px-2 py-1 rounded hover:bg-blue-50"
                     >
-                      <IoCopyOutline />
+                      Copy
                     </button>
-
-                    {copied.id === req.id && copied.field === "reseller" && (
-                      <div className="absolute top-[-25px] left-0 bg-black text-white text-xs px-2 py-1 rounded">
-                        Copied!
-                      </div>
-                    )}
                   </div>
                 </td>
 
                 <td>{req.planName}</td>
-                <td>{req.creditsUsed ?? "N/A"}</td>
+                <td>{req.creditsUsed ?? "-"}</td>
                 <td>{req.createdAt}</td>
 
+                {/* STATUS */}
                 <td>
-                  {req.status === "PENDING" && (
-                    <span style={{ color: "orange" }}>Pending</span>
-                  )}
-                  {req.status === "APPROVED" && (
-                    <span style={{ color: "green" }}>Approved</span>
-                  )}
-                  {req.status === "REJECTED" && (
-                    <span style={{ color: "red" }}>Rejected</span>
-                  )}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      req.status === "PENDING"
+                        ? "bg-yellow-100 text-yellow-600"
+                        : req.status === "APPROVED"
+                        ? "bg-green-100 text-green-600"
+                        : "bg-red-100 text-red-600"
+                    }`}
+                  >
+                    {req.status}
+                  </span>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="6">
-                <div className="text-center text-gray-500 py-3">
-                  No Data Found
-                </div>
+              <td colSpan="6" className="py-6 text-center">
+                No Data Found
               </td>
             </tr>
           )}
         </tbody>
       </table>
-      {totalPages > 1 && (
-        <div className="d-flex justify-content-center align-items-center gap-3 p-3 flex-wrap">
+    </div>
 
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            className="btn btn-sm btn-outline-dark"
+    {/* MOBILE CARDS */}
+    <div className="md:hidden space-y-4">
+      {currentRequests.length > 0 ? (
+        currentRequests.map((req) => (
+          <div
+            key={req.id}
+            className="bg-white p-4 rounded-xl shadow"
           >
-            Prev
-          </button>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-semibold text-blue-600">
+                {req.deviceId.slice(0, 6)}...
+              </span>
 
-          <span style={{ fontWeight: "500" }}>
-            Page {currentPage} of {totalPages}
-          </span>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  req.status === "PENDING"
+                    ? "bg-yellow-100 text-yellow-600"
+                    : req.status === "APPROVED"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-red-100 text-red-600"
+                }`}
+              >
+                {req.status}
+              </span>
+            </div>
 
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="btn btn-sm btn-outline-dark"
-          >
-            Next
-          </button>
-
-        </div>
-      )}
-      {/* MODAL (styled like first file) */}
-      <AnimatePresence>
-        {showModal && (
-          <div style={overlay}>
-            <motion.div
-              initial={{ y: 50 }}
-              animate={{ y: 0 }}
-              exit={{ y: 50 }}
-              style={modal}
-            >
-              <h3 style={{ color: maroonMain, fontWeight: "600" }}>
-                Submit Request
-              </h3>
-
-              {apiError && <p style={errorText}>{apiError}</p>}
-
-              <form onSubmit={handleSubmit}>
-                <input
-                  placeholder="Device ID"
-                  value={newRequest.deviceId}
-                  onChange={(e) =>
-                    setNewRequest({ ...newRequest, deviceId: e.target.value })
-                  }
-                  style={input}
-                />
-
-                <select
-                  value={newRequest.planName}
-                  onChange={(e) =>
-                    setNewRequest({ ...newRequest, planName: e.target.value })
-                  }
-                  style={input}
-                >
-                  <option value="">Select Plan</option>
-                  {tiers.map((t, i) => (
-                    <option key={i} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button type="submit" style={{ ...primaryBtn, flex: 1 }}>
-                    Submit
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    style={cancelBtn}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+            <div className="text-sm text-gray-500 mt-2 space-y-1">
+              <p>Reseller: {req.resellerId}</p>
+              <p>Plan: {req.planName}</p>
+              <p>Credits: {req.creditsUsed ?? "-"}</p>
+              <p>Created: {req.createdAt}</p>
+            </div>
           </div>
+        ))
+      ) : (
+        <p className="text-center">No Requests</p>
+      )}
+    </div>
+
+    {/* PAGINATION */}
+    {totalPages > 1 && (
+      <div className="flex justify-center items-center gap-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((p) => p - 1)}
+          className="border px-3 py-1 rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span className="text-sm">
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((p) => p + 1)}
+          className="border px-3 py-1 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    )}
+    <AnimatePresence>
+  {showModal && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 40 }}
+        transition={{ duration: 0.25 }}
+        className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6"
+      >
+        {/* TITLE */}
+        <h3 className="text-lg font-semibold text-[#800000] mb-4">
+          Submit Request
+        </h3>
+
+        {/* ERROR */}
+        {apiError && (
+          <p className="text-red-500 text-sm mb-3">{apiError}</p>
         )}
-      </AnimatePresence>
+
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* DEVICE ID */}
+          <input
+            type="text"
+            placeholder="Device ID"
+            value={newRequest.deviceId}
+            onChange={(e) =>
+              setNewRequest({
+                ...newRequest,
+                deviceId: e.target.value,
+              })
+            }
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#800000]"
+          />
+
+          {/* PLAN */}
+          <select
+            value={newRequest.planName}
+            onChange={(e) =>
+              setNewRequest({
+                ...newRequest,
+                planName: e.target.value,
+              })
+            }
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#800000]"
+          >
+            <option value="">Select Plan</option>
+            {tiers.map((t, i) => (
+              <option key={i} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+
+          {/* BUTTONS */}
+          <div className="flex gap-3 pt-2">
+            <button
+              type="submit"
+              className="flex-1 bg-[#800000] text-white py-2 rounded-lg text-sm hover:opacity-90"
+            >
+              Submit
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="flex-1 bg-gray-200 py-2 rounded-lg text-sm hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </motion.div>
+    </div>
+  )}
+</AnimatePresence>
     </div>
   );
 }
 
-/* ================= UI STYLES (from first file) ================= */
-
-const maroonMain = "#800000";
-
-const header = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const primaryBtn = {
-  background: maroonMain,
-  color: "#fff",
-  padding: "8px 14px",
-  border: "none",
-  borderRadius: "6px",
-  cursor: "pointer",
-  display: "flex",
-  gap: "6px",
-  alignItems: "center",
-};
-
-const cancelBtn = {
-  flex: 1,
-  background: "#e5e7eb",
-  borderRadius: "8px",
-  padding: "8px",
-  cursor: "pointer",
-  border: "none",
-};
-
-const filterBtn = {
-  marginRight: "10px",
-  padding: "6px 12px",
-  borderRadius: "6px",
-  border: "none",
-  cursor: "pointer",
-};
-
-const overlay = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0,0,0,0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const modal = {
-  background: "#fff",
-  padding: "20px",
-  borderRadius: "10px",
-  width: "400px",
-};
-
-const input = {
-  width: "100%",
-  padding: "10px",
-  margin: "10px 0",
-  border: "1px solid #ccc",
-  borderRadius: "6px",
-};
-
-const errorText = {
-  color: "red",
-  fontSize: "14px",
-};
-
-const cellFlex = {
-  display: "flex",
-  alignItems: "center",
-  gap: "6px",
-};
-
-const ellipsis = {
-  maxWidth: "120px",
-  display: "inline-block",
-  overflow: "hidden",
-  whiteSpace: "nowrap",
-  textOverflow: "ellipsis",
-  cursor: "pointer",
-};
 
 export default RequestManagement;
